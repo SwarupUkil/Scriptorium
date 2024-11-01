@@ -1,0 +1,12 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+# Ignore IntelliJ specific IDE files
+.idea/
+
+# Prisma database files (using SQLite)
+prisma/*.db
+
+# Prisma client (generated files)
+prisma/client
