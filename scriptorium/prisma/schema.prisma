@@ -41,9 +41,13 @@ model Template {
   explanation String?
   tags        String
   privacy     String  @default("PRIVATE")
+  forkedFrom  Int?
   blogs       Blog[]
 
   user User @relation(fields: [uid], references: [id], onDelete: Cascade)
+
+  forkedTemplates Template?  @relation("TemplateForks", fields: [forkedFrom], references: [id])
+  forks           Template[] @relation("TemplateForks")
 }
 
 model Post {
@@ -58,6 +62,7 @@ model Post {
 
   blog    Blog?
   comment Comment?
+  type    String
   reports Report[]
   ratings Rating[]
 }
@@ -98,6 +103,7 @@ model Report {
   postId      Int
   uId         Int
   explanation String
+  value       Int
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [uId], references: [id])
