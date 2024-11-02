@@ -12,3 +12,93 @@ datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
+
+model User {
+  id          Int     @id @default(autoincrement())
+  username    String  @unique
+  password    String
+  type        String  @default("USER")
+  firstName   String
+  lastName    String
+  email       String  @unique
+  pfpURL      String?
+  phoneNumber String?
+  theme       String  @default("LIGHT")
+
+  templates Template[]
+  comments  Comment[]
+  posts     Post[]
+  ratings   Rating[]
+  reports   Report[]
+}
+
+model Template {
+  id          Int     @id @default(autoincrement())
+  uid         Int
+  code        String
+  language    String
+  title       String
+  explanation String?
+  tags        String
+  privacy     String  @default("PRIVATE")
+  blogs       Blog[]
+
+  user User @relation(fields: [uid], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id      Int       @id @default(autoincrement())
+  rating  Int
+  uid     Int?
+  replies Comment[] @relation("PostReplies")
+  content String
+  flagged Boolean   @default(false)
+
+  user User? @relation(fields: [uid], references: [id], onDelete: SetNull)
+
+  blog    Blog?
+  comment Comment?
+  reports Report[]
+  ratings Rating[]
+}
+
+model Blog {
+  id     Int    @id @default(autoincrement())
+  postId Int    @unique
+  title  String
+  tags   String
+
+  post Post @relation(fields: [postId], references: [id])
+
+  templates Template[]
+}
+
+model Comment {
+  postId   Int  @id
+  parentId Int  @unique
+  parent   Post @relation("PostReplies", fields: [parentId], references: [id])
+  post     Post @relation(fields: [postId], references: [id])
+
+  user User[]
+}
+
+model Rating {
+  id     Int @id @default(autoincrement())
+  uId    Int
+  postId Int
+
+  user User @relation(fields: [uId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([uId, postId])
+}
+
+model Report {
+  id          Int    @id @default(autoincrement())
+  postId      Int
+  uId         Int
+  explanation String
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [uId], references: [id])
+}
