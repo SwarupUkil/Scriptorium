@@ -80,8 +80,9 @@ model Blog {
 }
 
 model Comment {
-  postId   Int  @id
-  parentId Int  @unique
+  id       Int  @id @default(autoincrement())
+  postId   Int  @unique
+  parentId Int
   parent   Post @relation("PostReplies", fields: [parentId], references: [id])
   post     Post @relation(fields: [postId], references: [id])
 
