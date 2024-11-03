@@ -1,4 +1,5 @@
 import {prisma} from "../../../../utils/db";
+import sanitizePagination from "../../../../utils/paginationHelper";
 
 // Handler will give a generic list of IDs and titles of blogs.
 export default async function handler(req, res) {
@@ -13,12 +14,7 @@ export default async function handler(req, res) {
     // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
     const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.body;
 
-    const skipAmount = Number(skip)
-    const takeAmount = Number(skip)
-
-    if (isNaN(skipAmount) || isNaN(takeAmount)) {
-        return res.status(400).json({message: "Skip and Take values must be specified as an integer"});
-    }
+    const paginate = sanitizePagination(skip, take);
 
     if (typeof blogTags !== "undefined" && typeof blogTags !== "string") {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
@@ -66,8 +62,8 @@ export default async function handler(req, res) {
                     },
                 },
             },
-            skip: skip,
-            take: take,
+            skip: paginate.skip,
+            take: paginate.take,
             orderBy: {[sortingBy] : order},
         });
 
@@ -76,8 +72,13 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: "No blog was found. Try loosening your search and check spelling.", isEmpty: true });
         }
 
+        const response = {
+            data: blogs, // Array of objects (e.g., comments or posts)
+            message: paginate.message || null, // Message only included if there's a warning or note
+        };
+
         // Return identified blog data.
-        return res.status(200).json(blogs);
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(400).json({ message: "An error occurred while retrieving the blogs" });
     }

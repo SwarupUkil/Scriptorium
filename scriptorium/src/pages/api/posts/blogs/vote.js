@@ -1,5 +1,5 @@
 import {prisma} from "../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../utils/auth";
+import { verifyTokenMiddleware } from "../../../../utils/auth";
 
 // Handler will update the vote (upvote/downvote) from a user on a blog
 async function handler(req, res){

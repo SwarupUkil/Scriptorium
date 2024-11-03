@@ -1,5 +1,5 @@
 import {prisma} from "../../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../utils/auth";
+import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
 
 // Handler will attempt to create a new blog posting.
