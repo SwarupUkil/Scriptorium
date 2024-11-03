@@ -1,26 +1,17 @@
-import prisma from "../../../../../utils/database";
-import { verifyToken } from "../../../../../utils/auth";
+import {prisma} from "../../../../../utils/db";
+import { verifyTokenMiddleware } from "../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
 
 // Handler will attempt to create a new blog posting.
-export default async function handler(req, res) {
+async function handler(req, res) {
 
-    const user = verifyToken(req.headers.authorization);
+    const user = req.user;
 
     if (req.method !== "POST") {
         return res.status(405).send({message: "Method not allowed"})
     }
 
-    if (!user) {
-        return res.status(401).json({message: "Unauthorized"});
-    }
-
-    const { id, type } = user;
-
-    if (type !== "USER") {
-        return res.status(401).json({message: "Unauthorized"});
-    }
-
+    const { id } = user;
     const { title, description, tags, templates } = req.body;
 
     //  Limit user blog data:
@@ -103,3 +94,5 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: "An error occurred while creating the blog" });
     }
 }
+
+export default verifyTokenMiddleware(handler, "USER");

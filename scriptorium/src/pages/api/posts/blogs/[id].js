@@ -1,4 +1,4 @@
-import prisma from "../../../../utils/database";
+import {prisma} from "../../../../utils/db";
 
 // Handler will return a specified blog post to client.
 export default async function handler(req, res) {

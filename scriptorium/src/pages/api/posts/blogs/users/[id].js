@@ -1,9 +1,9 @@
-import prisma from "../../../../../utils/database";
-import { verifyToken } from "../../../../../utils/auth";
+import {prisma} from "../../../../../utils/db";
+import { verifyTokenMiddleware } from "../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
 
 // Handler will return a specified blog post to client.
-export default async function handler(req, res) {
+async function handler(req, res) {
 
     const { id } = req.query;
     const blogId = Number(id);
@@ -16,19 +16,9 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Invalid ID: not a number" });
     }
 
-    // Authorization validation
-    const user = verifyToken(req.headers.authorization);
 
-    if (!user) {
-        return res.status(401).json({message: "Unauthorized"});
-    }
-
+    const user = req.user;
     const userId = user.id;
-    const userType = user.type;
-
-    if (userType !== "USER") {
-        return res.status(401).json({message: "Unauthorized"});
-    }
 
     const { title, description, tags, templates } = req.body;
 
@@ -176,3 +166,5 @@ export default async function handler(req, res) {
         }
     }
 }
+
+export default verifyTokenMiddleware(handler, "USER");

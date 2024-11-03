@@ -1,4 +1,4 @@
-import prisma from "../../../../utils/database";
+import {prisma} from "../../../../utils/db";
 
 // Handler will give a generic list of IDs and titles of blogs.
 export default async function handler(req, res) {

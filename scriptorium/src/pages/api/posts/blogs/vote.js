@@ -1,19 +1,15 @@
-import prisma from "../../../../utils/database";
-import { verifyToken } from "../../../../utils/auth";
+import {prisma} from "../../../../utils/db";
+import { verifyTokenMiddleware } from "../../../utils/auth";
 
 // Handler will update the vote (upvote/downvote) from a user on a blog
-export default async function handler(req, res){
+async function handler(req, res){
 
     const postId = req.body.id;
     const rating = Number(req.body.rating)
-    const user = verifyToken(req.headers.authorization);
+    const user = req.user;
 
     if (req.method !== "PUT") {
         return res.status(405).send({message: "Method not allowed"})
-    }
-
-    if (!user) {
-        return res.status(401).json({message: "Unauthorized"});
     }
 
     if (!postId || !req.body.rating) {
@@ -24,11 +20,7 @@ export default async function handler(req, res){
         return res.status(401).json({message: "Rating must be given as either: -1, 0, 1"});
     }
 
-    const { id, type } = user;
-
-    if (type !== "USER") {
-        return res.status(401).json({message: "Unauthorized"});
-    }
+    const { id } = user;
 
     try {
         // Check and retrieve the current rating the user has given.
@@ -85,3 +77,5 @@ export default async function handler(req, res){
         return res.status(400).json({ message: "An error occurred while up/down voting the blog" });
     }
 }
+
+export default verifyTokenMiddleware(handler, "USER");
