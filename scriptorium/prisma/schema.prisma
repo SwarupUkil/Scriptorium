@@ -91,6 +91,7 @@ model Rating {
   id     Int @id @default(autoincrement())
   uId    Int
   postId Int
+  value  Int @default(0)
 
   user User @relation(fields: [uId], references: [id])
   post Post @relation(fields: [postId], references: [id])

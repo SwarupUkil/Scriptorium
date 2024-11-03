@@ -1,5 +1,6 @@
 import prisma from "../../../../utils/database";
 
+// Handler will return a specified blog post to client.
 export default async function handler(req, res) {
 
     const { id } = req.query;
