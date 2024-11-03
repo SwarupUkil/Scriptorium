@@ -52,7 +52,7 @@ model Template {
 
 model Post {
   id      Int       @id @default(autoincrement())
-  rating  Int
+  rating  Int       @default(0)
   uid     Int?
   replies Comment[] @relation("PostReplies")
   content String

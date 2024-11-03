@@ -3,14 +3,25 @@ import prisma from "../../../../utils/database";
 // Handler will give a generic list of IDs and titles of blogs.
 export default async function handler(req, res) {
 
-    // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.body;
+    if (req.method !== "GET") {
+        res.status(405).json({message: "Method not allowed"});
+    }
 
     const sortingBy = "rating";
     const order = "asc";
 
-    if (req.method !== "GET") {
-        res.status(405).json({message: "Method not allowed"});
+    // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
+    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.body;
+
+    const skipAmount = Number(skip)
+    const takeAmount = Number(skip)
+
+    if (isNaN(skipAmount) || isNaN(takeAmount)) {
+        return res.status(400).json({message: "Skip and Take values must be specified as an integer"});
+    }
+
+    if (typeof blogTags !== "undefined" && typeof blogTags !== "string") {
+        return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
     try {
