@@ -34,6 +34,7 @@ export default async function handler(req, res) {
                 post: {
                     content: desiredContent ? {contains: desiredContent, mode: "insensitive"} : undefined,
                     flagged: false,
+                    deleted: false,
                 },
                 tags: blogTags ? {contains: blogTags, mode: "insensitive"} : undefined,
 
@@ -52,6 +53,7 @@ export default async function handler(req, res) {
                         rating: true,
                         content: true,
                         flagged: true,
+                        deleted: true,
                     },
                 },
 

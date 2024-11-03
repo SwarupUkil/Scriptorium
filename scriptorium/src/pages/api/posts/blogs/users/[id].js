@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const userId = user.id;
     const userType = user.type;
 
-    if (userType !== "USER" && userType !== "ADMIN") {
+    if (userType !== "USER") {
         return res.status(401).json({message: "Unauthorized"});
     }
 

@@ -1,6 +1,8 @@
 import prisma from "../../../../../utils/database";
 import { verifyToken } from "../../../../../utils/auth";
+import validateTags from "../../../../../utils/validateTags";
 
+// Handler will attempt to create a new blog posting.
 export default async function handler(req, res) {
 
     const user = verifyToken(req.headers.authorization);
@@ -15,11 +17,11 @@ export default async function handler(req, res) {
 
     const { id, type } = user;
 
-    if (type !== "USER" && type === "ADMIN") {
+    if (type !== "USER") {
         return res.status(401).json({message: "Unauthorized"});
     }
 
-    const { title, description, tags, templates } = user;
+    const { title, description, tags, templates } = req.body;
 
     //  Limit user blog data:
     //      title: must be given, max 100 chars
@@ -34,12 +36,20 @@ export default async function handler(req, res) {
         return res.status(400).json({message: "Title is too large"});
     }
 
+    if (description.length > 3000) {
+        return res.status(400).json({message: "Description is too large"});
+    }
+
     if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given following CSV notation"});
+        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
     }
 
     if (!tags && tags.length > 100) {
         return res.status(400).json({message: "Too many tags, shorten to less then 100 characters in CSV form"});
+    }
+
+    if (!tags && !validateTags(tags)) {
+        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
     }
 
     if (!templates && !Array.isArray(templates)) {
@@ -74,6 +84,7 @@ export default async function handler(req, res) {
                 return res.status(400).json({message: "Templates array must contain only integers"});
             }
 
+            // IMPORTANT: blogs in User table contains blog.id, not blog.postId!
             const updatedTemplate = await prisma.template.update({
                 where: {
                     id: template,

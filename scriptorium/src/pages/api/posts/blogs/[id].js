@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== "GET") {
-        res.status(405).json({message: "Method not allowed"});
+        return res.status(405).json({message: "Method not allowed"});
     } else {
 
         // Blog data is seperated into two tables: Post (parent table) and Blog.
@@ -29,6 +29,7 @@ export default async function handler(req, res) {
                     replies: true,
                     content: true,
                     flagged: true,
+                    deleted: true,
                 },
             });
 
