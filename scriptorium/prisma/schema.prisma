@@ -57,6 +57,7 @@ model Post {
   replies Comment[] @relation("PostReplies")
   content String
   flagged Boolean   @default(false)
+  deleted Boolean   @default(false)
 
   user User? @relation(fields: [uid], references: [id], onDelete: SetNull)
 
