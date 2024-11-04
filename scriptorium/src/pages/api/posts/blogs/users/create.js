@@ -5,12 +5,11 @@ import validateTags from "../../../../../utils/validateTags";
 // Handler will attempt to create a new blog posting.
 async function handler(req, res) {
 
-    const user = req.user;
-
     if (req.method !== "POST") {
         return res.status(405).send({message: "Method not allowed"})
     }
 
+    const user = req.user;
     const { id } = user;
     const { title, description, tags, templates } = req.body;
 
