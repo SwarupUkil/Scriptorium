@@ -99,10 +99,12 @@ model Rating {
 }
 
 model Report {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   postId      Int
   uid         Int
   explanation String
+  createdAt   DateTime @default(now())
+  status      String   @default("OPEN") // can be "OPEN" or "RESOLVED"
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [uid], references: [id])
