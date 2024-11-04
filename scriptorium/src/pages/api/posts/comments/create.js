@@ -7,7 +7,7 @@ async function handler(req, res) {
     const postId = Number(id);
 
     if (!id) {
-        return res.status(404).json({ error: "Invalid ID: missing blog ID" });
+        return res.status(404).json({ error: "Invalid ID: missing post ID" });
     }
 
     if (isNaN(postId)) {
@@ -66,8 +66,8 @@ async function handler(req, res) {
             },
             data: {
                 posts: {
-                    connect: newPost.id,
-                }
+                    connect: {id: newPost.id},
+                },
             },
         });
 

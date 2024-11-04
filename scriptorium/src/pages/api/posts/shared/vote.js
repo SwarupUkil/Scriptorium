@@ -1,10 +1,10 @@
-import {prisma} from "../../../utils/db";
-import { verifyTokenMiddleware } from "../../../utils/auth";
+import {prisma} from "../../../../utils/db";
+import { verifyTokenMiddleware } from "../../../../utils/auth";
 
 // Handler will update the vote (upvote/downvote) from a user on a post.
 async function handler(req, res){
 
-    const postId = req.body.id;
+    const postId = Number(req.body.id);
     const rating = Number(req.body.rating)
     const user = req.user;
     const { id } = user;
@@ -13,20 +13,32 @@ async function handler(req, res){
         return res.status(405).send({message: "Method not allowed"})
     }
 
-    if (!postId || !req.body.rating) {
+    if (isNaN(postId) || isNaN(rating)) {
         return res.status(401).json({message: "Missing ID or user rating"});
     }
 
-    if (rating !== -1 || rating !== 0 || rating !== 1) {
+    if (rating !== -1 && rating !== 0 && rating !== 1) {
         return res.status(401).json({message: "Rating must be given as either: -1, 0, 1"});
     }
 
     try {
+        const postExists = await prisma.post.findUnique({
+            where: {
+                id: postId,
+            },
+        });
+
+        if (!postExists) {
+            return res.status(400).json({message: "Invalid post ID given"});
+        }
+
         // Check and retrieve the current rating the user has given.
         const currentRatingObj = await prisma.rating.findUnique({
             where: {
-                uId: id,
-                postId: postId,
+                uid_postId: {  // This is the composite key reference
+                    uid: id,
+                    postId: postId,
+                },
             },
             select: {
                 value: true,
@@ -36,8 +48,8 @@ async function handler(req, res){
         // Update or create new rating if it doesn't exist.
         const updatedRating = await prisma.rating.upsert({
             where: {
-                uId_postId: {
-                    uId: id,
+                uid_postId: {
+                    uid: id,
                     postId: postId,
                 },
             },
@@ -45,7 +57,7 @@ async function handler(req, res){
                 value: rating,
             },
             create: {
-                uId: id,
+                uid: id,
                 postId: postId,
                 value: rating,
             },
@@ -57,12 +69,12 @@ async function handler(req, res){
         // -1 -1 so we add 0
         // 1 -1 so we add 2.
         let currentRating = rating;
-        if (!(!currentRatingObj)) {
+        if (currentRatingObj) {
             currentRating -= currentRatingObj.value;
         }
 
         // Update the blog post rating total.
-        const post = await prisma.post.findUnique({
+        const post = await prisma.post.update({
             where: {
                 id: postId,
             },
@@ -71,9 +83,11 @@ async function handler(req, res){
             },
         });
 
+        console.log(post, currentRating);
+
         return res.status(200).json({message: "Successfully updated user vote on the post"});
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while up/down voting the post" });
+        return res.status(400).json({ message: "An error occurred while up/down voting the post (likely invalid post ID)" });
     }
 }
 

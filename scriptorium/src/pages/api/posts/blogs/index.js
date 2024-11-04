@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
-    const sanitizedBlogTags = blogTags.replace(/\s+/g, '');
+    const sanitizedBlogTags = blogTags ? blogTags.replace(/\s+/g, '') : undefined;
 
     if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
         return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});

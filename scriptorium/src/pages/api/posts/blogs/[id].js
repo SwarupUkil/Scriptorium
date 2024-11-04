@@ -21,7 +21,11 @@ export default async function handler(req, res) {
         // Blog data is seperated into two tables: Post (parent table) and Blog.
         try {
             const postValues = await prisma.post.findUnique({
-                where: {id: blogId},
+                where: {
+                    id: blogId,
+                    flagged: false,
+                    deleted: false,
+                },
                 select: {
                     id: true,
                     rating: true,
