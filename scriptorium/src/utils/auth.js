@@ -68,9 +68,9 @@ export function refreshAccessToken(refreshToken) {
   try {
     const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
 
-    const { username, type } = decoded;
+    const { username, type, id } = decoded;
     const newAccessToken = jwt.sign(
-      { username, type },
+      { username, type, id },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
