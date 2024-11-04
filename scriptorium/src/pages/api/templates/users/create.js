@@ -1,8 +1,9 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
+import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE} from "../../../../utils/validationConstants";
+import validateTags from "../../../../utils/validateTags";
+import {parseLanguage} from "../../../../utils/validateLanguage";
 
-const MAX_TITLE = 100;
-const MAX_CODE = 15000;
 
 // Handler will create a new template for client.
 async function handler(req, res) {
@@ -25,14 +26,69 @@ async function handler(req, res) {
         return res.status(400).json({message: "Missing title, explanation, code, or language"});
     }
 
-    if (title.length > 100) {
+    if (title.length > MAX_TITLE) {
         return res.status(400).json({message: "Title is too large"});
     }
 
-    if (explanation.length > 3000) {
+    if (explanation.length > MAX_EXPLANATION) {
         return res.status(400).json({message: "Description is too large"});
     }
 
+    if (code.length > MAX_CODE) {
+        return res.status(400).json({message: "Code is too large"});
+    }
+
+    if (typeof tags !== "undefined" && typeof tags !== "string") {
+        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
+    }
+
+    if (tags && tags.length > MAX_TAGS) {
+        return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
+    }
+
+    if (tags && !validateTags(tags)) {
+        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    }
+
+    const codeLanguage = parseLanguage(language);
+    if (!codeLanguage) {
+        return res.status(400).json({message: "Code language is invalid"});
+    }
+
+    try {
+        // First, check if the user exists before creating the new post.
+        const userExists = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!userExists) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const template = await prisma.template.create({
+            data: {
+                uid: userId,
+                code: code,
+                language: codeLanguage,
+                title: title,
+                explanation: explanation,
+                tags: tags ? tags : null,
+                forkedFrom: null,
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        if (!template) {
+            return res.status(400).json({message: "Unable to create new template"});
+        }
+
+        template.message = "Successfully created new template";
+        return res.status(200).json(template);
+    } catch (error) {
+        return res.status(400).json({ message: "An error occurred while creating the template" });
+    }
 }
 
-export default verifyTokenMiddleware(handler, "USERS");
+export default verifyTokenMiddleware(handler, "USER");

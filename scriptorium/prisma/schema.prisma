@@ -38,7 +38,7 @@ model Template {
   language    String
   title       String
   explanation String?
-  tags        String
+  tags        String?
   privacy     String  @default("PRIVATE")
   forkedFrom  Int?
   blogs       Blog[]
