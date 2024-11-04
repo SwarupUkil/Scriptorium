@@ -1,6 +1,7 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
 
+// Handler will attempt to create a new user report on a posting.
 async function handler(req, res) {
 
     if (req.method !== "POST") {

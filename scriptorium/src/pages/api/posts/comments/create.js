@@ -1,6 +1,7 @@
 import {prisma} from "../../../../utils/db";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
 
+// Handler will attempt to create a new comment posting.
 async function handler(req, res) {
 
     const { id, description } = req.body;
