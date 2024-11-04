@@ -88,23 +88,23 @@ model Comment {
 
 model Rating {
   id     Int @id @default(autoincrement())
-  uId    Int
+  uid    Int
   postId Int
   value  Int @default(0)
 
-  user User @relation(fields: [uId], references: [id])
+  user User @relation(fields: [uid], references: [id])
   post Post @relation(fields: [postId], references: [id])
 
-  @@unique([uId, postId])
+  @@unique([uid, postId])
 }
 
 model Report {
   id          Int    @id @default(autoincrement())
   postId      Int
-  uId         Int
+  uid         Int
   explanation String
-  value       Int
+  value       Int    @default(0)
 
   post Post @relation(fields: [postId], references: [id])
-  user User @relation(fields: [uId], references: [id])
+  user User @relation(fields: [uid], references: [id])
 }

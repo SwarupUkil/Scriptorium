@@ -35,15 +35,15 @@ async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
     }
 
-    if (!tags && tags.length > 100) {
+    if (!(!tags) && tags.length > 100) {
         return res.status(400).json({message: "Too many tags, shorten to less then 100 characters in CSV form"});
     }
 
-    if (!tags && !validateTags(tags)) {
+    if (!(!tags) && !validateTags(tags)) {
         return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
     }
 
-    if (!templates && !Array.isArray(templates)) {
+    if (!(!templates) && !Array.isArray(templates)) {
         return res.status(400).json({message: "Templates must be given as an array"});
     }
 
@@ -77,24 +77,26 @@ async function handler(req, res) {
         }
 
         // After creating a blog. Add for each template linked in blog, this blog's ID.
-        for (let template of templates) {
-            template = Number(template);
+        if (!(!templates)) {
+            for (let template of templates) {
+                template = Number(template);
 
-            if (isNaN(template)) {
-                return res.status(400).json({message: "Templates array must contain only integers"});
-            }
+                if (isNaN(template)) {
+                    return res.status(400).json({message: "Templates array must contain only integers"});
+                }
 
-            // IMPORTANT: blogs in User table contains blog.id, not blog.postId!
-            const updatedTemplate = await prisma.template.update({
-                where: {
-                    id: template,
-                },
-                data: {
-                    blogs: {
-                        connect: { id: blog.id }, // Connect the new Blog by its id
+                // IMPORTANT: blogs in User table contains blog.id, not blog.postId!
+                const updatedTemplate = await prisma.template.update({
+                    where: {
+                        id: template,
                     },
-                },
-            });
+                    data: {
+                        blogs: {
+                            connect: { id: blog.id }, // Connect the new Blog by its id
+                        },
+                    },
+                });
+            }
         }
 
         const updateUserPosts = await prisma.user.update({
@@ -103,7 +105,7 @@ async function handler(req, res) {
             },
             data: {
                 posts: {
-                    connect: post.id,
+                    connect: {id: post.id},
                 }
             },
         });
@@ -111,6 +113,7 @@ async function handler(req, res) {
         post.message = "Successfully created new blog";
         return res.status(200).json(post);
     } catch (error) {
+        console.log("Error creating post:", error);
         return res.status(400).json({ message: "An error occurred while creating the blog" });
     }
 }
