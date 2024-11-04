@@ -26,7 +26,6 @@ model User {
   theme       String  @default("LIGHT")
 
   templates Template[]
-  comments  Comment[]
   posts     Post[]
   ratings   Rating[]
   reports   Report[]
@@ -52,17 +51,18 @@ model Template {
 
 model Post {
   id      Int       @id @default(autoincrement())
-  rating  Int
+  rating  Int       @default(0)
   uid     Int?
   replies Comment[] @relation("PostReplies")
   content String
   flagged Boolean   @default(false)
+  deleted Boolean   @default(false)
+  type    String
 
   user User? @relation(fields: [uid], references: [id], onDelete: SetNull)
 
   blog    Blog?
   comment Comment?
-  type    String
   reports Report[]
   ratings Rating[]
 }
@@ -79,32 +79,32 @@ model Blog {
 }
 
 model Comment {
-  postId   Int  @id
-  parentId Int  @unique
+  id       Int  @id @default(autoincrement())
+  postId   Int  @unique
+  parentId Int
   parent   Post @relation("PostReplies", fields: [parentId], references: [id])
   post     Post @relation(fields: [postId], references: [id])
-
-  user User[]
 }
 
 model Rating {
   id     Int @id @default(autoincrement())
-  uId    Int
+  uid    Int
   postId Int
+  value  Int @default(0)
 
-  user User @relation(fields: [uId], references: [id])
+  user User @relation(fields: [uid], references: [id])
   post Post @relation(fields: [postId], references: [id])
 
-  @@unique([uId, postId])
+  @@unique([uid, postId])
 }
 
 model Report {
   id          Int    @id @default(autoincrement())
   postId      Int
-  uId         Int
+  uid         Int
   explanation String
-  value       Int
+  value       Int    @default(0)
 
   post Post @relation(fields: [postId], references: [id])
-  user User @relation(fields: [uId], references: [id])
+  user User @relation(fields: [uid], references: [id])
 }
