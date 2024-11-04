@@ -31,10 +31,17 @@ async function handler(req, res) {
     }
 
     try {
-        // First create a new post.
-        // Then using that postId make a new comment.
-        // Finally update parent replies[] to include this another reply.
-        // Similarly with User.
+
+        // First, check if the user exists before creating the new post.
+        const userExists = await prisma.user.findUnique({
+            where: { id: id },
+        });
+
+        if (!userExists) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        // Now create a new post.
         const newPost = await prisma.post.create({
             data: {
                 uid: userId,
@@ -44,6 +51,7 @@ async function handler(req, res) {
             select: {id: true}
         });
 
+        // Then using that postId make a new comment.
         const newComment = await prisma.comment.create({
             data: {
                 postId: newPost.id, // this post's ID
@@ -51,6 +59,8 @@ async function handler(req, res) {
             }
         });
 
+        // Finally update parent replies[] to include this another reply.
+        // Similarly with User.
         const updateParentPostReplies = await prisma.post.update({
             where: {id: postId},
             data: {

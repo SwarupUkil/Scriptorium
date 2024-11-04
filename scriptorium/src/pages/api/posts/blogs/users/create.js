@@ -48,6 +48,16 @@ async function handler(req, res) {
     }
 
     try {
+
+        // First, check if the user exists before creating the new post.
+        const userExists = await prisma.user.findUnique({
+            where: { id: id },
+        });
+
+        if (!userExists) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
         const post = await prisma.post.create({
             data: {
                 uid: id,
@@ -113,7 +123,6 @@ async function handler(req, res) {
         post.message = "Successfully created new blog";
         return res.status(200).json(post);
     } catch (error) {
-        console.log("Error creating post:", error);
         return res.status(400).json({ message: "An error occurred while creating the blog" });
     }
 }
