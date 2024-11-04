@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         java: { extension: "java", complier: "javac"},
       };
 
-      if (!code || !language || !languageInformation[language]) {
+      if (!code || !language || !languageInformation[language.toLowerCase()]) {
         return res.status(400).json({error: "Invalid language or missing code.",});
       }
       const compiledLanguages = ["c", "cpp", "java"];
@@ -24,8 +24,7 @@ export default async function handler(req, res) {
       await fs.mkdir(tempDir, { recursive: true });
       const { extension, complier } = languageInformation[language];
 
-      let file, javaClass = null;
-      let command = `echo "${stdin}" | `;
+      let file, command, javaClass = null;
 
       if (language.toLowerCase() === "java") {
         const match = code.match(/public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)/);
@@ -40,16 +39,29 @@ export default async function handler(req, res) {
       }
 
       await fs.writeFile(file, code);
-      command += `${complier} "${file}"`;
+      command = `${complier} '${file}'`;
 
       if (compiledLanguages.indexOf(language.toLowerCase()) > -1) {
-        command += ` && cd "${tempDir}" && `;
+        command += ` && cd '${tempDir}' && `;
         command += javaClass ? `java ${javaClass}` : `./a.out`;
       }
 
-      // command = command.replace(/\\/g, '/');
+      if (stdin) {
+        const formattedStdin = stdin.replace(/\\n/g, '\n');
+        const stdinFile = path.join(tempDir, 'stdin.txt');
+        await fs.writeFile(stdinFile, formattedStdin);
+        command += ` < '${stdinFile}'`;
+      }
 
-      exec(command, (error, stdout, stderr) => {
+      if (process.platform === "win32") {
+        command = command.replace(/\\/g, '/');
+        command = command.replace(/([A-Za-z]):\//g, (match, drive) => `/mnt/${drive.toLowerCase()}/`);
+        command = `wsl bash -c "${command}"`;
+      }
+
+      // console.log(command)
+
+      exec(command, { cwd: tempDir }, (error, stdout, stderr) => {
         fs.rm(tempDir, { recursive: true, force: true })
 
         if (error) {
