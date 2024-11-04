@@ -41,6 +41,7 @@ model Template {
   tags        String?
   privacy     String  @default("PRIVATE")
   forkedFrom  Int?
+  deleted     Boolean @default(false)
   blogs       Blog[]
 
   user User @relation(fields: [uid], references: [id], onDelete: Cascade)

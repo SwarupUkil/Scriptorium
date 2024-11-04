@@ -96,7 +96,26 @@ async function handler(req, res) {
             return res.status(400).json({ message: "An error occurred while updating the template" });
         }
     } else {
+        try {
+            await prisma.template.update({
+                where: {
+                    id: templateId,
+                },
+                data: {
+                    code: "",
+                    language: "",
+                    title: "",
+                    explanation: "",
+                    tags: null,
+                    privacy: PRIVACY[1],
+                    deleted: true,
+                },
+            });
 
+            return res.status(200).json({message: "Successfully deleted template"});
+        } catch (error) {
+            return res.status(400).json({ message: "An error occurred while deleting the template" });
+        }
     }
 }
 
