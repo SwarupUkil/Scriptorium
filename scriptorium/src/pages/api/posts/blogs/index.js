@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         res.status(405).json({message: "Method not allowed"});
     }
 
-    const order = "asc";
+    const order = "desc";
 
     // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
     const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.query;
