@@ -27,7 +27,7 @@ async function handler(req, res) {
         return res.status(400).json({message: "Title is too large"});
     }
 
-    if (description.length > 3000) {
+    if (description.length > 5000) {
         return res.status(400).json({message: "Description is too large"});
     }
 
@@ -35,15 +35,15 @@ async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
     }
 
-    if (!(!tags) && tags.length > 100) {
+    if (tags && tags.length > 100) {
         return res.status(400).json({message: "Too many tags, shorten to less then 100 characters in CSV form"});
     }
 
-    if (!(!tags) && !validateTags(tags)) {
+    if (tags && !validateTags(tags)) {
         return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
     }
 
-    if (!(!templates) && !Array.isArray(templates)) {
+    if (templates && !Array.isArray(templates)) {
         return res.status(400).json({message: "Templates must be given as an array"});
     }
 

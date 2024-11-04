@@ -1,5 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import sanitizePagination from "../../../../utils/paginationHelper";
+import validateTags from "../../../../utils/validateTags";
 
 // Handler will give a generic list of IDs and titles of blogs.
 export default async function handler(req, res) {
@@ -8,11 +9,10 @@ export default async function handler(req, res) {
         res.status(405).json({message: "Method not allowed"});
     }
 
-    const sortingBy = "rating";
     const order = "asc";
 
     // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.body;
+    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.query;
 
     const paginate = sanitizePagination(skip, take);
 
@@ -20,24 +20,34 @@ export default async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
+    const sanitizedBlogTags = blogTags.replace(/\s+/g, '');
+
+    if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
+        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    }
+    console.log(blogTitle);
     try {
         // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
             where: {
-                title: blogTitle ? {contains: blogTitle, mode: "insensitive"} : undefined,
+                title: blogTitle ? {contains: blogTitle} : undefined,
 
                 // Filter by posts content and verify its not flagged posts.
-                post: {
-                    content: desiredContent ? {contains: desiredContent, mode: "insensitive"} : undefined,
-                    flagged: false,
-                    deleted: false,
-                },
-                tags: blogTags ? {contains: blogTags, mode: "insensitive"} : undefined,
+                ...(desiredContent ? {
+                    post: {
+                        content: desiredContent ? { contains: desiredContent } : undefined,
+                        flagged: false,
+                        deleted: false,
+                    }
+                } : {}),
+                tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
 
                 // Filter by Template title within related templates
-                templates: {
-                    some: templateTitle ? { title: { contains: templateTitle, mode: "insensitive" } } : undefined,
-                },
+                ...(templateTitle ? {
+                    templates: {
+                        some: { title: { contains: templateTitle } }
+                    }
+                } : {}),
             },
             select: {
                 postId: true,
@@ -64,22 +74,28 @@ export default async function handler(req, res) {
             },
             skip: paginate.skip,
             take: paginate.take,
-            orderBy: {[sortingBy] : order},
+            orderBy: {
+                post: {
+                    rating: order,
+                },
+            },
         });
 
         // Error if either we found zero blogs.
-        if (!blogs) {
-            return res.status(400).json({ message: "No blog was found. Try loosening your search and check spelling.", isEmpty: true });
+        if (Array.isArray(blogs) && blogs.length === 0) {
+            return res.status(400).json({data: blogs, message: "No blog was found. Try loosening your search and check spelling.", isEmpty: true });
         }
 
         const response = {
             data: blogs, // Array of objects (e.g., comments or posts)
             message: paginate.message || null, // Message only included if there's a warning or note
+            isEmpty: false,
         };
 
         // Return identified blog data.
         return res.status(200).json(response);
     } catch (error) {
+        // console.error("Error retrieving blogs:", error);
         return res.status(400).json({ message: "An error occurred while retrieving the blogs" });
     }
 }
