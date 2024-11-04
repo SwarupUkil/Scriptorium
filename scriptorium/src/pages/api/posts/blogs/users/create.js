@@ -52,11 +52,16 @@ async function handler(req, res) {
             data: {
                 uid: id,
                 content: description,
+                type: "BLOG",
             },
             select: {
                 id: true,
             },
         });
+
+        if (!post) {
+            return res.status(400).json({message: "Unable to create new posting"});
+        }
 
         const blog = await prisma.blog.create({
             data: {
@@ -66,6 +71,10 @@ async function handler(req, res) {
             },
             select: {id: true},
         });
+
+        if (!blog) {
+            return res.status(400).json({message: "Unable to create new blog"});
+        }
 
         // After creating a blog. Add for each template linked in blog, this blog's ID.
         for (let template of templates) {
@@ -87,6 +96,17 @@ async function handler(req, res) {
                 },
             });
         }
+
+        const updateUserPosts = await prisma.user.update({
+            where: {
+                id: id,
+            },
+            data: {
+                posts: {
+                    connect: post.id,
+                }
+            },
+        });
 
         post.message = "Successfully created new blog";
         return res.status(200).json(post);

@@ -26,7 +26,6 @@ model User {
   theme       String  @default("LIGHT")
 
   templates Template[]
-  comments  Comment[]
   posts     Post[]
   ratings   Rating[]
   reports   Report[]
@@ -58,12 +57,12 @@ model Post {
   content String
   flagged Boolean   @default(false)
   deleted Boolean   @default(false)
+  type    String
 
   user User? @relation(fields: [uid], references: [id], onDelete: SetNull)
 
   blog    Blog?
   comment Comment?
-  type    String
   reports Report[]
   ratings Rating[]
 }
@@ -85,8 +84,6 @@ model Comment {
   parentId Int
   parent   Post @relation("PostReplies", fields: [parentId], references: [id])
   post     Post @relation(fields: [postId], references: [id])
-
-  user User[]
 }
 
 model Rating {

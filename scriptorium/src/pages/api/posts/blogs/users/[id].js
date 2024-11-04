@@ -2,7 +2,7 @@ import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
 
-// Handler will return a specified blog post to client.
+// Handler will attempt to update/delete a specified blog post for the client.
 async function handler(req, res) {
 
     const { id } = req.query;
@@ -26,7 +26,7 @@ async function handler(req, res) {
         return res.status(400).json({message: "Title is too large"});
     }
 
-    if (!description && description.length > 3000) {
+    if (!description && description.length > 5000) {
         return res.status(400).json({message: "Description is too large"});
     }
 
