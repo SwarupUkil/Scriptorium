@@ -86,7 +86,7 @@ async function handler(req, res) {
         }
 
         // After creating a blog. Add for each template linked in blog, this blog's ID.
-        if (!(!templates)) {
+        if (templates) {
             for (let template of templates) {
                 template = Number(template);
 
@@ -95,7 +95,7 @@ async function handler(req, res) {
                 }
 
                 // IMPORTANT: blogs in User table contains blog.id, not blog.postId!
-                const updatedTemplate = await prisma.template.update({
+                await prisma.template.update({
                     where: {
                         id: template,
                     },
@@ -108,7 +108,7 @@ async function handler(req, res) {
             }
         }
 
-        const updateUserPosts = await prisma.user.update({
+        await prisma.user.update({
             where: {
                 id: id,
             },

@@ -2,6 +2,7 @@ import { prisma } from "../../../utils/db"
 import { comparePassword, generateToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
+
   if (req.method === "POST") {
     const { username, password } = req.body;
 

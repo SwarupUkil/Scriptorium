@@ -8,11 +8,11 @@ export default async function handler(req, res) {
 
     try {
       const languageInformation = {
-        python: { extension: "py", complier: "python3" },
-        javascript: { extension: "js", complier: "node" },
-        c: { extension: "c", complier: "gcc"},
-        cpp: { extension: "cpp", complier: "g++" },
-        java: { extension: "java", complier: "javac"},
+        python: { extension: "py", compiler: "python3" },
+        javascript: { extension: "js", compiler: "node" },
+        c: { extension: "c", compiler: "gcc"},
+        cpp: { extension: "cpp", compiler: "g++" },
+        java: { extension: "java", compiler: "javac"},
       };
 
       if (!code || !language || !languageInformation[language.toLowerCase()]) {
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
       const tempDir = path.resolve(process.cwd(), 'src', 'pages', 'api', 'temp');
       await fs.mkdir(tempDir, { recursive: true });
-      const { extension, complier } = languageInformation[language];
+      const { extension, compiler } = languageInformation[language];
 
       let file, command, javaClass = null;
 
@@ -33,13 +33,12 @@ export default async function handler(req, res) {
         }
         file = path.join(tempDir, `${match[1]}.${extension}`);
         javaClass = match[1];
-      }
-      else {
+      } else {
         file = path.join(tempDir, `code.${extension}`);
       }
 
       await fs.writeFile(file, code);
-      command = `${complier} '${file}'`;
+      command = `${compiler} '${file}'`;
 
       if (compiledLanguages.indexOf(language.toLowerCase()) > -1) {
         command += ` && cd '${tempDir}' && `;
@@ -73,8 +72,7 @@ export default async function handler(req, res) {
     } catch (error) {
       return res.status(500).json({ error: "Error trying to execute the code", details: error.message });
     }
-  }
-  else {
+  } else {
     return res.status(405).json({ message: "Method not allowed" });
   }
 }

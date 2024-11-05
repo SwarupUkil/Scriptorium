@@ -40,7 +40,7 @@ async function handler(req, res) {
             return res.status(400).json({ message: "Invalid post ID" });
         }
 
-        const newReport = await prisma.report.create({
+        prisma.report.create({
             data: {
                 postId: postId,
                 uid: userId,

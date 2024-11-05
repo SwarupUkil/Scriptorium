@@ -4,14 +4,14 @@ import { verifyTokenMiddleware } from "../../../../utils/auth";
 // Handler will update the vote (upvote/downvote) from a user on a post.
 async function handler(req, res){
 
+    if (req.method !== "PUT") {
+        return res.status(405).send({message: "Method not allowed"})
+    }
+
     const postId = Number(req.body.id);
     const rating = Number(req.body.rating)
     const user = req.user;
     const { id } = user;
-
-    if (req.method !== "PUT") {
-        return res.status(405).send({message: "Method not allowed"})
-    }
 
     if (isNaN(postId) || isNaN(rating)) {
         return res.status(401).json({message: "Missing ID or user rating"});
@@ -46,7 +46,7 @@ async function handler(req, res){
         });
 
         // Update or create new rating if it doesn't exist.
-        const updatedRating = await prisma.rating.upsert({
+        await prisma.rating.upsert({
             where: {
                 uid_postId: {
                     uid: id,
@@ -74,7 +74,7 @@ async function handler(req, res){
         }
 
         // Update the blog post rating total.
-        const post = await prisma.post.update({
+        await prisma.post.update({
             where: {
                 id: postId,
             },

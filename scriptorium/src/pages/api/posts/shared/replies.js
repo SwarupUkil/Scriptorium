@@ -5,6 +5,10 @@ import sanitizePagination from "../../../../utils/paginationHelper";
 // Handler will return the replies to a specific post to the client.
 async function handler(req, res) {
 
+    if (req.method !== "GET") {
+        return res.status(405).json({message: "Method not allowed"});
+    }
+
     const { id, skip, take } = req.body; // Parent post's postId.
     const postId = Number(id);
 
@@ -17,10 +21,6 @@ async function handler(req, res) {
 
     if (isNaN(postId)) {
         return res.status(400).json({ error: "Invalid ID: not a number" });
-    }
-
-    if (req.method !== "GET") {
-        return res.status(405).json({message: "Method not allowed"});
     }
 
     try {

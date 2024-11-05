@@ -5,6 +5,10 @@ import validateTags from "../../../../../utils/validateTags";
 // Handler will attempt to update/delete a specified blog post for the client.
 async function handler(req, res) {
 
+    if (req.method !== "PUT" && req.method !== "DELETE") {
+        return res.status(405).json({message: "Method not allowed"});
+    }
+
     const { id } = req.body;
     const blogId = Number(id);
 
@@ -57,11 +61,6 @@ async function handler(req, res) {
     }
 
 
-    ///// REQUEST HANDLING /////
-    if (req.method !== "PUT" && req.method !== "DELETE") {
-        return res.status(405).json({message: "Method not allowed"});
-    }
-
     // Check if the blog exists and if the user ID matches
     try {
         const blog = await prisma.blog.findUnique({
@@ -95,7 +94,7 @@ async function handler(req, res) {
             // Extract the valid template IDs that exist in the database
             const validTemplateIds = existingTemplates.map((template) => template.id);
 
-            const updatedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: blogId,
                 },
@@ -104,7 +103,7 @@ async function handler(req, res) {
                 },
             });
 
-            const updatedBlog = await prisma.blog.update({
+            await prisma.blog.update({
                 where: {
                     postId: blogId,
                 },
@@ -140,7 +139,7 @@ async function handler(req, res) {
 
     } else if (req.method === "DELETE") {
         try {
-            const deletedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: blogId,
                 },
@@ -149,7 +148,7 @@ async function handler(req, res) {
                     deleted: true,
                 },
             });
-            const deletedBlog = await prisma.blog.update({
+            await prisma.blog.update({
                 where: {
                     postId: blogId,
                 },

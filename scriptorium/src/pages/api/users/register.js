@@ -4,6 +4,7 @@ import { hashPassword } from "../../../utils/auth";
 const profileImages = JSON.parse(process.env.PROFILE_IMAGES);
 
 export default async function handler(req, res) {
+
   if (req.method === "POST") {
     const { username, password, type = "USER", firstName, lastName, email, pfpURL, phoneNumber, theme } = req.body;
 

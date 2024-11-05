@@ -4,6 +4,7 @@ import { verifyTokenMiddleware } from "../../../utils/auth";
 const profileImages = JSON.parse(process.env.PROFILE_IMAGES);
 
 async function handler(req, res) {
+
   if (req.method === "PUT") {
     const { username, firstName, lastName, email, pfpURL, phoneNumber, theme } = req.body;
 

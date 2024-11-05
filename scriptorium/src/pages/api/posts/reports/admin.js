@@ -34,7 +34,7 @@ async function handler(req, res) {
                 return res.status(400).json({ message: "Invalid post ID" });
             }
 
-            const flaggedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: postId,
                 },
@@ -69,7 +69,6 @@ async function handler(req, res) {
         } catch (error) {
             return res.status(400).json({message: "An error occurred fetching reported posts" });
         }
-
     } else {
         return res.status(405).send({message: "Method not allowed"})
     }
