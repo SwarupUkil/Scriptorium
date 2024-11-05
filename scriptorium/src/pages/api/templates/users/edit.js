@@ -24,40 +24,6 @@ async function handler(req, res) {
 
     const user = req.user;
     const userId = user.id;
-    const { title, explanation, tags, code, language, privacy } = req.body;
-
-    if (title && title.length > MAX_TITLE) {
-        return res.status(400).json({message: "Title is too large"});
-    }
-
-    if (explanation && explanation.length > MAX_EXPLANATION) {
-        return res.status(400).json({message: "Description is too large"});
-    }
-
-    if (code && code.length > MAX_CODE) {
-        return res.status(400).json({message: "Code is too large"});
-    }
-
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
-    }
-
-    if (tags && tags.length > MAX_TAGS) {
-        return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
-    }
-
-    if (tags && !validateTags(tags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
-    }
-
-    const codeLanguage = parseLanguage(language);
-    if (!codeLanguage) {
-        return res.status(400).json({message: "Code language is invalid"});
-    }
-
-    if (privacy && !PRIVACY.includes(privacy)) {
-        return res.status(400).json({message: `Privacy is invalid. Must be from ${PRIVACY}`});
-    }
 
     // Check if the blog exists and if the user ID matches
     try {
@@ -69,13 +35,48 @@ async function handler(req, res) {
         });
 
         if (!template || Number(template.uid) !== userId) {
-            return res.status(401).json({ message: "Unauthorized or Blog not found." });
+            return res.status(401).json({ message: "Unauthorized or Template not found." });
         }
     } catch (error) {
         return res.status(400).json({ message: "An error occurred while authorizing the update template query" });
     }
 
     if (req.method === "PUT") {
+        const { title, explanation, tags, code, language, privacy } = req.body;
+
+        if (title && title.length > MAX_TITLE) {
+            return res.status(400).json({message: "Title is too large"});
+        }
+
+        if (explanation && explanation.length > MAX_EXPLANATION) {
+            return res.status(400).json({message: "Description is too large"});
+        }
+
+        if (code && code.length > MAX_CODE) {
+            return res.status(400).json({message: "Code is too large"});
+        }
+
+        if (typeof tags !== "undefined" && typeof tags !== "string") {
+            return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
+        }
+
+        if (tags && tags.length > MAX_TAGS) {
+            return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
+        }
+
+        if (tags && !validateTags(tags)) {
+            return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+        }
+
+        const codeLanguage = language ? parseLanguage(language) : undefined;
+        if (!codeLanguage && codeLanguage !== undefined) {
+            return res.status(400).json({message: "Code language is invalid"});
+        }
+
+        if (privacy && !PRIVACY.includes(privacy)) {
+            return res.status(400).json({message: `Privacy is invalid. Must be from ${PRIVACY}`});
+        }
+
         try {
             await prisma.template.update({
                 where: {

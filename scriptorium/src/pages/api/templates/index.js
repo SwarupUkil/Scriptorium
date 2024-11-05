@@ -27,13 +27,15 @@ async function handler(req, res) {
             where: {
                 // Filter by templates by title, code contents, and tags.
                 title: title ? {contains: title} : undefined,
-                code: content ? {contains: content} : undefined,
+                explanation: content ? {contains: content} : undefined,
                 tags: sanitizedTags ? { contains: sanitizedTags } : undefined,
                 privacy: "PUBLIC",
+                deleted: false,
             },
             select: {
                 id: true,
                 title: true,
+                explanation: true,
                 tags: true,
             },
             skip: paginate.skip,

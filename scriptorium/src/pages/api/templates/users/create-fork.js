@@ -25,6 +25,7 @@ async function handler(req, res) {
             where: {
                 id: templateId,
                 privacy: "PUBLIC",
+                deleted: false,
             },
         });
 

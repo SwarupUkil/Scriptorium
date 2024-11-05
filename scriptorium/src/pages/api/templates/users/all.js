@@ -12,9 +12,9 @@ async function handler(req, res) {
     const userId = user.id;
 
     try {
-        const templates = await prisma.user.findMany({
+        const templates = await prisma.template.findMany({
             where: {
-                id: userId,
+                uid: userId,
             },
             select: {
                 id: true,
