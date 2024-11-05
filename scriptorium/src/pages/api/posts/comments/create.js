@@ -57,12 +57,15 @@ async function handler(req, res) {
             data: {
                 postId: newPost.id, // this post's ID
                 parentId: postId,   // the post parent this post is under
+            },
+            select: {
+                id: true,
             }
         });
 
         // Finally update parent replies[] to include this another reply.
         // Similarly with User.
-        const updateParentPostReplies = await prisma.post.update({
+        await prisma.post.update({
             where: {id: postId},
             data: {
                 replies: {
@@ -71,7 +74,7 @@ async function handler(req, res) {
             },
         });
 
-        const updateUserPosts = await prisma.user.update({
+        await prisma.user.update({
             where: {
                 id: userId,
             },
@@ -82,7 +85,8 @@ async function handler(req, res) {
             },
         });
 
-        return res.status(200).json({message: "Successfully created comment"});
+        newComment.message = "Successfully created comment";
+        return res.status(200).json(newComment);
     } catch (error) {
         return res.status(400).json({ message: "An error occurred while creating the reply" });
     }
