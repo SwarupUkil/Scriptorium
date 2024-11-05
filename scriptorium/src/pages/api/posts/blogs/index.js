@@ -1,9 +1,10 @@
 import {prisma} from "../../../../utils/db";
 import sanitizePagination from "../../../../utils/paginationHelper";
 import validateTags from "../../../../utils/validateTags";
+import {verifyTokenMiddleware} from "../../../../utils/auth";
 
 // Handler will give a generic list of IDs and titles of blogs.
-export default async function handler(req, res) {
+async function handler(req, res) {
 
     if (req.method !== "GET") {
         res.status(405).json({message: "Method not allowed"});
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
         return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
     }
-    console.log(blogTitle);
+
     try {
         // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
@@ -99,3 +100,5 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: "An error occurred while retrieving the blogs" });
     }
 }
+
+export default verifyTokenMiddleware(handler);

@@ -1,7 +1,8 @@
 import {prisma} from "../../../../utils/db";
+import {verifyTokenMiddleware} from "../../../../utils/auth";
 
 // Handler will return a specified blog post to client.
-export default async function handler(req, res) {
+async function handler(req, res) {
 
     const { id } = req.query;
     const blogId = Number(id);
@@ -62,3 +63,5 @@ export default async function handler(req, res) {
         }
     }
 }
+
+export default verifyTokenMiddleware(handler);

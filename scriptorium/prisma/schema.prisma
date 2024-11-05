@@ -38,9 +38,10 @@ model Template {
   language    String
   title       String
   explanation String?
-  tags        String
+  tags        String?
   privacy     String  @default("PRIVATE")
   forkedFrom  Int?
+  deleted     Boolean @default(false)
   blogs       Blog[]
 
   user User @relation(fields: [uid], references: [id], onDelete: Cascade)
