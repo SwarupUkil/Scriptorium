@@ -1,5 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
+import {AUTH, MAX_COMMENT_DESCRIPTION, POST} from "../../../../utils/validationConstants";
 
 // Handler will attempt to create a new comment posting.
 async function handler(req, res) {
@@ -23,8 +24,8 @@ async function handler(req, res) {
         return res.status(404).json({ error: "Invalid description" });
     }
 
-    if (description.length > 1000) {
-        return res.status(400).json({ error: "Description is too large (<1001 characters)" });
+    if (description.length > MAX_COMMENT_DESCRIPTION) {
+        return res.status(400).json({ error: `Description is too large (<${MAX_COMMENT_DESCRIPTION} characters)` });
     }
 
 
@@ -47,7 +48,7 @@ async function handler(req, res) {
             data: {
                 uid: userId,
                 content: description,
-                type: "COMMENT",
+                type: POST.COMMENT,
             },
             select: {id: true}
         });
@@ -92,4 +93,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

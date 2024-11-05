@@ -1,5 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
+import {AUTH, PRIVACY} from "../../../../utils/validationConstants";
 
 // Handler will save a forked template for client.
 async function handler(req, res) {
@@ -24,7 +25,7 @@ async function handler(req, res) {
         const templateForked = await prisma.template.findFirst({
             where: {
                 id: templateId,
-                privacy: "PUBLIC",
+                privacy: PRIVACY.PUBLIC,
                 deleted: false,
             },
         });
@@ -41,7 +42,7 @@ async function handler(req, res) {
                 title: templateForked.title,
                 explanation: templateForked.explanation,
                 tags: templateForked.tags,
-                privacy: "PUBLIC",
+                privacy: PRIVACY.PUBLIC,
                 forkedFrom: templateId,
             },
         });
@@ -63,4 +64,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

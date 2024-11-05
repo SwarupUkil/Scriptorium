@@ -1,6 +1,7 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
 import sanitizePagination from "../../../../utils/paginationHelper";
+import {AUTH, REPORT} from "../../../../utils/validationConstants";
 
 // Handler will attempt to flag a post appropriately or retrieve a list
 // of reports based on recency, being open reports, and most reported posts.
@@ -59,7 +60,7 @@ async function handler(req, res) {
             const getReports = await prisma.$queryRaw`
                 SELECT postId, COUNT(*) as reportCount
                 FROM Report
-                WHERE createdAt >= ${sixMonthsAgo.toISOString()} AND status = 'OPEN'
+                WHERE createdAt >= ${sixMonthsAgo.toISOString()} AND status = ${REPORT.OPEN}
                 GROUP BY postId
                 ORDER BY reportCount DESC
                 LIMIT ${paginate.take} OFFSET ${paginate.take};
@@ -74,4 +75,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "ADMIN");
+export default verifyTokenMiddleware(handler, AUTH.ADMIN);

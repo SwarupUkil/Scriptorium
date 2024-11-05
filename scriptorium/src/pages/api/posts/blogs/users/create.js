@@ -1,6 +1,7 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
+import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST} from "../../../../../utils/validationConstants";
 
 // Handler will attempt to create a new blog posting.
 async function handler(req, res) {
@@ -13,29 +14,24 @@ async function handler(req, res) {
     const { id } = user;
     const { title, description, tags, templates } = req.body;
 
-    //  Limit user blog data:
-    //      title: must be given, max 100 chars
-    //      description: must be given,
-    //      tags: not necessary to have, max 100 chars
-    //      templates: not necessary to have, must be an array
     if (!title || !description) {
         return res.status(400).json({message: "Missing title or description"});
     }
 
-    if (title.length > 100) {
-        return res.status(400).json({message: "Title is too large"});
+    if (title.length > MAX_TITLE) {
+        return res.status(400).json({message: `Title is too large, shorten to less then ${MAX_TITLE}`});
     }
 
-    if (description.length > 5000) {
-        return res.status(400).json({message: "Description is too large"});
+    if (description.length > MAX_BLOG_DESCRIPTION) {
+        return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
     }
 
     if (typeof tags !== "undefined" && typeof tags !== "string") {
         return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
     }
 
-    if (tags && tags.length > 100) {
-        return res.status(400).json({message: "Too many tags, shorten to less then 100 characters in CSV form"});
+    if (tags && tags.length > MAX_TAGS) {
+        return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
     }
 
     if (tags && !validateTags(tags)) {
@@ -61,7 +57,7 @@ async function handler(req, res) {
             data: {
                 uid: id,
                 content: description,
-                type: "BLOG",
+                type: POST.BLOG,
             },
             select: {
                 id: true,
@@ -126,4 +122,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

@@ -1,5 +1,6 @@
 import { prisma } from "../../../utils/db";
 import { verifyTokenMiddleware } from "../../../utils/auth";
+import {AUTH} from "../../../utils/validationConstants";
 
 const profileImages = JSON.parse(process.env.PROFILE_IMAGES);
 
@@ -60,4 +61,4 @@ async function handler(req, res) {
   }
 }
 
-export default verifyTokenMiddleware(handler);
+export default verifyTokenMiddleware(handler, AUTH.USER);
