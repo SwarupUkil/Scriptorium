@@ -1,5 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
+import {AUTH} from "../../../../utils/validationConstants";
 
 // Handler will return all the clients templates.
 async function handler(req, res) {
@@ -29,4 +30,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {MAX_CODE, MAX_EXPLANATION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../utils/validationConstants";
+import {AUTH, MAX_CODE, MAX_EXPLANATION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../utils/validationConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 
@@ -73,7 +73,7 @@ async function handler(req, res) {
             return res.status(400).json({message: "Code language is invalid"});
         }
 
-        if (privacy && !PRIVACY.includes(privacy)) {
+        if (privacy && !Object.values(PRIVACY).includes(privacy)) {
             return res.status(400).json({message: `Privacy is invalid. Must be from ${PRIVACY}`});
         }
 
@@ -88,7 +88,7 @@ async function handler(req, res) {
                     title: title,
                     explanation: explanation,
                     tags: tags ? tags : undefined,
-                    privacy: privacy ? privacy : PRIVACY[1], // default to private
+                    privacy: privacy ? privacy : PRIVACY.PRIVATE, // default to private
                 },
             });
 
@@ -108,7 +108,7 @@ async function handler(req, res) {
                     title: "",
                     explanation: "",
                     tags: null,
-                    privacy: PRIVACY[1],
+                    privacy: PRIVACY.PRIVATE,
                     deleted: true,
                 },
             });
@@ -120,4 +120,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

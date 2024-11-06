@@ -1,6 +1,7 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
 import sanitizePagination from "../../../../utils/paginationHelper";
+import {AUTH, REPORT} from "../../../../utils/validationConstants";
 
 // Handler will attempt to flag a post appropriately or retrieve a list
 // of reports based on recency, being open reports, and most reported posts.
@@ -34,7 +35,7 @@ async function handler(req, res) {
                 return res.status(400).json({ message: "Invalid post ID" });
             }
 
-            const flaggedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: postId,
                 },
@@ -59,20 +60,27 @@ async function handler(req, res) {
             const getReports = await prisma.$queryRaw`
                 SELECT postId, COUNT(*) as reportCount
                 FROM Report
-                WHERE createdAt >= ${sixMonthsAgo.toISOString()} AND status = 'OPEN'
+                WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
                 GROUP BY postId
                 ORDER BY reportCount DESC
-                LIMIT ${paginate.take} OFFSET ${paginate.take};
+                LIMIT ${paginate.take} OFFSET ${paginate.skip};
             `;
 
-            return res.status(200).json(getReports);
+            const response = convertReportCountToNumber(getReports);
+            return res.status(200).json(response);
         } catch (error) {
             return res.status(400).json({message: "An error occurred fetching reported posts" });
         }
-
     } else {
         return res.status(405).send({message: "Method not allowed"})
     }
 }
 
-export default verifyTokenMiddleware(handler, "ADMIN");
+function convertReportCountToNumber(dataArray) {
+    return dataArray.map(item => ({
+        ...item,
+        reportCount: Number(item.reportCount),
+    }));
+}
+
+export default verifyTokenMiddleware(handler, AUTH.ADMIN);

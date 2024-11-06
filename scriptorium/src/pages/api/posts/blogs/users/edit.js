@@ -1,9 +1,14 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
+import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../../utils/validationConstants";
 
 // Handler will attempt to update/delete a specified blog post for the client.
 async function handler(req, res) {
+
+    if (req.method !== "PUT" && req.method !== "DELETE") {
+        return res.status(405).json({message: "Method not allowed"});
+    }
 
     const { id } = req.body;
     const blogId = Number(id);
@@ -22,12 +27,12 @@ async function handler(req, res) {
 
     const { title, description, tags, templates } = req.body;
 
-    if (title && title.length > 100) {
-        return res.status(400).json({message: "Title is too large"});
+    if (title && title.length > MAX_TITLE) {
+        return res.status(400).json({message: `Title is too large, shorten to less then ${MAX_TITLE}`});
     }
 
-    if (description && description.length > 5000) {
-        return res.status(400).json({message: "Description is too large"});
+    if (description && description.length > MAX_BLOG_DESCRIPTION) {
+        return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
     }
 
     // Tags validation
@@ -35,8 +40,8 @@ async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
     }
 
-    if (tags && tags.length > 100) {
-        return res.status(400).json({message: "Too many tags, shorten to less then 100 characters in CSV form"});
+    if (tags && tags.length > MAX_TAGS) {
+        return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS} characters in CSV form`});
     }
 
     if (tags && !validateTags(tags)) {
@@ -56,11 +61,6 @@ async function handler(req, res) {
         }
     }
 
-
-    ///// REQUEST HANDLING /////
-    if (req.method !== "PUT" && req.method !== "DELETE") {
-        return res.status(405).json({message: "Method not allowed"});
-    }
 
     // Check if the blog exists and if the user ID matches
     try {
@@ -87,7 +87,7 @@ async function handler(req, res) {
             const existingTemplates = await prisma.template.findMany({
                 where: {
                     id: {in: templates }, // Check for templates with these IDs
-                    privacy: "PUBLIC",
+                    privacy: PRIVACY.PUBLIC,
                 },
                 select: { id: true },
             });
@@ -95,7 +95,7 @@ async function handler(req, res) {
             // Extract the valid template IDs that exist in the database
             const validTemplateIds = existingTemplates.map((template) => template.id);
 
-            const updatedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: blogId,
                 },
@@ -104,7 +104,7 @@ async function handler(req, res) {
                 },
             });
 
-            const updatedBlog = await prisma.blog.update({
+            await prisma.blog.update({
                 where: {
                     postId: blogId,
                 },
@@ -140,7 +140,7 @@ async function handler(req, res) {
 
     } else if (req.method === "DELETE") {
         try {
-            const deletedPost = await prisma.post.update({
+            await prisma.post.update({
                 where: {
                     id: blogId,
                 },
@@ -149,7 +149,7 @@ async function handler(req, res) {
                     deleted: true,
                 },
             });
-            const deletedBlog = await prisma.blog.update({
+            await prisma.blog.update({
                 where: {
                     postId: blogId,
                 },
@@ -170,4 +170,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);

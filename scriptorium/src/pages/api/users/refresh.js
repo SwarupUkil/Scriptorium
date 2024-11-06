@@ -1,6 +1,7 @@
 import { refreshAccessToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
+
   if (req.method === "POST") {
     const { refreshToken } = req.body;
     

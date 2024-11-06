@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE} from "../../../../utils/validationConstants";
+import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH} from "../../../../utils/validationConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 
@@ -91,4 +91,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, "USER");
+export default verifyTokenMiddleware(handler, AUTH.USER);
