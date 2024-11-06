@@ -3,8 +3,8 @@
 		"_postman_id": "b0f5a8a3-6ec6-475a-ac35-9558f12ba415",
 		"name": "CSC309 Scriptorium Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "39464195",
-		"_collection_link": "https://scriptors-3168.postman.co/workspace/CSC309-Scriptorium~79d6206e-6c5a-4418-bf2b-30857944289d/collection/39464195-b0f5a8a3-6ec6-475a-ac35-9558f12ba415?action=share&source=collection_link&creator=39464195"
+		"_exporter_id": "30128578",
+		"_collection_link": "https://scriptors-3168.postman.co/workspace/CSC309-Scriptorium~79d6206e-6c5a-4418-bf2b-30857944289d/collection/39464195-b0f5a8a3-6ec6-475a-ac35-9558f12ba415?action=share&source=collection_link&creator=30128578"
 	},
 	"item": [
 		{
@@ -46,7 +46,8 @@
 								"users",
 								"create"
 							]
-						}
+						},
+						"description": "The endpoint is used to create a new blog post for a user. The HTTP POST request should be made to {{host}}/api/posts/blogs/users/create with the required payload in the raw request body. The payload should include the following parameters:\n\n- \"title\" (string, required): The title of the blog post.\n    \n- \"description\" (string, required): A brief description of the content of the blog post.\n    \n- \"tags\" (string, required): A comma-separated list of tags associated with the blog post.\n    \n\n### Request Body\n\n- title (string): The title of the blog post.\n    \n- description (string): A brief description of the content of the blog post.\n    \n- tags (string): A comma-separated list of tags associated with the blog post.\n    \n\n### Expected Response\n\nThe expected response will include the details of the newly created blog post. The response for this request is a JSON schema, which can be used to validate the structure of the response data.\n\n### Additional Headers\n\nNo specific headers are required for this request.\n\nThis endpoint allows the creation of a new blog post by providing the title, description, and tags."
 					},
 					"response": []
 				},
@@ -119,7 +120,8 @@
 									"disabled": true
 								}
 							]
-						}
+						},
+						"description": "This endpoint allows the user to update a specific blog post associated with a user. The HTTP PUT request should be made to the specified URL with the necessary payload in the request body.\n\n### Request Body\n\n- id (string): The ID of the blog post to be updated.\n    \n- title (string): The new title for the blog post.\n    \n- description (string): The updated description of the blog post.\n    \n- tags (string): A comma-separated list of tags associated with the blog post.\n    \n\n### Response\n\nThe response of this request is a JSON schema representing the structure of the updated blog post data. The schema will define the properties and their data types for the updated blog post information.\n\nExample response schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"string\"\n    },\n    \"title\": {\n      \"type\": \"string\"\n    },\n    \"description\": {\n      \"type\": \"string\"\n    },\n    \"tags\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -159,7 +161,8 @@
 								"users",
 								"edit"
 							]
-						}
+						},
+						"description": "### Delete Blog Post by User ID\n\nThis endpoint is used to delete a specific blog post by providing the user ID.\n\n#### Request Body\n\n- id (string, required): The ID of the blog post to be deleted.\n    \n\n#### Response\n\nThe response will not contain a message body, but will include a status code to indicate the success or failure of the deletion operation.\n\nThis endpoint is used to delete a specific blog post by user ID.\n\n#### Request Body\n\n- id (number, required): The ID of the blog post to be deleted.\n    \n\n#### Response\n\nThe response will not contain a message body, but will return a status code to indicate the success or failure of the deletion operation."
 					},
 					"response": []
 				},
@@ -198,7 +201,8 @@
 								"comments",
 								"create"
 							]
-						}
+						},
+						"description": "### Create Post Comment\n\nThis endpoint allows the creation of a new comment on a post.\n\n#### Request Body\n\n- `id` (integer): The ID of the post to which the comment is being added.\n    \n- `description` (string): The content of the comment.\n    \n\n#### Response\n\nThe response will be in JSON format and will follow the schema below:\n\n``` json\n{\n  \"commentId\": \"string\",\n  \"postId\": \"string\",\n  \"description\": \"string\",\n  \"createdAt\": \"string\"\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -230,7 +234,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/posts/blogs?skip=0&take=10&blogTitle=introduction&desiredContent=guide&blogTags=javascript,python,c++&templateTitle=Starter",
+							"raw": "{{host}}/api/posts/blogs?skip=0&take=10&blogTitle=introduction&desiredContent=guide&blogTags=javascript",
 							"host": [
 								"{{host}}"
 							],
@@ -258,14 +262,11 @@
 								},
 								{
 									"key": "blogTags",
-									"value": "javascript,python,c++"
-								},
-								{
-									"key": "templateTitle",
-									"value": "Starter"
+									"value": "javascript"
 								}
 							]
-						}
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve blog posts with the specified parameters. The request includes query parameters such as 'skip' for pagination, 'take' for the number of posts to retrieve, 'blogTitle' for filtering by blog title, 'desiredContent' for filtering by content, 'blogTags' for filtering by tags, and 'templateTitle' for filtering by template title.\n\n### Response\n\nThe response body will contain the requested blog posts based on the provided parameters. Below is the JSON schema for the response:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"blogPosts\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"postId\": {\n            \"type\": \"string\"\n          },\n          \"title\": {\n            \"type\": \"string\"\n          },\n          \"content\": {\n            \"type\": \"string\"\n          },\n          \"tags\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"template\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"templateId\": {\n                \"type\": \"string\"\n              },\n              \"templateTitle\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -295,7 +296,8 @@
 								"blogs",
 								"2"
 							]
-						}
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve the details of a specific blog post with the ID 2. The request does not include a request body as it is a GET request. Upon successful execution, the response will contain the details of the blog post, including its title, content, author, and creation date.\n\n### Response\n\nThe response for this request can be documented as a JSON schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\"\n    },\n    \"content\": {\n      \"type\": \"string\"\n    },\n    \"author\": {\n      \"type\": \"string\"\n    },\n    \"creation_date\": {\n      \"type\": \"string\",\n      \"format\": \"date-time\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -334,7 +336,8 @@
 								"shared",
 								"vote"
 							]
-						}
+						},
+						"description": "### Update Post Vote\n\nThis endpoint is used to update the vote for a specific post.\n\n#### Request\n\n- Method: PUT\n    \n- URL: `{{host}}/api/posts/shared/vote`\n    \n- Body:\n    \n    - id (text, required): The ID of the post for which the vote is being updated.\n        \n    - rating (text, required): The new rating for the post.\n        \n\n#### Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"status\": \"string\",\n  \"message\": \"string\"\n}\n\n ```\n\n- `status` (string): Indicates the status of the vote update operation.\n    \n- `message` (string): Provides additional information about the vote update operation."
 					},
 					"response": []
 				},
@@ -376,7 +379,8 @@
 								"shared",
 								"replies"
 							]
-						}
+						},
+						"description": "This endpoint retrieves the replies to a shared post. It makes an HTTP GET request to the specified URL to fetch the replies.\n\n### Request Parameters\n\n- `id` (string) - The ID of the post for which replies are being fetched.\n    \n- `skip` (string) - Number of items to skip for pagination.\n    \n- `take` (string) - Number of items to take for pagination.\n    \n\n### Response\n\nThe response for this request can be documented as a JSON schema.\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"replies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          // Define properties of each reply object here\n        }\n      }\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				}
@@ -410,7 +414,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "This endpoint allows you to execute a code snippet in the specified programming language. The HTTP POST request should be made to [http://localhost:3000/api/execute](http://localhost:3000/api/execute) with a raw request body containing the code snippet, programming language, and optional stdin input.\n\n### Request Body\n\n- `code`: (string) The code snippet to be executed.\n    \n- `language`: (string) The programming language of the code snippet.\n    \n- `stdin`: (string) Optional standard input for the code execution.\n    \n\n### Response\n\nUpon successful execution, the server will respond with a status code of 200 and a JSON object in the response body.\n\n- `output`: (string) The standard output of the executed code.\n    \n- `error`: (string) Any error messages or compiler/runtime errors encountered during execution."
 					},
 					"response": []
 				},
@@ -439,7 +444,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "### Execute API\n\nThis API endpoint is used to execute a code snippet in the specified programming language.\n\n#### Request Body\n\n- `language` (string) - The programming language of the code snippet.\n    \n- `code` (string) - The code snippet to be executed.\n    \n- `stdin` (string) - Standard input for the code snippet execution.\n    \n\n#### Response\n\nThe response for this request follows the JSON schema below:\n\n``` json\n{\n  \"output\": \"string\",\n  \"errors\": \"string\"\n}\n\n ```\n\n- `output` (string) - The output generated by executing the code snippet.\n    \n- `errors` (string) - Any errors or exceptions encountered during code execution."
 					},
 					"response": []
 				},
@@ -468,7 +474,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "### Execute API\n\nThis endpoint is used to execute a code snippet in the specified programming language.\n\n#### Request Body\n\n- `language` (string): The programming language of the code snippet.\n    \n- `code` (string): The code snippet to be executed.\n    \n- `stdin` (string): The standard input for the code snippet.\n    \n\n#### Response\n\nThe response for this request follows the JSON schema below:\n\n``` json\n{\n  \"output\": \"string\",\n  \"error\": \"string\"\n}\n\n ```\n\n- `output` (string): The standard output generated by executing the code snippet.\n    \n- `error` (string): Any error message generated during the execution of the code snippet."
 					},
 					"response": []
 				},
@@ -497,7 +504,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "### Execute API\n\nThis API endpoint is a POST request that allows the user to execute a specific code snippet in the chosen programming language. The request should include the programming language, the code to be executed, and the standard input for the code.\n\n#### Request Body\n\n- `language` (string): The chosen programming language for the code execution.\n    \n- `code` (string): The code snippet to be executed.\n    \n- `stdin` (string): The standard input for the code.\n    \n\n#### Response\n\nThe response will include the output of the executed code."
 					},
 					"response": []
 				},
@@ -526,7 +534,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "# Execute Code\n\nThis endpoint allows you to execute a piece of code in the specified programming language.\n\n## Request Body\n\n- `code` (text): The code to be executed.\n    \n- `language` (text): The programming language of the code.\n    \n- `stdin` (text): The standard input for the code execution.\n    \n\nExample:\n\n``` json\n{\n  \"code\": \"#include <stdio.h>\\nint main() { ...\",\n  \"language\": \"c\",\n  \"stdin\": \"Hello, world!\"\n}\n\n ```\n\n## Response\n\nThe response will contain the output of the executed code."
 					},
 					"response": []
 				},
@@ -555,7 +564,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "The HTTP POST request is used to execute a code snippet in a specific programming language. The request body should be in raw format and include the code to be executed, the programming language, and the standard input for the code.\n\n### Request Body\n\n- `code` (string): The code snippet to be executed.\n    \n- `language` (string): The programming language of the code snippet.\n    \n- `stdin` (string): The standard input for the code snippet.\n    \n\n### Response Body\n\nThe response will include the output generated by executing the provided code snippet."
 					},
 					"response": []
 				},
@@ -584,7 +594,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "### Execute Code\n\nThis endpoint allows you to execute a code snippet in the specified programming language.\n\n#### Request Body\n\n- `code` (string): The code snippet to be executed.\n    \n- `language` (string): The programming language of the code snippet.\n    \n- `stdin` (string): The standard input for the code execution.\n    \n\n#### Response\n\nThe response for this request follows the JSON schema outlined below:\n\n``` json\n{\n  \"result\": \"string\",\n  \"stdout\": \"string\",\n  \"stderr\": \"string\"\n}\n\n ```\n\n- `result` (string): The result of the code execution.\n    \n- `stdout` (string): The standard output produced by the code.\n    \n- `stderr` (string): The standard error output produced by the code."
 					},
 					"response": []
 				},
@@ -613,7 +624,8 @@
 								"api",
 								"execute"
 							]
-						}
+						},
+						"description": "### Execute API\n\nThis API endpoint allows you to execute code in the specified programming language.\n\n#### Request Body\n\n- `language` (string) - The programming language in which the code is written.\n    \n- `code` (string) - The code to be executed.\n    \n- `stdin` (string) - The standard input for the code execution.\n    \n\n#### Response\n\nThe response for this request follows the JSON schema below:\n\n``` json\n{\n  \"output\": \"string\",\n  \"errors\": \"string\"\n}\n\n ```\n\n- `output` (string) - The output generated by executing the code.\n    \n- `errors` (string) - Any errors encountered during code execution."
 					},
 					"response": []
 				}
@@ -625,6 +637,16 @@
 				{
 					"name": "Report Post",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -646,13 +668,24 @@
 								"posts",
 								"reports"
 							]
-						}
+						},
+						"description": "### POST /api/posts/reports\n\nThis endpoint is used to report a specific post by providing the post ID and an explanation for the report.\n\n#### Request Body\n\n- `id` (string, required): The ID of the post being reported.\n    \n- `explanation` (string, required): A brief explanation for the report.\n    \n\nExample:\n\n``` json\n{\n  \"id\": \"5\",\n  \"explanation\": \"duplicate blog post\"\n}\n\n ```\n\n#### Response\n\nThe response for this request is a JSON object conforming to the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
 				{
 					"name": "Get Reports",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -676,15 +709,51 @@
 									"value": "10"
 								}
 							]
-						}
+						},
+						"description": "### Get Admin Reports\n\nThis endpoint is used to retrieve admin reports.\n\n#### Request\n\n- Method: GET\n    \n- URL: `{{host}}/api/posts/reports/admin`\n    \n- Query Parameters:\n    \n    - skip (integer, optional): The number of items to skip.\n        \n    - take (integer, optional): The number of items to take.\n        \n\n#### Response\n\nThe response will be a JSON object following the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"reports\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          // properties of each report item\n        }\n      }\n    },\n    \"totalReports\": {\n      \"type\": \"integer\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
 				{
 					"name": "Flag Post",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": []
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"5\",\n    \"flag\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/posts/reports/admin",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"posts",
+								"reports",
+								"admin"
+							]
+						},
+						"description": "This API endpoint is a HTTP GET request that retrieves data from the server. The request does not require a request body, and the parameters are passed through the URL. Upon successful execution, the server will respond with the requested data in the response body."
 					},
 					"response": []
 				}
@@ -751,7 +820,8 @@
 									"disabled": true
 								}
 							]
-						}
+						},
+						"description": "### POST /api/users/login\n\nThis endpoint is used to authenticate a user by providing their username and password.\n\n**Request Body**\n\n- `username` (string) - The username of the user.\n    \n- `password` (string) - The password of the user.\n    \n\n**Response**  \nThe response for this request follows the JSON schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"token\": {\n      \"type\": \"string\"\n    },\n    \"userId\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -809,7 +879,8 @@
 								"users",
 								"register"
 							]
-						}
+						},
+						"description": "This endpoint is used to register new users. The request should be sent as an HTTP POST to the specified URL. The request body should contain the following parameters:\n\n- username (string): The username of the new user.\n    \n- password (string): The password for the new user.\n    \n- firstName (string): The first name of the new user.\n    \n- lastName (string): The last name of the new user.\n    \n- email (string): The email address of the new user.\n    \n- phoneNumber (string): The phone number of the new user.\n    \n\nThe response will contain the registration status and any relevant information about the newly registered user."
 					},
 					"response": []
 				},
@@ -852,7 +923,8 @@
 								"users",
 								"refresh"
 							]
-						}
+						},
+						"description": "### Refresh User Token\n\nThis endpoint is used to refresh the user token.\n\n#### Request Body\n\n- `refreshToken` (string, required): The refresh token used to generate a new access token.\n    \n\n#### Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"accessToken\": \"string\",\n  \"expiresIn\": \"string\"\n}\n\n ```\n\n- `accessToken` (string): The new access token.\n    \n- `expiresIn` (string): The expiration time of the access token."
 					},
 					"response": []
 				},
@@ -892,7 +964,8 @@
 								"users",
 								"profile"
 							]
-						}
+						},
+						"description": "# Update User Profile\n\nThis endpoint is used to update the profile of a user.\n\n## Request\n\n- Method: PUT\n    \n- URL: `http://localhost:3000/api/users/profile`\n    \n- Headers:\n    \n    - Content-Type: application/json\n        \n- Body:\n    \n    - username (string, required): The username of the user.\n        \n    - firstName (string, required): The first name of the user.\n        \n    - lastName (string, required): The last name of the user.\n        \n    - email (string, required): The email address of the user.\n        \n    - pfpURL (string, required): The URL of the user's profile picture.\n        \n\n## Response\n\nThe response for this request is a JSON object with the updated user profile information.\n\n### JSON Schema\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"username\": { \"type\": \"string\" },\n    \"firstName\": { \"type\": \"string\" },\n    \"lastName\": { \"type\": \"string\" },\n    \"email\": { \"type\": \"string\" },\n    \"pfpURL\": { \"type\": \"string\" }\n  }\n}\n\n ```"
 					},
 					"response": []
 				}
@@ -947,7 +1020,8 @@
 									"value": "beginner"
 								}
 							]
-						}
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve templates from the API. The request includes query parameters for pagination, title, content, and tags to filter the results.\n\n### Request Parameters\n\n- `skip` (number): Specifies the number of templates to skip for pagination.\n    \n- `take` (number): Specifies the number of templates to take for pagination.\n    \n- `title` (string): Filters the templates by title.\n    \n- `content` (string): Filters the templates by content.\n    \n- `tags` (string): Filters the templates by tags.\n    \n\n### Response\n\nThe response will include the templates matching the specified criteria, along with their details such as title, content, and tags."
 					},
 					"response": []
 				},
@@ -976,7 +1050,8 @@
 								"templates",
 								"2"
 							]
-						}
+						},
+						"description": "This endpoint retrieves the template with the ID of 2. The response of this request is documented as a JSON schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"templateId\": {\n      \"type\": \"integer\"\n    },\n    \"name\": {\n      \"type\": \"string\"\n    },\n    \"content\": {\n      \"type\": \"string\"\n    },\n    \"createdAt\": {\n      \"type\": \"string\",\n      \"format\": \"date-time\"\n    },\n    \"updatedAt\": {\n      \"type\": \"string\",\n      \"format\": \"date-time\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -1006,7 +1081,8 @@
 								"users",
 								"all"
 							]
-						}
+						},
+						"description": "### Get All User Templates\n\nThis endpoint makes an HTTP GET request to retrieve all user templates.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- `templates`: An array of user templates containing information about each template, such as name, description, and content.\n    \n    - `name`: The name of the template.\n        \n    - `description`: The description of the template.\n        \n    - `content`: The content of the template."
 					},
 					"response": []
 				},
@@ -1045,7 +1121,8 @@
 								"users",
 								"create"
 							]
-						}
+						},
+						"description": "### Create User Template\n\nThis endpoint allows you to create a new user template.\n\n#### Request Body\n\n- title (string, required): The title of the template.\n    \n- explanation (string, required): Explanation or solution details.\n    \n- tags (string, required): Tags associated with the template.\n    \n- code (string, required): Code snippet for the template.\n    \n- language (string, required): Programming language of the code.\n    \n\n#### Response\n\nThe response for this request is a JSON object conforming to the following schema:\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"id\": {\n            \"type\": \"string\"\n        },\n        \"title\": {\n            \"type\": \"string\"\n        },\n        \"explanation\": {\n            \"type\": \"string\"\n        },\n        \"tags\": {\n            \"type\": \"string\"\n        },\n        \"code\": {\n            \"type\": \"string\"\n        },\n        \"language\": {\n            \"type\": \"string\"\n        },\n        \"createdAt\": {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n        },\n        \"updatedAt\": {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n        }\n    }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -1096,7 +1173,8 @@
 								"users",
 								"create-fork"
 							]
-						}
+						},
+						"description": "### Create Forked User Template\n\nThis endpoint allows the creation of a forked user template.\n\n#### Request Body\n\n- id (string, required): The ID of the user template to be forked.\n    \n\n#### Response\n\nThe response for this request is in JSON format and follows the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -1160,7 +1238,8 @@
 								"users",
 								"edit"
 							]
-						}
+						},
+						"description": "### Edit User Template\n\nThis endpoint is used to update user templates. It makes an HTTP PUT request to the specified URL.\n\n#### Purpose\n\nThe purpose of this request is to update a user template with the provided data.\n\n#### Request Parameters\n\n- `id` (string): The unique identifier of the user template to be updated.\n    \n- `privacy` (string): The privacy setting for the user template.\n    \n\n#### Expected Response\n\nThe expected response will contain the updated user template data."
 					},
 					"response": []
 				},
@@ -1199,7 +1278,8 @@
 								"users",
 								"edit"
 							]
-						}
+						},
+						"description": "# Delete User Template\n\nThis endpoint is used to delete a specific user template.\n\n## Request\n\n- Method: DELETE\n    \n- Endpoint: `{{host}}/api/templates/users/edit`\n    \n- Headers:\n    \n    - Content-Type: application/json\n        \n- { \"id\": \"3\"}\n    \n\n## Response\n\nThe response for this request will be a JSON schema, describing the structure of the response data."
 					},
 					"response": []
 				}

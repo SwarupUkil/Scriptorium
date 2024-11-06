@@ -36,7 +36,7 @@ async function handler(req, res) {
 
         // First, check if the user exists before creating the new post.
         const userExists = await prisma.user.findUnique({
-            where: { id: id },
+            where: { id: userId },
         });
 
         if (!userExists) {
