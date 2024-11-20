@@ -54,7 +54,7 @@ async function handler(req, res) {
 
       return res.status(200).json(updatedProfile);
     } catch (error) {
-      return res.status(500).json({ error: "Error updating the user profile", details: error.message });
+      return res.status(500).json({ error: "Internal server error updating the user profile", details: error.message });
     }
   } else {
     return res.status(405).json({ message: "Method not allowed" });

@@ -15,7 +15,7 @@ async function handler(req, res) {
     const templateId = Number(id);
 
     if (!id) {
-        return res.status(404).json({ error: "Invalid ID: missing blog ID" });
+        return res.status(404).json({ error: "Invalid ID: missing template ID" });
     }
 
     if (isNaN(templateId)) {
@@ -25,7 +25,7 @@ async function handler(req, res) {
     const user = req.user;
     const userId = user.id;
 
-    // Check if the blog exists and if the user ID matches
+    // Check if the template exists and if the user ID matches
     try {
         const template = await prisma.template.findUnique({
             where: {
@@ -38,7 +38,7 @@ async function handler(req, res) {
             return res.status(401).json({ message: "Unauthorized or Template not found." });
         }
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while authorizing the update template query" });
+        return res.status(400).json({ message: "An internal server error occurred while authorizing the update template query" });
     }
 
     if (req.method === "PUT") {
@@ -94,7 +94,7 @@ async function handler(req, res) {
 
             return res.status(200).json({message: "Successfully updated template"});
         } catch (error) {
-            return res.status(400).json({ message: "An error occurred while updating the template" });
+            return res.status(500).json({ message: "An internal server error occurred while updating the template" });
         }
     } else {
         try {
@@ -115,7 +115,7 @@ async function handler(req, res) {
 
             return res.status(200).json({message: "Successfully deleted template"});
         } catch (error) {
-            return res.status(400).json({ message: "An error occurred while deleting the template" });
+            return res.status(500).json({ message: "An internal server error occurred while deleting the template" });
         }
     }
 }

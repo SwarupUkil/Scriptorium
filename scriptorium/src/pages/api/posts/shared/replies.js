@@ -42,7 +42,7 @@ async function handler(req, res) {
             },
         });
 
-        console.log(postReplies);
+        // console.log(postReplies);
         if (Array.isArray(postReplies) && postReplies.length === 0) {
             return res.status(400).json({ error: "No replies found." });
         }
@@ -54,7 +54,7 @@ async function handler(req, res) {
 
         return res.status(200).json(response);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the list of comments data" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the list of comments data" });
     }
 }
 

@@ -59,7 +59,7 @@ async function handler(req, res) {
         // Return identified blog data.
         return res.status(200).json(blog);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the blog data" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the blog data" });
     }
 }
 

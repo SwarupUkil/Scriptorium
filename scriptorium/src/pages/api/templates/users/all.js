@@ -26,7 +26,7 @@ async function handler(req, res) {
 
         return res.status(200).json(templates);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the user templates" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the user templates" });
     }
 }
 

@@ -46,7 +46,7 @@ async function handler(req, res) {
 
             return res.status(200).json({message: `Successfully ${postFlag === "true" ? "hide" : "unhide"} post`});
         } catch (error) {
-            return res.status(400).json({ message: "An error occurred flagging post" });
+            return res.status(500).json({ message: "An error occurred flagging post" });
         }
     } else if (req.method === "GET") {
 
@@ -69,7 +69,7 @@ async function handler(req, res) {
             const response = convertReportCountToNumber(getReports);
             return res.status(200).json(response);
         } catch (error) {
-            return res.status(400).json({message: "An error occurred fetching reported posts" });
+            return res.status(500).json({message: "An internal server error occurred fetching reported posts" });
         }
     } else {
         return res.status(405).send({message: "Method not allowed"})

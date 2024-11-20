@@ -87,7 +87,7 @@ async function handler(req, res) {
         template.message = "Successfully created new template";
         return res.status(200).json(template);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while creating the template" });
+        return res.status(400).json({ message: "An internal server error occurred while creating the template" });
     }
 }
 

@@ -89,7 +89,7 @@ async function handler(req, res) {
         newComment.message = "Successfully created comment";
         return res.status(200).json(newComment);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while creating the reply" });
+        return res.status(400).json({ message: "An internal server error occurred while creating the reply" });
     }
 }
 

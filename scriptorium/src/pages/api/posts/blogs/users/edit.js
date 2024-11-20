@@ -77,7 +77,7 @@ async function handler(req, res) {
             return res.status(401).json({ message: "Unauthorized or Blog not found." });
         }
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while authorizing the update blog query" });
+        return res.status(500).json({ message: "An internal server error occurred while authorizing the update blog query" });
     }
 
     // CHATGPT aided in a few queries here.
@@ -135,7 +135,7 @@ async function handler(req, res) {
 
             return res.status(200).json({message: "Successfully updated blog"});
         } catch (error) {
-            return res.status(400).json({ message: "An error occurred while updating the blog" });
+            return res.status(500).json({ message: "An internal server error occurred while updating the blog" });
         }
 
     } else if (req.method === "DELETE") {
@@ -165,7 +165,7 @@ async function handler(req, res) {
 
             return res.status(200).json({message: "Successfully deleted blog"});
         } catch (error) {
-            return res.status(400).json({ message: "An error occurred while deleting the blog" });
+            return res.status(500).json({ message: "An internal server error occurred while deleting the blog" });
         }
     }
 }
