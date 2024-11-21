@@ -25,8 +25,11 @@ async function handler(req, res) {
         const templateForked = await prisma.template.findFirst({
             where: {
                 id: templateId,
-                privacy: PRIVACY.PUBLIC,
                 deleted: false,
+                OR: [
+                    { privacy: PRIVACY.PUBLIC }, // Public template
+                    { privacy: PRIVACY.PRIVATE, uid: userId } // Private but owned by user
+                ],
             },
         });
 
@@ -42,7 +45,7 @@ async function handler(req, res) {
                 title: templateForked.title,
                 explanation: templateForked.explanation,
                 tags: templateForked.tags,
-                privacy: PRIVACY.PUBLIC,
+                privacy: templateForked.privacy,
                 forkedFrom: templateId,
             },
         });

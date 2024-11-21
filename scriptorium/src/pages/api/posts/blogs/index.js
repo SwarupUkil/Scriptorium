@@ -12,16 +12,16 @@ async function handler(req, res) {
 
     const order = "desc";
 
-    // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.query;
+    // tags are given as a string following CSV formatting (i.e. spaced by commas).
+    const { skip, take, title, description, tags, templates } = req.query;
 
     const paginate = sanitizePagination(skip, take);
 
-    if (typeof blogTags !== "undefined" && typeof blogTags !== "string") {
+    if (typeof tags !== "undefined" && typeof tags !== "string") {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
-    const sanitizedBlogTags = blogTags ? blogTags.replace(/\s+/g, '') : undefined;
+    const sanitizedBlogTags = tags ? tags.replace(/\s+/g, '') : undefined;
 
     if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
         return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
@@ -31,12 +31,12 @@ async function handler(req, res) {
         // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
             where: {
-                title: blogTitle ? {contains: blogTitle} : undefined,
+                title: title ? {contains: title} : undefined,
 
                 // Filter by posts content and verify its not flagged posts.
-                ...(desiredContent ? {
+                ...(description ? {
                     post: {
-                        content: desiredContent ? { contains: desiredContent } : undefined,
+                        content: description ? { contains: description } : undefined,
                         flagged: false,
                         deleted: false,
                     }
@@ -44,9 +44,9 @@ async function handler(req, res) {
                 tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
 
                 // Filter by Template title within related templates
-                ...(templateTitle ? {
+                ...(templates ? {
                     templates: {
-                        some: { title: { contains: templateTitle } }
+                        some: { title: { contains: templates } }
                     }
                 } : {}),
             },
