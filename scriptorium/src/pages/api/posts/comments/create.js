@@ -60,7 +60,7 @@ async function handler(req, res) {
                 parentId: postId,   // the post parent this post is under
             },
             select: {
-                id: true,
+                postId: true,
             }
         });
 

@@ -69,8 +69,7 @@ model Post {
 }
 
 model Blog {
-  id     Int    @id @default(autoincrement())
-  postId Int    @unique
+  postId Int    @id
   title  String
   tags   String
 
@@ -80,8 +79,7 @@ model Blog {
 }
 
 model Comment {
-  id       Int  @id @default(autoincrement())
-  postId   Int  @unique
+  postId   Int  @id
   parentId Int
   parent   Post @relation("PostReplies", fields: [parentId], references: [id])
   post     Post @relation(fields: [postId], references: [id])
