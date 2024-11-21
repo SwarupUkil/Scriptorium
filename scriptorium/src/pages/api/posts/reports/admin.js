@@ -1,7 +1,7 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
 import sanitizePagination from "../../../../utils/paginationHelper";
-import {AUTH, REPORT} from "../../../../utils/validationConstants";
+import {AUTH, REPORT} from "../../../../utils/validateConstants";
 
 // Handler will attempt to flag a post appropriately or retrieve a list
 // of reports based on recency, being open reports, and most reported posts.

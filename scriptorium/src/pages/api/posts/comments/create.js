@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
-import {AUTH, MAX_COMMENT_DESCRIPTION, POST} from "../../../../utils/validationConstants";
+import {AUTH, MAX_COMMENT_DESCRIPTION, POST} from "../../../../utils/validateConstants";
 
 // Handler will attempt to create a new comment posting.
 async function handler(req, res) {

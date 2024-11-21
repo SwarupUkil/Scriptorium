@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH, MAX_CODE, MAX_EXPLANATION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../utils/validationConstants";
+import {AUTH, MAX_CODE, MAX_EXPLANATION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../utils/validateConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 
@@ -74,7 +74,7 @@ async function handler(req, res) {
         }
 
         if (privacy && !Object.values(PRIVACY).includes(privacy)) {
-            return res.status(400).json({message: `Privacy is invalid. Must be from ${PRIVACY}`});
+            return res.status(400).json({message: `Privacy is invalid. Must be one of: ${Object.values(PRIVACY).join(", ")}`,});
         }
 
         try {

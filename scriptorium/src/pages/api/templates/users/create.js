@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH} from "../../../../utils/validationConstants";
+import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH, PRIVACY} from "../../../../utils/validateConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 
@@ -14,7 +14,7 @@ async function handler(req, res) {
 
     const user = req.user;
     const userId = user.id;
-    const { title, explanation, tags, code, language } = req.body;
+    const { title, explanation, tags, code, language, privacy } = req.body;
 
     //  Limit user template data:
     //      title: must be given, max 100 chars
@@ -22,6 +22,7 @@ async function handler(req, res) {
     //      tags: not necessary to have, max 100 chars
     //      code: must be given, max 15000 characters
     //      language: must be given
+    //      privacy: defaults to PRIVATE if not given.
     if (!title || !explanation || !code || !language) {
         return res.status(400).json({message: "Missing title, explanation, code, or language"});
     }
@@ -55,6 +56,10 @@ async function handler(req, res) {
         return res.status(400).json({message: "Code language is invalid"});
     }
 
+    if (privacy && !Object.values(PRIVACY).includes(privacy)) {
+        return res.status(400).json({message: `Privacy is invalid. Must be one of: ${Object.values(PRIVACY).join(", ")}`,});
+    }
+
     try {
         // First, check if the user exists before creating the new post.
         const userExists = await prisma.user.findUnique({
@@ -74,6 +79,7 @@ async function handler(req, res) {
                 explanation: explanation,
                 tags: tags ? tags : null,
                 forkedFrom: null,
+                privacy: privacy ? privacy : PRIVACY.PRIVATE, // default to private
             },
             select: {
                 id: true,

@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH, PRIVACY} from "../../../../utils/validationConstants";
+import {AUTH, PRIVACY} from "../../../../utils/validateConstants";
 
 // Handler will save a forked template for client.
 async function handler(req, res) {

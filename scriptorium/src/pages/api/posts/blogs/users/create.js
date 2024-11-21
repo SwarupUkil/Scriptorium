@@ -1,7 +1,7 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
-import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST} from "../../../../../utils/validationConstants";
+import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST} from "../../../../../utils/validateConstants";
 
 // Handler will attempt to create a new blog posting.
 async function handler(req, res) {
