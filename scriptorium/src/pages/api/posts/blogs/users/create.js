@@ -63,6 +63,18 @@ async function handler(req, res) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
+        // Check if all provided template IDs exist
+        const existingTemplates = await prisma.template.findMany({
+            where: {
+                id: {in: templates }, // Check for templates with these IDs
+                privacy: PRIVACY.PUBLIC,
+            },
+            select: { id: true },
+        });
+
+        // Extract the valid template IDs that exist in the database
+        const validTemplateIds = existingTemplates.map((template) => template.id);
+
         const post = await prisma.post.create({
             data: {
                 uid: id,
@@ -85,35 +97,18 @@ async function handler(req, res) {
                 postId: post.id,
                 title: title,
                 tags: csvTags,
+                templates: {
+                    set: [],
+
+                    // Connect the new templates specified by the client
+                    connect: validTemplateIds.map((id) => ({ id: id })),
+                },
             },
             select: {id: true},
         });
 
         if (!blog) {
             return res.status(400).json({message: "Unable to create new blog"});
-        }
-
-        // After creating a blog. Add for each template linked in blog, this blog's ID.
-        if (templates) {
-            for (let template of templates) {
-                template = Number(template);
-
-                if (isNaN(template)) {
-                    return res.status(400).json({message: "Templates array must contain only integers"});
-                }
-
-                // IMPORTANT: blogs in User table contains blog.postId
-                await prisma.template.update({
-                    where: {
-                        id: template,
-                    },
-                    data: {
-                        blogs: {
-                            connect: { postId: blog.postId },
-                        },
-                    },
-                });
-            }
         }
 
         post.message = "Successfully created new blog";
