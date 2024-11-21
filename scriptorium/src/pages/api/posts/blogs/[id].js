@@ -31,7 +31,6 @@ async function handler(req, res) {
                 id: true,
                 rating: true,
                 uid: true,
-                replies: true,
                 content: true,
                 flagged: true,
                 deleted: true,

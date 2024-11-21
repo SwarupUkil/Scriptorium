@@ -17,18 +17,26 @@ async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
-    const sanitizedTags = tags ? tags.replace(/\s+/g, '') : undefined;
-    if (sanitizedTags && !validateTags(sanitizedTags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     try {
+        // Build `AND` conditions for tags
+        const tagConditions =
+            sanitizedTags.validTags.length > 0
+                ? sanitizedTags.validTags.map(tag => ({
+                    tags: { contains: tag }, // Simulates checking if the template contains this tag
+                }))
+                : undefined;
+
         const templates = await prisma.template.findMany({
             where: {
                 // Filter by templates by title, code contents, and tags.
                 title: title ? {contains: title} : undefined,
                 explanation: content ? {contains: content} : undefined,
-                tags: sanitizedTags ? { contains: sanitizedTags } : undefined,
+                AND: tagConditions,
                 privacy: "PUBLIC",
                 deleted: false,
             },

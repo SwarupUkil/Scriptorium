@@ -39,16 +39,13 @@ async function handler(req, res) {
         return res.status(400).json({message: "Code is too large"});
     }
 
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
-    }
-
     if (tags && tags.length > MAX_TAGS) {
         return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
     }
 
-    if (tags && !validateTags(tags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     const codeLanguage = parseLanguage(language);
@@ -70,6 +67,9 @@ async function handler(req, res) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
+        // Convert sanitized tags to CSV format
+        const csvTags = sanitizedTags.validTags.length > 0 ? sanitizedTags.validTags.join(",") : undefined;
+
         const template = await prisma.template.create({
             data: {
                 uid: userId,
@@ -77,7 +77,7 @@ async function handler(req, res) {
                 language: codeLanguage,
                 title: title,
                 explanation: explanation,
-                tags: tags ? tags : null,
+                tags: csvTags,
                 forkedFrom: null,
                 privacy: privacy ? privacy : PRIVACY.PRIVATE, // default to private
             },

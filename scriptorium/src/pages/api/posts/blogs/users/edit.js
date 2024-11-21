@@ -36,16 +36,13 @@ async function handler(req, res) {
     }
 
     // Tags validation
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
-    }
-
     if (tags && tags.length > MAX_TAGS) {
         return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS} characters in CSV form`});
     }
 
-    if (tags && !validateTags(tags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     // Template validation
@@ -54,10 +51,14 @@ async function handler(req, res) {
     }
 
     if (templates) {
+        let index = 0;
         for (const templateId of templates) {
             if (isNaN(Number(templateId))) {
                 return res.status(400).json({message: "Templates must be given as their ID number"});
+            } else {
+                templates[index] = Number(templateId);
             }
+            index++;
         }
     }
 
@@ -104,13 +105,15 @@ async function handler(req, res) {
                 },
             });
 
+            // Convert sanitized tags to CSV format
+            const csvTags = sanitizedTags.validTags.length > 0 ? sanitizedTags.validTags.join(",") : undefined;
             await prisma.blog.update({
                 where: {
                     postId: blogId,
                 },
                 data: {
                     title: title || undefined,
-                    tags: tags || undefined,
+                    tags: csvTags,
                     templates: {
                         // Disconnect all templates currently linked to this blog
                         set: [],

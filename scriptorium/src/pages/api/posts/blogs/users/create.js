@@ -26,20 +26,30 @@ async function handler(req, res) {
         return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
     }
 
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
-    }
-
     if (tags && tags.length > MAX_TAGS) {
         return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
     }
 
-    if (tags && !validateTags(tags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
+    // Template validation
     if (templates && !Array.isArray(templates)) {
         return res.status(400).json({message: "Templates must be given as an array"});
+    }
+
+    if (templates) {
+        let index = 0;
+        for (const templateId of templates) {
+            if (isNaN(Number(templateId))) {
+                return res.status(400).json({message: "Templates must be given as their ID number"});
+            } else {
+                templates[index] = Number(templateId);
+            }
+            index++;
+        }
     }
 
     try {
@@ -68,11 +78,13 @@ async function handler(req, res) {
             return res.status(400).json({message: "Unable to create new posting"});
         }
 
+        // Convert sanitized tags to CSV format
+        const csvTags = sanitizedTags.validTags.length > 0 ? sanitizedTags.validTags.join(",") : undefined;
         const blog = await prisma.blog.create({
             data: {
                 postId: post.id,
                 title: title,
-                tags: tags,
+                tags: csvTags,
             },
             select: {id: true},
         });
@@ -90,30 +102,19 @@ async function handler(req, res) {
                     return res.status(400).json({message: "Templates array must contain only integers"});
                 }
 
-                // IMPORTANT: blogs in User table contains blog.id, not blog.postId!
+                // IMPORTANT: blogs in User table contains blog.postId
                 await prisma.template.update({
                     where: {
                         id: template,
                     },
                     data: {
                         blogs: {
-                            connect: { id: blog.id }, // Connect the new Blog by its id
+                            connect: { postId: blog.postId },
                         },
                     },
                 });
             }
         }
-
-        await prisma.user.update({
-            where: {
-                id: id,
-            },
-            data: {
-                posts: {
-                    connect: {id: post.id},
-                }
-            },
-        });
 
         post.message = "Successfully created new blog";
         return res.status(200).json(post);
