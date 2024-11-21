@@ -140,26 +140,13 @@ async function handler(req, res) {
 
     } else if (req.method === "DELETE") {
         try {
+            // Keep data in database, but functionally have it deleted.
             await prisma.post.update({
                 where: {
                     id: blogId,
                 },
                 data: {
-                    content: "",
                     deleted: true,
-                },
-            });
-            await prisma.blog.update({
-                where: {
-                    postId: blogId,
-                },
-                data: {
-                    title: "",
-                    tags: "",
-                    templates: {
-                        // This clears all existing connections in the templates relation (regarding postId)
-                        set: [],
-                    },
                 },
             });
 

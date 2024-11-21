@@ -98,17 +98,12 @@ async function handler(req, res) {
         }
     } else {
         try {
+            // Keep data in database, but functionally have it deleted.
             await prisma.template.update({
                 where: {
                     id: templateId,
                 },
                 data: {
-                    code: "",
-                    language: "",
-                    title: "",
-                    explanation: "",
-                    tags: null,
-                    privacy: PRIVACY.PRIVATE,
                     deleted: true,
                 },
             });

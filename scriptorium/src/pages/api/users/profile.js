@@ -50,6 +50,15 @@ async function handler(req, res) {
           phoneNumber: phoneNumber || undefined,
           theme: theme
         },
+        select: {
+          username: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          pfpURL: true,
+          phoneNumber: true,
+          theme: true,
+        },
       });
 
       return res.status(200).json(updatedProfile);
