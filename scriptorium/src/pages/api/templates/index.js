@@ -31,6 +31,16 @@ async function handler(req, res) {
                 }))
                 : undefined;
 
+        const total = await prisma.template.count({
+            where: {
+                title: title ? { contains: title } : undefined,
+                explanation: content ? { contains: content } : undefined,
+                AND: tagConditions,
+                privacy: "PUBLIC",
+                deleted: false,
+            },
+        });
+
         const templates = await prisma.template.findMany({
             where: {
                 // Filter by templates by title, code contents, and tags.
@@ -52,13 +62,25 @@ async function handler(req, res) {
 
         // Error if either we found zero blogs.
         if (Array.isArray(templates) && templates.length === 0) {
-            return res.status(400).json({data: templates, message: "No templates were found. Try loosening your search and check spelling.", isEmpty: true });
+            return res.status(200).json({
+                data: templates,
+                message: "No templates were found. Try loosening your search and check spelling.",
+                isEmpty: true });
         }
 
+        // No next page if we've fetched all items.
+        const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
+
         const response = {
-            data: templates, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
+            data: templates, // Array of template ids and basic info.
+            message: paginate.message ? paginate.message : "Successfully retrieved replies.",
             isEmpty: false,
+            pagination: {
+                total,
+                nextSkip,
+                currentSkip: paginate.skip,
+                take: paginate.take,
+            },
         };
 
         return res.status(200).json(response);

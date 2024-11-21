@@ -22,6 +22,15 @@ async function handler(req, res) {
     }
 
     try {
+        // First, check if the user exists before creating the new post.
+        const userExists = await prisma.user.findUnique({
+            where: { id: id },
+        });
+
+        if (!userExists) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
         const templateForked = await prisma.template.findFirst({
             where: {
                 id: templateId,

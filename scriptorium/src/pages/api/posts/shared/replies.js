@@ -24,8 +24,20 @@ async function handler(req, res) {
     }
 
     try {
+        const total = await prisma.post.count({
+            where: {
+                deleted: false,
+                flagged: false,
+                comment: {
+                    parentId: postId,
+                },
+            },
+        });
+
         const postReplies = await prisma.post.findMany({
             where: {
+                deleted: false,
+                flagged: false,
                 comment: {
                     parentId: postId,
                 },
@@ -42,14 +54,26 @@ async function handler(req, res) {
             },
         });
 
-        // console.log(postReplies);
         if (Array.isArray(postReplies) && postReplies.length === 0) {
-            return res.status(400).json({ error: "No replies found." });
+            return res.status(200).json({
+                data: postReplies,
+                message: "No templates were found. Try loosening your search and check spelling.",
+                isEmpty: true });
         }
+
+        // No next page if we've fetched all items.
+        const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
 
         const response = {
             data: postReplies, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
+            message: paginate.message ? paginate.message : "Successfully retrieved replies.",
+            isEmpty: false,
+            pagination: {
+                total,
+                nextSkip,
+                currentSkip: paginate.skip,
+                take: paginate.take,
+            },
         };
 
         return res.status(200).json(response);

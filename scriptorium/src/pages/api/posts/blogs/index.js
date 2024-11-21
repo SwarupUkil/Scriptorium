@@ -17,30 +17,42 @@ async function handler(req, res) {
 
     const paginate = sanitizePagination(skip, take);
 
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given following CSV notation"});
-    }
-
-    const sanitizedBlogTags = tags ? tags.replace(/\s+/g, '') : undefined;
-
-    if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     try {
+
+        const total = await prisma.blog.count({
+            where: {
+                title: title ? { contains: title } : undefined,
+                post: {
+                    content: description ? { contains: description } : undefined,
+                    flagged: false,
+                    deleted: false,
+                },
+                tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
+                ...(templates ? {
+                    templates: {
+                        some: { title: { contains: templates } },
+                    },
+                } : {}),
+            },
+        });
+
         // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
             where: {
                 title: title ? {contains: title} : undefined,
 
-                // Filter by posts content and verify its not flagged posts.
-                ...(description ? {
-                    post: {
-                        content: description ? { contains: description } : undefined,
-                        flagged: false,
-                        deleted: false,
-                    }
-                } : {}),
+                // Filter by posts that are not flagged or deleted
+                post: {
+                    content: description ? { contains: description } : undefined,
+                    flagged: false,
+                    deleted: false,
+                },
+
                 tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
 
                 // Filter by Template title within related templates
@@ -84,13 +96,25 @@ async function handler(req, res) {
 
         // Error if either we found zero blogs.
         if (Array.isArray(blogs) && blogs.length === 0) {
-            return res.status(400).json({data: blogs, message: "No blog was found. Try loosening your search and check spelling.", isEmpty: true });
+            return res.status(200).json({
+                data: blogs,
+                message: "No blog was found. Try loosening your search and check spelling.",
+                isEmpty: true });
         }
+
+        // No next page if we've fetched all items.
+        const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
 
         const response = {
             data: blogs, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
+            message: paginate.message ? paginate.message : "Successfully retrieved replies.",
             isEmpty: false,
+            pagination: {
+                total,
+                nextSkip,
+                currentSkip: paginate.skip,
+                take: paginate.take,
+            },
         };
 
         // Return identified blog data.
