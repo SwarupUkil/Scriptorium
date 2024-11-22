@@ -1,8 +1,8 @@
 import {prisma} from "../../../../utils/db";
-import sanitizePagination from "../../../../utils/paginationHelper";
+import {paginationResponse, sanitizePagination} from "../../../../utils/paginationHelper";
 import validateTags from "../../../../utils/validateTags";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
-import {ORDER, REPORT} from "../../../../utils/validateConstants";
+import {ORDER} from "../../../../utils/validateConstants";
 
 // Handler will give a generic list of IDs and titles of blogs.
 async function handler(req, res) {
@@ -96,31 +96,8 @@ async function handler(req, res) {
                         : { post: { rating: order } },      // Default to rating sorting
         });
 
-        // Error if either we found zero blogs.
-        if (Array.isArray(blogs) && blogs.length === 0) {
-            return res.status(200).json({
-                data: blogs,
-                message: "No blog was found. Try loosening your search and check spelling.",
-                isEmpty: true });
-        }
-
-        // No next page if we've fetched all items.
-        const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
-
-        const response = {
-            data: blogs, // Array of objects (e.g., comments or posts)
-            message: paginate.message ? paginate.message : "Successfully retrieved replies.",
-            isEmpty: false,
-            pagination: {
-                total,
-                nextSkip,
-                currentSkip: paginate.skip,
-                take: paginate.take,
-            },
-        };
-
         // Return identified blog data.
-        return res.status(200).json(response);
+        return res.status(200).json(paginationResponse(blogs, total, paginate, "blogs"));
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blogs" });
     }

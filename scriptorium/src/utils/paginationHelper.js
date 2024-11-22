@@ -1,5 +1,5 @@
 // GPT generated helper function to aid in sanitizing pagination values.
-export default function sanitizePagination(skip, take, DEFAULT_TAKE = 10, MAX_TAKE = 100) {
+export function sanitizePagination(skip, take, DEFAULT_TAKE = 10, MAX_TAKE = 100) {
     let message = null;
 
     // Ensure `skip` is a non-negative integer; default to 0 if null or invalid
@@ -21,4 +21,31 @@ export default function sanitizePagination(skip, take, DEFAULT_TAKE = 10, MAX_TA
     }
 
     return { skip: sanitizedSkip, take: sanitizedTake, message };
+}
+
+export function paginationResponse(data, total, paginate, type) {
+
+    if (Array.isArray(data) && data.length === 0) {
+        return {
+            data: data,
+            message: `No ${type} found. Try loosening your search and check spelling.`,
+            isEmpty: true,
+            pagination: null
+        };
+    }
+
+    // No next page if we've fetched all items.
+    const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
+
+    return {
+        data: data, // Array of objects (e.g., comments or posts)
+        message: paginate.message ? paginate.message : `Successfully retrieved ${type}.`,
+        isEmpty: false,
+        pagination: {
+            total,
+            nextSkip,
+            currentSkip: paginate.skip,
+            take: paginate.take,
+        },
+    };
 }

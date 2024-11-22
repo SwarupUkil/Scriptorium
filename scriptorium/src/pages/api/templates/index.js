@@ -1,6 +1,6 @@
 import {prisma} from "../../../utils/db";
 import { verifyTokenMiddleware } from "../../../utils/auth";
-import sanitizePagination from "../../../utils/paginationHelper";
+import {sanitizePagination, paginationResponse} from "../../../utils/paginationHelper";
 import validateTags from "../../../utils/validateTags";
 
 // Handler will give a list of public template IDs based on client specification.
@@ -60,30 +60,7 @@ async function handler(req, res) {
             take: paginate.take,
         });
 
-        // Error if either we found zero blogs.
-        if (Array.isArray(templates) && templates.length === 0) {
-            return res.status(200).json({
-                data: templates,
-                message: "No templates were found. Try loosening your search and check spelling.",
-                isEmpty: true });
-        }
-
-        // No next page if we've fetched all items.
-        const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
-
-        const response = {
-            data: templates, // Array of template ids and basic info.
-            message: paginate.message ? paginate.message : "Successfully retrieved replies.",
-            isEmpty: false,
-            pagination: {
-                total,
-                nextSkip,
-                currentSkip: paginate.skip,
-                take: paginate.take,
-            },
-        };
-
-        return res.status(200).json(response);
+        return res.status(200).json(paginationResponse(templates, total, paginate, "templates"));
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the templates" });
     }

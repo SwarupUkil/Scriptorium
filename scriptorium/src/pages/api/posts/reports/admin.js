@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import sanitizePagination from "../../../../utils/paginationHelper";
+import {paginationResponse, sanitizePagination} from "../../../../utils/paginationHelper";
 import {AUTH, REPORT} from "../../../../utils/validateConstants";
 
 // Handler will attempt to flag a post appropriately or retrieve a list
@@ -57,6 +57,12 @@ async function handler(req, res) {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
+            const total = await prisma.$queryRaw`
+                SELECT COUNT(DISTINCT postId)
+                FROM Report
+                WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
+            `;
+
             const getReports = await prisma.$queryRaw`
                 SELECT postId, COUNT(*) as reportCount
                 FROM Report
@@ -66,7 +72,9 @@ async function handler(req, res) {
                 LIMIT ${paginate.take} OFFSET ${paginate.skip};
             `;
 
-            const response = convertReportCountToNumber(getReports);
+            const reports = convertReportCountToNumber(getReports);
+            const response = paginationResponse(reports, total, paginate, "reports")
+
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({message: "An internal server error occurred fetching reported posts" });
