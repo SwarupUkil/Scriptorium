@@ -11,7 +11,7 @@ async function handler(req, res) {
 
     const user = req.user;
     const userId = user.id;
-    const templateId = Number(req.body.id);
+    const templateId = Number(req.query.id);
 
     if (!req.body.id) {
         return res.status(404).json({ error: "Invalid ID: missing template ID to fork from" });

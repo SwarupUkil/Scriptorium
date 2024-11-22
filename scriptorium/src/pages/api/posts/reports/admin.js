@@ -8,7 +8,7 @@ import {AUTH, REPORT} from "../../../../utils/validateConstants";
 async function handler(req, res) {
 
     if (req.method === "PUT") {
-        const { id, flag } = req.body;
+        const { id, flag } = req.query;
         const postId = Number(id);
         const postFlag = flag.replace(/\s+/g, '');
 
@@ -23,8 +23,6 @@ async function handler(req, res) {
         if (postFlag !== "false" && postFlag !== "true") {
             return res.status(400).send({message: "Post flag must be `true` or `false` (spelled exactly)"});
         }
-
-        // const resolve = isResolved ? (isResolved.replace(/\s+/g, '') === "true") : false;
 
         try {
             const postExists = await prisma.post.findUnique({

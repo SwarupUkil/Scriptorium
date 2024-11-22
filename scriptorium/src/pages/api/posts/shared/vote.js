@@ -9,8 +9,8 @@ async function handler(req, res){
         return res.status(405).send({message: "Method not allowed"})
     }
 
-    const postId = Number(req.body.id);
-    const rating = Number(req.body.rating)
+    const postId = Number(req.query.id);
+    const rating = Number(req.query.rating)
     const user = req.user;
     const { id } = user;
 

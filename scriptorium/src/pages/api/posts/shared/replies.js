@@ -9,7 +9,7 @@ async function handler(req, res) {
         return res.status(405).json({message: "Method not allowed"});
     }
 
-    const { id, skip, take } = req.body; // Parent post's postId.
+    const { id, skip, take } = req.query; // Parent post's postId.
     const postId = Number(id);
 
     const paginate = sanitizePagination(skip, take);
