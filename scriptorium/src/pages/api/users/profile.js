@@ -1,6 +1,6 @@
 import { prisma } from "../../../utils/db";
 import { verifyTokenMiddleware } from "../../../utils/auth";
-import {AUTH} from "../../../utils/validationConstants";
+import {AUTH} from "../../../utils/validateConstants";
 
 const profileImages = JSON.parse(process.env.PROFILE_IMAGES);
 
@@ -50,11 +50,20 @@ async function handler(req, res) {
           phoneNumber: phoneNumber || undefined,
           theme: theme
         },
+        select: {
+          username: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          pfpURL: true,
+          phoneNumber: true,
+          theme: true,
+        },
       });
 
       return res.status(200).json(updatedProfile);
     } catch (error) {
-      return res.status(500).json({ error: "Error updating the user profile", details: error.message });
+      return res.status(500).json({ error: "Internal server error updating the user profile", details: error.message });
     }
   } else {
     return res.status(405).json({ message: "Method not allowed" });

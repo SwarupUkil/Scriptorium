@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH} from "../../../../utils/validationConstants";
+import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH, PRIVACY} from "../../../../utils/validateConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 
@@ -14,7 +14,7 @@ async function handler(req, res) {
 
     const user = req.user;
     const userId = user.id;
-    const { title, explanation, tags, code, language } = req.body;
+    const { title, explanation, tags, code, language, privacy } = req.body;
 
     //  Limit user template data:
     //      title: must be given, max 100 chars
@@ -22,6 +22,7 @@ async function handler(req, res) {
     //      tags: not necessary to have, max 100 chars
     //      code: must be given, max 15000 characters
     //      language: must be given
+    //      privacy: defaults to PRIVATE if not given.
     if (!title || !explanation || !code || !language) {
         return res.status(400).json({message: "Missing title, explanation, code, or language"});
     }
@@ -38,21 +39,22 @@ async function handler(req, res) {
         return res.status(400).json({message: "Code is too large"});
     }
 
-    if (typeof tags !== "undefined" && typeof tags !== "string") {
-        return res.status(400).json({message: "Tags must be given as one long CSV styled string"});
-    }
-
     if (tags && tags.length > MAX_TAGS) {
         return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
     }
 
-    if (tags && !validateTags(tags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     const codeLanguage = parseLanguage(language);
     if (!codeLanguage) {
         return res.status(400).json({message: "Code language is invalid"});
+    }
+
+    if (privacy && !Object.values(PRIVACY).includes(privacy)) {
+        return res.status(400).json({message: `Privacy is invalid. Must be one of: ${Object.values(PRIVACY).join(", ")}`,});
     }
 
     try {
@@ -65,6 +67,9 @@ async function handler(req, res) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
+        // Convert sanitized tags to CSV format
+        const csvTags = sanitizedTags.validTags.length > 0 ? sanitizedTags.validTags.join(",") : undefined;
+
         const template = await prisma.template.create({
             data: {
                 uid: userId,
@@ -72,8 +77,9 @@ async function handler(req, res) {
                 language: codeLanguage,
                 title: title,
                 explanation: explanation,
-                tags: tags ? tags : null,
+                tags: csvTags,
                 forkedFrom: null,
+                privacy: privacy ? privacy : PRIVACY.PRIVATE, // default to private
             },
             select: {
                 id: true,
@@ -87,7 +93,7 @@ async function handler(req, res) {
         template.message = "Successfully created new template";
         return res.status(200).json(template);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while creating the template" });
+        return res.status(400).json({ message: "An internal server error occurred while creating the template" });
     }
 }
 

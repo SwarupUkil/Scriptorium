@@ -1,4 +1,4 @@
-import { SUPPORTED_LANGUAGES } from './validationConstants';
+import { SUPPORTED_LANGUAGES } from './validateConstants';
 
 export function parseLanguage(language) {
     if (typeof language !== "string") return null;

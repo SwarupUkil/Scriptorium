@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH} from "../../../../utils/validationConstants";
+import {AUTH} from "../../../../utils/validateConstants";
 
 // Handler will update the vote (upvote/downvote) from a user on a post.
 async function handler(req, res){
@@ -9,8 +9,8 @@ async function handler(req, res){
         return res.status(405).send({message: "Method not allowed"})
     }
 
-    const postId = Number(req.body.id);
-    const rating = Number(req.body.rating)
+    const postId = Number(req.query.id);
+    const rating = Number(req.query.rating)
     const user = req.user;
     const { id } = user;
 
@@ -70,8 +70,10 @@ async function handler(req, res){
         // -1 -1 so we add 0
         // 1 -1 so we add 2.
         let currentRating = rating;
+        let updateTotalRatingsBy = 1;
         if (currentRatingObj) {
             currentRating -= currentRatingObj.value;
+            updateTotalRatingsBy = 0; // Already accounted in engagement total.
         }
 
         // Update the blog post rating total.
@@ -81,12 +83,13 @@ async function handler(req, res){
             },
             data: {
                 rating: {increment: currentRating},
+                totalRatings: {increment: updateTotalRatingsBy},
             },
         });
 
         return res.status(200).json({message: "Successfully updated user vote on the post"});
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while up/down voting the post (likely invalid post ID)" });
+        return res.status(500).json({ message: "An internal server error occurred while up/down voting the post (likely invalid post ID)" });
     }
 }
 

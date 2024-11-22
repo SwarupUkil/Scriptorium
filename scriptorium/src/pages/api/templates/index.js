@@ -1,6 +1,6 @@
 import {prisma} from "../../../utils/db";
 import { verifyTokenMiddleware } from "../../../utils/auth";
-import sanitizePagination from "../../../utils/paginationHelper";
+import {sanitizePagination, paginationResponse} from "../../../utils/paginationHelper";
 import validateTags from "../../../utils/validateTags";
 
 // Handler will give a list of public template IDs based on client specification.
@@ -17,18 +17,36 @@ async function handler(req, res) {
         return res.status(400).json({message: "Tags must be given following CSV notation"});
     }
 
-    const sanitizedTags = tags ? tags.replace(/\s+/g, '') : undefined;
-    if (sanitizedTags && !validateTags(sanitizedTags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     try {
+        // Build `AND` conditions for tags
+        const tagConditions =
+            sanitizedTags.validTags.length > 0
+                ? sanitizedTags.validTags.map(tag => ({
+                    tags: { contains: tag }, // Simulates checking if the template contains this tag
+                }))
+                : undefined;
+
+        const total = await prisma.template.count({
+            where: {
+                title: title ? { contains: title } : undefined,
+                explanation: content ? { contains: content } : undefined,
+                AND: tagConditions,
+                privacy: "PUBLIC",
+                deleted: false,
+            },
+        });
+
         const templates = await prisma.template.findMany({
             where: {
                 // Filter by templates by title, code contents, and tags.
                 title: title ? {contains: title} : undefined,
                 explanation: content ? {contains: content} : undefined,
-                tags: sanitizedTags ? { contains: sanitizedTags } : undefined,
+                AND: tagConditions,
                 privacy: "PUBLIC",
                 deleted: false,
             },
@@ -42,20 +60,9 @@ async function handler(req, res) {
             take: paginate.take,
         });
 
-        // Error if either we found zero blogs.
-        if (Array.isArray(templates) && templates.length === 0) {
-            return res.status(400).json({data: templates, message: "No templates were found. Try loosening your search and check spelling.", isEmpty: true });
-        }
-
-        const response = {
-            data: templates, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
-            isEmpty: false,
-        };
-
-        return res.status(200).json(response);
+        return res.status(200).json(paginationResponse(templates, total, paginate, "templates"));
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the templates" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the templates" });
     }
 }
 

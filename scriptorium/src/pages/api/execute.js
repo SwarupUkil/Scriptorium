@@ -58,19 +58,17 @@ export default async function handler(req, res) {
         command = `wsl bash -c "${command}"`;
       }
 
-      // console.log(command)
-
       exec(command, { cwd: tempDir }, (error, stdout, stderr) => {
         fs.rm(tempDir, { recursive: true, force: true })
 
         if (error) {
-          return res.status(500).json({ error: "Execution error", details: stderr || error.message });
+          return res.status(400).json({ error: "Execution error: ", details: stderr || error.message });
         }
 
         return res.status(200).json({ output: stdout, error: stderr });
       });
     } catch (error) {
-      return res.status(500).json({ error: "Error trying to execute the code", details: error.message });
+      return res.status(500).json({ error: "Internal server error trying to execute the code: ", details: error.message });
     }
   } else {
     return res.status(405).json({ message: "Method not allowed" });

@@ -5,6 +5,8 @@ export const MAX_EXPLANATION = 3000;
 export const MAX_BLOG_DESCRIPTION = 3000;
 export const MAX_COMMENT_DESCRIPTION = 3000;
 
+export const ALLOWED_TAGS = ["javascript", "python", "java", "react", "nodejs", "sql"];
+
 export const AUTH = {
     USER: "USER",
     ADMIN: "ADMIN",
@@ -18,6 +20,12 @@ export const PRIVACY = {
 export const POST = {
     BLOG: "BLOG",
     COMMENT: "COMMENT",
+};
+
+export const ORDER = {
+    ASC: "ASC",
+    DESC: "DESC",
+    CONTROVERSIAL: "CONTROVERSIAL",
 };
 
 export const REPORT = {

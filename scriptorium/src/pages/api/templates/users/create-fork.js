@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH, PRIVACY} from "../../../../utils/validationConstants";
+import {AUTH, PRIVACY} from "../../../../utils/validateConstants";
 
 // Handler will save a forked template for client.
 async function handler(req, res) {
@@ -11,9 +11,9 @@ async function handler(req, res) {
 
     const user = req.user;
     const userId = user.id;
-    const templateId = Number(req.body.id);
+    const templateId = Number(req.query.id);
 
-    if (!req.body.id) {
+    if (!req.query.id) {
         return res.status(404).json({ error: "Invalid ID: missing template ID to fork from" });
     }
 
@@ -22,11 +22,23 @@ async function handler(req, res) {
     }
 
     try {
+        // First, check if the user exists before creating the new post.
+        const userExists = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!userExists) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
         const templateForked = await prisma.template.findFirst({
             where: {
                 id: templateId,
-                privacy: PRIVACY.PUBLIC,
                 deleted: false,
+                OR: [
+                    { privacy: PRIVACY.PUBLIC }, // Public template
+                    { privacy: PRIVACY.PRIVATE, uid: userId } // Private but owned by user
+                ],
             },
         });
 
@@ -42,7 +54,7 @@ async function handler(req, res) {
                 title: templateForked.title,
                 explanation: templateForked.explanation,
                 tags: templateForked.tags,
-                privacy: PRIVACY.PUBLIC,
+                privacy: templateForked.privacy,
                 forkedFrom: templateId,
             },
         });
@@ -60,7 +72,7 @@ async function handler(req, res) {
 
         return res.status(200).json({id: newTemplate.id, message: "Successfully forked template"});
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the templates" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the templates" });
     }
 }
 

@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH} from "../../../../utils/validationConstants";
+import {AUTH} from "../../../../utils/validateConstants";
 
 // Handler will attempt to create a new user report on a posting.
 async function handler(req, res) {
@@ -51,7 +51,7 @@ async function handler(req, res) {
 
         return res.status(200).json({message: "Successfully reported post"});
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while reporting the post" });
+        return res.status(500).json({ message: "An internal server error occurred while reporting the post" });
     }
 }
 

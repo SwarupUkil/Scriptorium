@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import sanitizePagination from "../../../../utils/paginationHelper";
+import {sanitizePagination, paginationResponse} from "../../../../utils/paginationHelper";
 
 // Handler will return the replies to a specific post to the client.
 async function handler(req, res) {
@@ -9,7 +9,7 @@ async function handler(req, res) {
         return res.status(405).json({message: "Method not allowed"});
     }
 
-    const { id, skip, take } = req.body; // Parent post's postId.
+    const { id, skip, take } = req.query; // Parent post's postId.
     const postId = Number(id);
 
     const paginate = sanitizePagination(skip, take);
@@ -24,8 +24,20 @@ async function handler(req, res) {
     }
 
     try {
+        const total = await prisma.post.count({
+            where: {
+                deleted: false,
+                flagged: false,
+                comment: {
+                    parentId: postId,
+                },
+            },
+        });
+
         const postReplies = await prisma.post.findMany({
             where: {
+                deleted: false,
+                flagged: false,
                 comment: {
                     parentId: postId,
                 },
@@ -42,19 +54,9 @@ async function handler(req, res) {
             },
         });
 
-        console.log(postReplies);
-        if (Array.isArray(postReplies) && postReplies.length === 0) {
-            return res.status(400).json({ error: "No replies found." });
-        }
-
-        const response = {
-            data: postReplies, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
-        };
-
-        return res.status(200).json(response);
+        return res.status(200).json(paginationResponse(postReplies, total, paginate, "replies"));
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the list of comments data" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the list of comments data" });
     }
 }
 

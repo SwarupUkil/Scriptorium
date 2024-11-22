@@ -1,7 +1,8 @@
 import {prisma} from "../../../../utils/db";
-import sanitizePagination from "../../../../utils/paginationHelper";
+import {paginationResponse, sanitizePagination} from "../../../../utils/paginationHelper";
 import validateTags from "../../../../utils/validateTags";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
+import {ORDER} from "../../../../utils/validateConstants";
 
 // Handler will give a generic list of IDs and titles of blogs.
 async function handler(req, res) {
@@ -10,43 +11,66 @@ async function handler(req, res) {
         res.status(405).json({message: "Method not allowed"});
     }
 
-    const order = "desc";
+    // tags are given as a string following CSV formatting (i.e. spaced by commas).
+    const { skip, take, title, description, tags, templates, orderBy } = req.query;
 
-    // blogTags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, blogTitle, desiredContent, blogTags, templateTitle } = req.query;
+    let order = ORDER.DESC;
+    if (orderBy === ORDER.ASC) {
+        order = ORDER.ASC;
+    }
 
     const paginate = sanitizePagination(skip, take);
 
-    if (typeof blogTags !== "undefined" && typeof blogTags !== "string") {
-        return res.status(400).json({message: "Tags must be given following CSV notation"});
-    }
-
-    const sanitizedBlogTags = blogTags ? blogTags.replace(/\s+/g, '') : undefined;
-
-    if (sanitizedBlogTags && !validateTags(sanitizedBlogTags)) {
-        return res.status(400).json({message: "Tags must be given following CSV notation (no spaces)"});
+    const sanitizedTags = validateTags(tags);
+    if (tags && !sanitizedTags.isValid) {
+        return res.status(400).json({message: sanitizedTags.message});
     }
 
     try {
+
+        // Build `AND` conditions for tags
+        const tagConditions =
+            sanitizedTags.validTags.length > 0
+                ? sanitizedTags.validTags.map(tag => ({
+                    tags: { contains: tag }, // Simulates checking if the template contains this tag
+                }))
+                : undefined;
+
+        const total = await prisma.blog.count({
+            where: {
+                title: title ? { contains: title } : undefined,
+                post: {
+                    content: description ? { contains: description } : undefined,
+                    flagged: false,
+                    deleted: false,
+                },
+                AND: tagConditions,
+                ...(templates ? {
+                    templates: {
+                        some: { title: { contains: templates } },
+                    },
+                } : {}),
+            },
+        });
+
         // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
             where: {
-                title: blogTitle ? {contains: blogTitle} : undefined,
+                title: title ? {contains: title} : undefined,
 
-                // Filter by posts content and verify its not flagged posts.
-                ...(desiredContent ? {
-                    post: {
-                        content: desiredContent ? { contains: desiredContent } : undefined,
-                        flagged: false,
-                        deleted: false,
-                    }
-                } : {}),
-                tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
+                // Filter by posts that are not flagged or deleted
+                post: {
+                    content: description ? { contains: description } : undefined,
+                    flagged: false,
+                    deleted: false,
+                },
+
+                AND: tagConditions,
 
                 // Filter by Template title within related templates
-                ...(templateTitle ? {
+                ...(templates ? {
                     templates: {
-                        some: { title: { contains: templateTitle } }
+                        some: { title: { contains: templates } }
                     }
                 } : {}),
             },
@@ -75,28 +99,21 @@ async function handler(req, res) {
             },
             skip: paginate.skip,
             take: paginate.take,
-            orderBy: {
-                post: {
-                    rating: order,
-                },
-            },
+            orderBy: orderBy === ORDER.CONTROVERSIAL ?
+                { post: { totalRatings: order.toLowerCase() } } :  // Sort by controversy
+                { post: { rating: order.toLowerCase() } },      // Default to rating sorting
         });
 
-        // Error if either we found zero blogs.
-        if (Array.isArray(blogs) && blogs.length === 0) {
-            return res.status(400).json({data: blogs, message: "No blog was found. Try loosening your search and check spelling.", isEmpty: true });
-        }
-
-        const response = {
-            data: blogs, // Array of objects (e.g., comments or posts)
-            message: paginate.message || null, // Message only included if there's a warning or note
-            isEmpty: false,
-        };
+        // Remove `templates` from each blog object
+        const sanitizedBlogs = blogs.map(blog => {
+            const { templates, ...rest } = blog;
+            return rest;
+        });
 
         // Return identified blog data.
-        return res.status(200).json(response);
+        return res.status(200).json(paginationResponse(sanitizedBlogs, total, paginate, "blogs"));
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while retrieving the blogs" });
+        return res.status(500).json({ message: "An internal server error occurred while retrieving the blogs" });
     }
 }
 

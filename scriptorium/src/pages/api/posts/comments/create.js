@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
-import {AUTH, MAX_COMMENT_DESCRIPTION, POST} from "../../../../utils/validationConstants";
+import {AUTH, MAX_COMMENT_DESCRIPTION, POST} from "../../../../utils/validateConstants";
 
 // Handler will attempt to create a new comment posting.
 async function handler(req, res) {
@@ -60,7 +60,7 @@ async function handler(req, res) {
                 parentId: postId,   // the post parent this post is under
             },
             select: {
-                id: true,
+                postId: true,
             }
         });
 
@@ -70,18 +70,7 @@ async function handler(req, res) {
             where: {id: postId},
             data: {
                 replies: {
-                    connect: {id: newComment.id},
-                },
-            },
-        });
-
-        await prisma.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                posts: {
-                    connect: {id: newPost.id},
+                    connect: newComment.id,
                 },
             },
         });
@@ -89,7 +78,7 @@ async function handler(req, res) {
         newComment.message = "Successfully created comment";
         return res.status(200).json(newComment);
     } catch (error) {
-        return res.status(400).json({ message: "An error occurred while creating the reply" });
+        return res.status(400).json({ message: "An internal server error occurred while creating the reply" });
     }
 }
 
