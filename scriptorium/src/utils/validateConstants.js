@@ -22,6 +22,12 @@ export const POST = {
     COMMENT: "COMMENT",
 };
 
+export const ORDER = {
+    ASC: "ASC",
+    DESC: "DESC",
+    CONTROVERSIAL: "CONTROVERSIAL",
+};
+
 export const REPORT = {
     OPEN: "OPEN",
     RESOLVED: "RESOLVED",

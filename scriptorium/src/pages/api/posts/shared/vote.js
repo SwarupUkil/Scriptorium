@@ -70,8 +70,10 @@ async function handler(req, res){
         // -1 -1 so we add 0
         // 1 -1 so we add 2.
         let currentRating = rating;
+        let updateTotalRatingsBy = 1;
         if (currentRatingObj) {
             currentRating -= currentRatingObj.value;
+            updateTotalRatingsBy = 0; // Already accounted in engagement total.
         }
 
         // Update the blog post rating total.
@@ -81,6 +83,7 @@ async function handler(req, res){
             },
             data: {
                 rating: {increment: currentRating},
+                totalRatings: {increment: updateTotalRatingsBy},
             },
         });
 

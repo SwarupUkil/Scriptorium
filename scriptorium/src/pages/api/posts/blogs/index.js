@@ -2,6 +2,7 @@ import {prisma} from "../../../../utils/db";
 import sanitizePagination from "../../../../utils/paginationHelper";
 import validateTags from "../../../../utils/validateTags";
 import {verifyTokenMiddleware} from "../../../../utils/auth";
+import {ORDER, REPORT} from "../../../../utils/validateConstants";
 
 // Handler will give a generic list of IDs and titles of blogs.
 async function handler(req, res) {
@@ -10,10 +11,13 @@ async function handler(req, res) {
         res.status(405).json({message: "Method not allowed"});
     }
 
-    const order = "desc";
-
     // tags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, title, description, tags, templates } = req.query;
+    const { skip, take, title, description, tags, templates, orderBy } = req.query;
+
+    let order = ORDER.DESC;
+    if (orderBy === ORDER.ASC) {
+        order = ORDER.ASC;
+    }
 
     const paginate = sanitizePagination(skip, take);
 
@@ -87,11 +91,9 @@ async function handler(req, res) {
             },
             skip: paginate.skip,
             take: paginate.take,
-            orderBy: {
-                post: {
-                    rating: order,
-                },
-            },
+            orderBy: orderBy === ORDER.CONTROVERSIAL
+                        ? { post: { totalRatings: order } } // Sort by totalRatings for controversial
+                        : { post: { rating: order } },      // Default to rating sorting
         });
 
         // Error if either we found zero blogs.
