@@ -1,7 +1,7 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
-import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST} from "../../../../../utils/validateConstants";
+import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST, PRIVACY} from "../../../../../utils/validateConstants";
 
 // Handler will attempt to create a new blog posting.
 async function handler(req, res) {
@@ -12,7 +12,16 @@ async function handler(req, res) {
 
     const user = req.user;
     const { id } = user;
+    const userId = Number(id);
     const { title, description, tags, templates } = req.body;
+
+    if (!id) {
+        return res.status(404).json({ error: "Invalid ID: missing template ID" });
+    }
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: "Invalid ID: not a number" });
+    }
 
     if (!title || !description) {
         return res.status(400).json({message: "Missing title or description"});
@@ -56,7 +65,7 @@ async function handler(req, res) {
 
         // First, check if the user exists before creating the new post.
         const userExists = await prisma.user.findUnique({
-            where: { id: id },
+            where: { id: userId },
         });
 
         if (!userExists) {
@@ -77,9 +86,9 @@ async function handler(req, res) {
 
         const post = await prisma.post.create({
             data: {
-                uid: id,
+                uid: userId,
                 content: description,
-                type: POST.BLOG,
+                type: "blog",
             },
             select: {
                 id: true,
@@ -98,13 +107,11 @@ async function handler(req, res) {
                 title: title,
                 tags: csvTags,
                 templates: {
-                    set: [],
-
                     // Connect the new templates specified by the client
                     connect: validTemplateIds.map((id) => ({ id: id })),
                 },
             },
-            select: {id: true},
+            select: {postId: true},
         });
 
         if (!blog) {

@@ -102,6 +102,7 @@ async function handler(req, res) {
                 },
                 data: {
                     content: description ? description : undefined,
+                    updatedAt: new Date(),
                 },
             });
 

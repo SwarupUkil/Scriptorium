@@ -70,18 +70,7 @@ async function handler(req, res) {
             where: {id: postId},
             data: {
                 replies: {
-                    connect: {id: newComment.id},
-                },
-            },
-        });
-
-        await prisma.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                posts: {
-                    connect: {id: newPost.id},
+                    connect: newComment.id,
                 },
             },
         });

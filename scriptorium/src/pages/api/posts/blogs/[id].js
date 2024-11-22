@@ -34,6 +34,8 @@ async function handler(req, res) {
                 content: true,
                 flagged: true,
                 deleted: true,
+                createdAt: true,
+                updatedAt: true,
             },
         });
 

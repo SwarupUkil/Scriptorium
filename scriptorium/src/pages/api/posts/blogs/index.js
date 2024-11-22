@@ -28,6 +28,14 @@ async function handler(req, res) {
 
     try {
 
+        // Build `AND` conditions for tags
+        const tagConditions =
+            sanitizedTags.validTags.length > 0
+                ? sanitizedTags.validTags.map(tag => ({
+                    tags: { contains: tag }, // Simulates checking if the template contains this tag
+                }))
+                : undefined;
+
         const total = await prisma.blog.count({
             where: {
                 title: title ? { contains: title } : undefined,
@@ -36,7 +44,7 @@ async function handler(req, res) {
                     flagged: false,
                     deleted: false,
                 },
-                tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
+                AND: tagConditions,
                 ...(templates ? {
                     templates: {
                         some: { title: { contains: templates } },
@@ -57,7 +65,7 @@ async function handler(req, res) {
                     deleted: false,
                 },
 
-                tags: sanitizedBlogTags ? { contains: sanitizedBlogTags } : undefined,
+                AND: tagConditions,
 
                 // Filter by Template title within related templates
                 ...(templates ? {
@@ -91,13 +99,19 @@ async function handler(req, res) {
             },
             skip: paginate.skip,
             take: paginate.take,
-            orderBy: orderBy === ORDER.CONTROVERSIAL
-                        ? { post: { totalRatings: order } } // Sort by totalRatings for controversial
-                        : { post: { rating: order } },      // Default to rating sorting
+            orderBy: orderBy === ORDER.CONTROVERSIAL ?
+                { post: { totalRatings: order.toLowerCase() } } :  // Sort by controversy
+                { post: { rating: order.toLowerCase() } },      // Default to rating sorting
+        });
+
+        // Remove `templates` from each blog object
+        const sanitizedBlogs = blogs.map(blog => {
+            const { templates, ...rest } = blog;
+            return rest;
         });
 
         // Return identified blog data.
-        return res.status(200).json(paginationResponse(blogs, total, paginate, "blogs"));
+        return res.status(200).json(paginationResponse(sanitizedBlogs, total, paginate, "blogs"));
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blogs" });
     }

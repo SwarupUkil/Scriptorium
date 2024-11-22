@@ -13,7 +13,7 @@ async function handler(req, res) {
     const userId = user.id;
     const templateId = Number(req.query.id);
 
-    if (!req.body.id) {
+    if (!req.query.id) {
         return res.status(404).json({ error: "Invalid ID: missing template ID to fork from" });
     }
 
@@ -24,7 +24,7 @@ async function handler(req, res) {
     try {
         // First, check if the user exists before creating the new post.
         const userExists = await prisma.user.findUnique({
-            where: { id: id },
+            where: { id: userId },
         });
 
         if (!userExists) {

@@ -31,7 +31,10 @@ async function handler(req, res) {
             return res.status(404).json({ error: "Template not found or is private" });
         }
 
-        return res.status(200).json(template);
+        // Extract sensitive data from template.
+        const {uid, deleted, ...response} = template;
+
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the template data" });
     }

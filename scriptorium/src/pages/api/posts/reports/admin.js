@@ -55,11 +55,12 @@ async function handler(req, res) {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-            const total = await prisma.$queryRaw`
+            const totalNumberOfPosts = await prisma.$queryRaw`
                 SELECT COUNT(DISTINCT postId)
                 FROM Report
                 WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
             `;
+            const total = Number(totalNumberOfPosts[0]['COUNT(DISTINCT postId)']); // Convert BigInt to Number
 
             const getReports = await prisma.$queryRaw`
                 SELECT postId, COUNT(*) as reportCount
