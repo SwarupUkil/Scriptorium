@@ -10,7 +10,6 @@ async function handler(req, res) {
     if (req.method === "PUT") {
         const { id, flag } = req.query;
         const postId = Number(id);
-        const postFlag = flag.replace(/\s+/g, '');
 
         if (!id || !flag) {
             return res.status(400).send({message: "Missing post ID or flag (true is hide post or false is unhide post)"});
@@ -19,6 +18,8 @@ async function handler(req, res) {
         if (isNaN(postId)) {
             return res.status(400).send({message: "Post ID must be a integer"});
         }
+
+        const postFlag = flag.replace(/\s+/g, '');
 
         if (postFlag !== "false" && postFlag !== "true") {
             return res.status(400).send({message: "Post flag must be `true` or `false` (spelled exactly)"});
@@ -63,7 +64,7 @@ async function handler(req, res) {
             const total = Number(totalNumberOfPosts[0]['COUNT(DISTINCT postId)']); // Convert BigInt to Number
 
             const getReports = await prisma.$queryRaw`
-                SELECT postId, COUNT(*) as reportCount
+                SELECT postId, COUNT(*) as reportCount, uid, explanation
                 FROM Report
                 WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
                 GROUP BY postId

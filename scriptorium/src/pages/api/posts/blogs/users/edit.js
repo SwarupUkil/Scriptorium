@@ -146,12 +146,8 @@ async function handler(req, res) {
         try {
             // Keep data in database, but functionally have it deleted.
             await prisma.post.update({
-                where: {
-                    id: blogId,
-                },
-                data: {
-                    deleted: true,
-                },
+                where: { id: blogId, },
+                data: { deleted: true, },
             });
 
             return res.status(200).json({message: "Successfully deleted blog"});
@@ -161,4 +157,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);

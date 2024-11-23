@@ -1,9 +1,8 @@
 import {prisma} from "../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../../utils/auth";
 import {sanitizePagination, paginationResponse} from "../../../../utils/paginationHelper";
 
 // Handler will return the replies to a specific post to the client.
-async function handler(req, res) {
+export default async function handler(req, res) {
 
     if (req.method !== "GET") {
         return res.status(405).json({message: "Method not allowed"});
@@ -59,5 +58,3 @@ async function handler(req, res) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the list of comments data" });
     }
 }
-
-export default verifyTokenMiddleware(handler);

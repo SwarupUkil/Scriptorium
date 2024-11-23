@@ -1,7 +1,7 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
-import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST, PRIVACY} from "../../../../../utils/validateConstants";
+import {MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST, PRIVACY} from "../../../../../utils/validateConstants";
 
 // Handler will attempt to create a new blog posting.
 async function handler(req, res) {
@@ -16,7 +16,7 @@ async function handler(req, res) {
     const { title, description, tags, templates } = req.body;
 
     if (!id) {
-        return res.status(404).json({ error: "Invalid ID: missing template ID" });
+        return res.status(404).json({ error: "Invalid ID: missing user ID" });
     }
 
     if (isNaN(userId)) {
@@ -88,7 +88,7 @@ async function handler(req, res) {
             data: {
                 uid: userId,
                 content: description,
-                type: "blog",
+                type: POST.BLOG,
             },
             select: {
                 id: true,
@@ -125,4 +125,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);

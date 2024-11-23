@@ -1,6 +1,5 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH} from "../../../../utils/validateConstants";
 
 // Handler will attempt to create a new user report on a posting.
 async function handler(req, res) {
@@ -55,4 +54,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);

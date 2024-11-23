@@ -1,10 +1,9 @@
 import {prisma} from "../../../utils/db";
-import { verifyTokenMiddleware } from "../../../utils/auth";
 import {sanitizePagination, paginationResponse} from "../../../utils/paginationHelper";
 import validateTags from "../../../utils/validateTags";
 
 // Handler will give a list of public template IDs based on client specification.
-async function handler(req, res) {
+export default async function handler(req, res) {
 
     if (req.method !== "GET") {
         res.status(405).json({message: "Method not allowed"});
@@ -65,5 +64,3 @@ async function handler(req, res) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the templates" });
     }
 }
-
-export default verifyTokenMiddleware(handler);
