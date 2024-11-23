@@ -39,6 +39,15 @@ async function handler(req, res) {
             },
         });
 
+        const findUsername = await prisma.user.findUnique({
+            where: {
+                id: postValues.uid,
+            },
+            select: {
+                username: true,
+            },
+        });
+
         const blogValues = await prisma.blog.findUnique({
             where: {postId: blogId},
             select: {
@@ -47,7 +56,10 @@ async function handler(req, res) {
             },
         });
 
+        postValues.uid = null; // Client should not know this detail.
+
         const blog = {
+            username: findUsername.username,
             ...postValues,
             ...blogValues,
         }
