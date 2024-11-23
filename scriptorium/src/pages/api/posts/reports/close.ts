@@ -12,63 +12,70 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
         return res.status(405).send({message: "Method not allowed"});
     }
 
-    const { id } = req.query;
-    const { uid } = req.body;
-    const postId: number = Number(id);
-    const userId: number | undefined = Number(uid);
+    const { id, pid } = req.query;
+    const reportId: number = Number(id);
+    const postId: number = Number(pid);
 
-    if (!id) {
-        return res.status(400).send({message: "Missing post ID"});
+    if (!id && !pid) {
+        return res.status(400).send({message: "Missing report or post ID"});
     }
 
-    if (isNaN(postId)) {
+    if (id && isNaN(reportId)) {
+        return res.status(400).send({message: "Report ID must be a integer"});
+    }
+
+    if (pid && isNaN(postId)) {
         return res.status(400).send({message: "Post ID must be a integer"});
     }
 
-    if (uid && isNaN(userId)) {
-        return res.status(400).send({message: "User ID must be a integer"});
-    }
-
-    // Verify the user exists.
-    if (uid) {
+    if (id) {
         try {
-            const user = await prisma.user.findUnique({
-                where: {id: userId},
+            // Verify the report exists.
+            const report: {id: number;} | null = await prisma.report.findUnique({
+                where: {id: reportId},
+                select: {id: true},
             })
 
-            if (!user) {
-                return res.status(400).send({message: "User does not exist"});
+            if (!report) {
+                return res.status(404).send({message: "Report not found"});
             }
+
+            await prisma.report.update({
+                where: { id: reportId, },
+                data: { status: REPORT.RESOLVED },
+                select: { id: true },
+            });
+
+            return res.status(200).json({ message: "Singular report successfully resolved" });
         } catch (error) {
-            return res.status(500).json({ message: "Error validating user existence" });
+            return res.status(400).send({message: "An internal server error occurred closing reports"});
         }
-    }
+    } else {
+        try {
+            const post: {id: number} | null = await prisma.post.findUnique({
+                where: {id: postId},
+                select: {id: true},
+            })
 
-    // Close report.
-    try {
-        const post = await prisma.post.findUnique({
-            where: {id: postId},
-        })
+            if (!post) {
+                return res.status(400).send({message: "Post does not exist"});
+            }
 
-        if (!post) {
-            return res.status(400).send({message: "Post does not exist"});
+            const updateCount: {count: number} = await prisma.report.updateMany({
+                where: {
+                    postId: postId,
+                },
+                data: { status: REPORT.RESOLVED },
+            });
+
+            if (updateCount.count === 0) {
+                return res.status(200).json({ message: "No reports found for the specified criteria" });
+            }
+
+            return res.status(200).json({ message: "All associated reports successfully resolved" });
+        } catch (error) {
+            return res.status(500).json({ message: "An internal server error occurred closing reports" });
         }
-
-        const updateCount = await prisma.report.updateMany({
-            where: {
-                postId: postId,
-                ...(uid !== undefined ? { uid } : {}), // Add uid to the filter only if provided
-            },
-            data: { status: REPORT.RESOLVED },
-        });
-
-        if (updateCount.count === 0) {
-            return res.status(200).json({ message: "No reports found for the specified criteria" });
-        }
-
-        return res.status(200).json({ message: "Reports successfully resolved" });
-    } catch (error) {
-        return res.status(500).json({ message: "An internal server error occurred closing reports" });
     }
 }
 
