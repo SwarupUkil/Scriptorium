@@ -1,11 +1,10 @@
 import {prisma} from "../../../../utils/db";
 import {paginationResponse, sanitizePagination} from "../../../../utils/paginationHelper";
 import validateTags from "../../../../utils/validateTags";
-import {verifyTokenMiddleware} from "../../../../utils/auth";
 import {ORDER} from "../../../../utils/validateConstants";
 
 // Handler will give a generic list of IDs and titles of blogs.
-async function handler(req, res) {
+export default async function handler(req, res) {
 
     if (req.method !== "GET") {
         res.status(405).json({message: "Method not allowed"});
@@ -116,5 +115,3 @@ async function handler(req, res) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blogs" });
     }
 }
-
-export default verifyTokenMiddleware(handler);

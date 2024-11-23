@@ -1,5 +1,4 @@
 import {prisma} from "@/utils/db";
-import {verifyTokenMiddleware} from "@/utils/auth";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Define the shape of the Post and Comment objects returned from the database
@@ -28,7 +27,7 @@ type CommentResponse = PostValues & {
 };
 
 // Handler will return a specified blog post to client.
-async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>  {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>  {
 
     if (req.method !== "GET") {
         return res.status(405).json({message: "Method not allowed"});
@@ -106,5 +105,3 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blog data" });
     }
 }
-
-export default verifyTokenMiddleware(handler);

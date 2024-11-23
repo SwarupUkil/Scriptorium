@@ -1,6 +1,6 @@
 import { prisma } from "@/utils/db";
 import { verifyTokenMiddleware } from "@/utils/auth";
-import { AUTH, MAX_COMMENT_DESCRIPTION, POST } from "@/utils/validateConstants";
+import { MAX_COMMENT_DESCRIPTION, POST } from "@/utils/validateConstants";
 import { NextApiRequest, NextApiResponse } from "next";
 
 interface UpdateCommentRequest extends NextApiRequest {
@@ -87,6 +87,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);

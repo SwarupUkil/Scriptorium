@@ -1,8 +1,7 @@
 import {prisma} from "../../../utils/db";
-import { verifyTokenMiddleware } from "../../../utils/auth";
 
 // Handler will return a specific template that is authorized (public).
-async function handler(req, res) {
+export default async function handler(req, res) {
 
     if (req.method !== "GET") {
         return res.status(405).json({message: "Method not allowed"});
@@ -39,5 +38,3 @@ async function handler(req, res) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the template data" });
     }
 }
-
-export default verifyTokenMiddleware(handler);

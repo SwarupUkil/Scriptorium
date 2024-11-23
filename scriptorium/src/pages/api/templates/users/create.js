@@ -97,4 +97,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);

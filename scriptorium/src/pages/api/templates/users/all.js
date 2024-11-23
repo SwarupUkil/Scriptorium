@@ -1,6 +1,5 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {AUTH} from "../../../../utils/validateConstants";
 import {sanitizePagination, paginationResponse} from "../../../../utils/paginationHelper";
 
 // Handler will return all the clients templates.
@@ -44,4 +43,4 @@ async function handler(req, res) {
     }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);
