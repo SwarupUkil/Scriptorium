@@ -30,7 +30,12 @@ export function paginationResponse(data, total, paginate, type) {
             data: data,
             message: `No ${type} found. Try loosening your search and check spelling.`,
             isEmpty: true,
-            pagination: null
+            pagination: {
+                total: 0,
+                nextSkip: 0,
+                currentSkip: paginate.skip,
+                take: paginate.take,
+            },
         };
     }
 
