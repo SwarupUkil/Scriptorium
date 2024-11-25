@@ -1,4 +1,38 @@
 /**
+ * Helper function to make a GET API request and handle responses.
+ *
+ * @param url - The API endpoint to fetch data from.
+ * @returns A tuple containing the response data and pagination information.
+ * @throws An error if the response is not OK or if there's an issue with the request.
+ */
+export async function fetchWithPagination<T>(url: string): Promise<[T[], any]> {
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API error (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.isEmpty) {
+            return [[], data.pagination];
+        }
+
+        return [data.data, data.pagination]; // Return the response data and pagination info
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error; // Re-throw the error for caller to handle
+    }
+}
+
+/**
  * Constructs a query parameter string from an object of parameters.
  *
  * @param params - An object containing key-value pairs to be converted to query parameters.

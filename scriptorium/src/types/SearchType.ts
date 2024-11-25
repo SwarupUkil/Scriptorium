@@ -2,6 +2,7 @@
 import React from "react";
 import {PaginationState} from "@/types/PaginationType";
 import {BlogPost} from "@/types/PostType";
+import {Template} from "@/types/TemplateType";
 
 export type SearchParams = {
     skip?: number;
@@ -14,7 +15,7 @@ export type SearchParams = {
 
 export type SearchBarProps = {
     onApiCall: (params: SearchParams) => Promise<any>,
-    setData: (state: BlogPost[]) => void,
+    setData: ((state: BlogPost[]) => void) | ((state: Template[]) => void),
     pagination: PaginationState,
     setPagination: (state: PaginationState) => void,
     additionalFields?: React.ReactNode,
@@ -24,3 +25,5 @@ export type SearchBarProps = {
 export type SearchBlogsParams = SearchParams & {
     templateTitle?: string;
 };
+
+export type SearchTemplatesParams = SearchParams;
