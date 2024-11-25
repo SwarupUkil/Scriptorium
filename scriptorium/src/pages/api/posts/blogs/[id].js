@@ -1,5 +1,4 @@
 import {prisma} from "../../../../utils/db";
-import {verifyTokenMiddleware} from "../../../../utils/auth";
 
 // Handler will return a specified blog post to client.
 export default async function handler(req, res) {
@@ -56,8 +55,6 @@ export default async function handler(req, res) {
             },
         });
 
-        postValues.uid = null; // Client should not know this detail.
-
         const blog = {
             username: findUsername.username,
             ...postValues,
@@ -70,7 +67,9 @@ export default async function handler(req, res) {
         }
 
         // Return identified blog data.
-        return res.status(200).json(blog);
+        const {deleted, uid, id, ...response} = blog;
+        response.postId = id;
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blog data" });
     }

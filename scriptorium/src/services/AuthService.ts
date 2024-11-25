@@ -1,5 +1,5 @@
 // EXAMPLE BY GPT
-export const login = async (email: string, password: string): Promise<any> => {
+export const login = async (email: string, password: string): Promise<never> => {
     const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
