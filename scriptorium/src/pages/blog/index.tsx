@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 import { searchBlogs } from "@/services/PostService";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
@@ -7,6 +8,7 @@ import {PaginationState} from "@/types/PaginationType";
 import {BlogPost} from "@/types/PostType";
 
 export default function Blog() {
+    const router = useRouter();
     const [data, setData] = useState<BlogPost[]>([]);
 
     // State for pagination
@@ -17,7 +19,10 @@ export default function Blog() {
         totalPages: 1,
     });
 
-    // const fetchByParam = searchBlogs({skip, take, blogTitle, desiredContent, blogTags, templateTitle});
+    const handleRowClick = (id: number) => {
+        router.push(`/blog/${id}`); // Navigate to the dynamic blog page
+    };
+
     return (
         <>
             <div  className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-between p-6" >
@@ -46,7 +51,7 @@ export default function Blog() {
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                             {data.map((blog) => (
-                                <tr key={blog.postId} className="hover:bg-gray-100 dark:hover:bg-gray-900">
+                                <tr key={blog.postId} onClick={() => {handleRowClick(blog.postId)}} className="hover:bg-gray-100 dark:hover:bg-gray-900">
                                     <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{blog.rating}</td>
                                     <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{blog.title}</td>
                                     <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{blog.tags}</td>

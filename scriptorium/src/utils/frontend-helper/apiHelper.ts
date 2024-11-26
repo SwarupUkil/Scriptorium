@@ -71,3 +71,17 @@ export function parseTagsToCSV(tags: string[]): string {
         .filter(tag => tag.length > 0)             // Remove empty strings
         .join(",");                                // Join as CSV
 }
+
+/**
+ * Parses a CSV-formatted string and returns an array of cleaned tags.
+ *
+ * @param csv - A CSV string of tags.
+ * @returns An array of lowercase, trimmed, alphanumeric tags.
+ */
+export function parseCSVToTags(csv: string): string[] {
+    return csv
+        .split(",")                                // Split the string by commas
+        .map(tag => tag.trim().toLowerCase())      // Trim and convert to lowercase
+        .map(tag => tag.replace(/[^a-z0-9]/gi, '')) // Remove non-alphanumeric characters
+        .filter(tag => tag.length > 0);           // Remove empty strings
+}

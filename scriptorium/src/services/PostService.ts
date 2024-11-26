@@ -84,7 +84,7 @@ export const getReplies = async ({skip, take, id}: {
 
 
 /////
-const getBlog = async (id: number): Promise<Blog | null> => {
+export const getBlog = async (id: number): Promise<Blog | null> => {
     const url = '/api/posts/blogs/' + id.toString();
 
     try {
@@ -108,7 +108,7 @@ const getBlog = async (id: number): Promise<Blog | null> => {
 };
 
 
-const getComment = async (id: number): Promise<Comment | null> => {
+export const getComment = async (id: number): Promise<Comment | null> => {
     const url = '/api/posts/comments/' + id.toString();
 
     try {
