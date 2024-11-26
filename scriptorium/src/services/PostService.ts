@@ -1,6 +1,7 @@
 import {constructQueryParams} from "@/utils/frontend-helper/apiHelper";
 import {SearchBlogsParams} from "@/types/SearchType";
 import {BlogPost, Blog, Comment} from "@/types/PostType";
+import {PaginationState} from "@/types/PaginationType";
 
 export const searchBlogs = async ({
   skip,
@@ -50,7 +51,7 @@ export const getReplies = async ({skip, take, id}: {
     skip?: number,
     take?: number,
     id: number,
-}): Promise<Comment[] | null> => {
+}): Promise<[Comment[], PaginationState] | null> => {
 
     const url = '/api/posts/shared/replies' + constructQueryParams({
         skip,
@@ -109,7 +110,7 @@ export const getBlog = async (id: number): Promise<Blog | null> => {
 
 
 export const getComment = async (id: number): Promise<Comment | null> => {
-    const url = '/api/posts/comments/' + id.toString();
+    const url = `/api/posts/comments/${id}`;
 
     try {
         const response = await fetch(url, {
