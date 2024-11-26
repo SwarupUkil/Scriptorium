@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     // tags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, title, description, tags, templates, orderBy } = req.query;
+    const { skip, take, title, content, tags, templates, orderBy } = req.query;
 
     let order = ORDER.DESC;
     if (orderBy === ORDER.ASC) {
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             where: {
                 title: title ? { contains: title } : undefined,
                 post: {
-                    content: description ? { contains: description } : undefined,
+                    content: content ? { contains: content } : undefined,
                     flagged: false,
                     deleted: false,
                 },
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
                 // Filter by posts that are not flagged or deleted
                 post: {
-                    content: description ? { contains: description } : undefined,
+                    content: content ? { contains: content } : undefined,
                     flagged: false,
                     deleted: false,
                 },
@@ -76,6 +76,7 @@ export default async function handler(req, res) {
             select: {
                 postId: true,
                 title: true,
+                tags: true,
                 // Join between post and blog tables.
                 post: {
                     select: {
@@ -105,8 +106,15 @@ export default async function handler(req, res) {
 
         // Remove `templates` from each blog object
         const sanitizedBlogs = blogs.map(blog => {
-            const { templates, ...rest } = blog;
-            return rest;
+            const { templates, post, ...rest } = blog;
+
+            return {
+                ...rest,
+                ...(post ? {
+                    rating: post.rating,
+                    flagged: post.flagged,
+                } : {}), // Flatten `post` properties to the blog level
+            };
         });
 
         // Return identified blog data.

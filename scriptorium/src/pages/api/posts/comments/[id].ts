@@ -3,12 +3,22 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 // Define the shape of the Post and Comment objects returned from the database
 interface PostValues {
+    postId?: number;
     id: number;
-    rating: number;
     uid: number | null;
+    rating: number;
     content: string;
     flagged: boolean;
     deleted: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface PostResponse {
+    postId?: number;
+    rating: number;
+    content: string;
+    flagged: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -22,7 +32,7 @@ type Username = {
 };
 
 // Combined type for the API response
-type CommentResponse = PostValues & {
+type CommentResponse = PostResponse & {
     username: string;
 };
 
@@ -92,10 +102,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(404).json({ message: "User not found" });
         }
 
-        postValues.uid = null; // Client should not know this detail.
-
+        // Client should not know uid detail.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const {uid, deleted, id, ...post} = postValues;
+        post.postId = id;
         const response: CommentResponse = {
-            ...postValues,
+            ...post,
             username: String(findUsername.username),
         }
 
