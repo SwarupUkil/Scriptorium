@@ -107,13 +107,7 @@ export default function BlogPost() {
                 )}
 
                 {/* Blog Content */}
-                <BlogContent blog={blog} onLike={() => {
-                    console.log("wow")
-                }} onDislike={() => {
-                    console.log("xox")
-                }} onReply={() => {
-                    console.log("zamn")
-                }}/>
+                <BlogContent blog={blog} />
 
                 {/* Comments Section */}
                 <div className="mt-8">

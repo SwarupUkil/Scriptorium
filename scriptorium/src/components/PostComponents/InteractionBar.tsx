@@ -1,43 +1,81 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
+import {updateVote, getVote} from "@/services/PostService";
 
 type InteractionBarProps = {
     parentId: number;
     initialRating: number;
-    // onLike: (parentId: number) => void;
-    // onDislike: (parentId: number) => void;
-    // onReply: (parentId: number) => void;
 };
 
-const InteractionBar: React.FC<InteractionBarProps> = ({
-                                                           parentId,
-                                                           initialRating,
-                                                           // onLike,
-                                                           // onDislike,
-                                                           // onReply,
-                                                       }) => {
+const InteractionBar: React.FC<InteractionBarProps> = ({parentId, initialRating,}) => {
+
     const [rating, setRating] = useState(initialRating);
     const [userVote, setUserVote] = useState<"like" | "dislike" | null>(null);
+    const [initialUserVote, setInitialUserVote] = useState(false);
 
-    const handleLike = () => {
+    useEffect(() => {
+
+        if (initialUserVote) {
+            return;
+        }
+
+        const fetchInitialVote = async () => {
+            try {
+                const initialVote = await getVote(parentId);
+                if (initialVote == 1) {
+                    setUserVote("like");
+                } else if (initialVote == 0) {
+                    setUserVote(null);
+                } else {
+                    setUserVote("dislike");
+                }
+                setInitialUserVote(true);
+            } catch (error) {
+                console.error("Failed to fetch initial user vote:", error);
+            }
+        };
+
+        fetchInitialVote();
+    }, [initialUserVote, parentId]);
+
+    const handleLike = async () => {
+        let vote: number;
         if (userVote === "like") {
             setRating((prev) => prev - 1);
             setUserVote(null);
+            vote = 0;
         } else {
             setRating((prev) => (userVote === "dislike" ? prev + 2 : prev + 1));
             setUserVote("like");
+            vote = 1;
         }
-        // onLike(parentId);
+        const success: boolean = await updateVote(parentId, vote);
+
+        if (success) {
+            console.log("Vote updated successfully!");
+        } else {
+            console.log("Failed to update vote.");
+        }
     };
 
-    const handleDislike = () => {
+    const handleDislike = async () => {
+        let vote: number;
         if (userVote === "dislike") {
             setRating((prev) => prev + 1);
             setUserVote(null);
+            vote = 0;
         } else {
             setRating((prev) => (userVote === "like" ? prev - 2 : prev - 1));
             setUserVote("dislike");
+            vote = -1;
         }
-        // onDislike(parentId);
+
+        const success: boolean = await updateVote(parentId, vote);
+
+        if (success) {
+            console.log("Vote updated successfully!");
+        } else {
+            console.log("Failed to update vote.");
+        }
     };
 
     const handleReply = () => {
