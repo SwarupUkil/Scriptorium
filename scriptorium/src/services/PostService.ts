@@ -1,7 +1,7 @@
 import {constructQueryParams} from "@/utils/frontend-helper/apiHelper";
 import {SearchBlogsParams} from "@/types/SearchType";
 import {Blog, BlogPost, Comment} from "@/types/PostType";
-import {PaginationState} from "@/types/PaginationType";
+import {PaginationAPIResponse, PaginationState} from "@/types/PaginationType";
 
 export const searchBlogs = async ({
   skip,
@@ -51,7 +51,7 @@ export const getReplies = async ({skip, take, id}: {
     skip?: number,
     take?: number,
     id: number,
-}): Promise<[Comment[], PaginationState] | null> => {
+}): Promise<[Comment[], PaginationAPIResponse] | null> => {
 
     const url = '/api/posts/shared/replies' + constructQueryParams({
         skip,
@@ -105,6 +105,42 @@ export const getBlog = async (id: number): Promise<Blog | null> => {
     } catch (error) {
         console.error("Error in getBlog:", error);
         throw new Error("Error fetching blog");
+    }
+};
+
+export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: number})
+: Promise<[Blog[], PaginationAPIResponse] | null> => {
+    const url = '/api/posts/blogs/users/all' + constructQueryParams({skip, take});
+    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return null;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+            },
+        });
+
+        // Couldn't retrieve a blog.
+        if (!response.ok) {
+            return null;
+        }
+
+        const data = await response.json();
+        if (data.isEmpty) {
+            return [[], data.pagination];
+        }
+
+        return [data.data, data.pagination];
+    } catch (error) {
+        console.error("Error in getAllBlogsByUser:", error);
+        throw new Error("Error fetching blogs");
     }
 };
 

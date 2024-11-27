@@ -44,6 +44,7 @@ async function handler(req: NextApiReq & {user: object}, res: NextApiResponse) {
                 },
             },
             select: {
+                postId: true,
                 title: true,
                 tags: true,
                 post: {
@@ -57,6 +58,7 @@ async function handler(req: NextApiReq & {user: object}, res: NextApiResponse) {
         });
 
         const formattedBlogs = blogs.map((blog) => ({
+            postId: blog.postId,
             title: blog.title,
             tags: blog.tags,
             rating: blog.post.rating,
