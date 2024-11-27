@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Comment } from "@/types/PostType";
 import { getComment } from "@/services/PostService";
 import InteractionBar from "@/components/PostComponents/InteractionBar";
+import EditCommentModal from "@/components/PostComponents/EditCommentModal";
 
 type CommentComponentProps = {
     postId: number;
@@ -22,7 +23,9 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
                                                                showReplies,
                                                            }) => {
     const [fullComment, setFullComment] = useState<Comment | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isEditModalOpen, setEditModalOpen] = useState<boolean>(false);
+    const [isCommenter, setCommenter] = useState<boolean>(false);
 
     const shift = Math.min(depth * 20, 100); // Limit maximum shift for deep nesting
 
@@ -41,6 +44,32 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
 
         fetchComment();
     }, [postId]);
+
+    useEffect(() => {
+
+        const username: string | null = localStorage.getItem("username"); // Retrieve auth token from local storage
+
+        if (username === fullComment?.username) {
+            setCommenter(true);
+            return;
+        }
+        // Function to handle storage changes
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === "username" && fullComment && event.newValue === fullComment.username) {
+                setCommenter(true);
+            } else {
+                setCommenter(false);
+            }
+        };
+
+        // Add the listener
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => {
+            // Clean up the listener
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, [fullComment]); // Empty dependency array ensures this runs once on mount
 
     if (loading) {
         return (
@@ -64,9 +93,23 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
         );
     }
 
+    const openEditModal = () => {
+        setEditModalOpen(true);
+    };
+
+    const onCloseComment = (content?: string) => {
+
+        if (content) {
+            const newComment = fullComment;
+            newComment.content = content;
+            setFullComment(newComment);
+        }
+        setEditModalOpen(false);
+    }
+
     return (
         <div
-            style={{ marginLeft: `${shift}px` }}
+            style={{marginLeft: `${shift}px`}}
             className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
         >
             {/* Comment Metadata */}
@@ -89,7 +132,21 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
                 {/*>*/}
                 {/*    {showReplies ? "Hide Replies" : "View Replies"}*/}
                 {/*</button>*/}
+                {
+                    isCommenter && (
+                        <button
+                            onClick={openEditModal}
+                            className="text-sm px-3 py-1 rounded bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700"
+                        >
+                            ✏️ Edit
+                        </button>
+                    )
+                }
             </div>
+            {
+                isEditModalOpen && (
+                    <EditCommentModal postId={fullComment.postId} onClose={onCloseComment} isOpen={isEditModalOpen}/>)
+            }
         </div>
     );
 };

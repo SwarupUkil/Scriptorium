@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Comment } from "@/types/PostType";
 import {getComment, createComment} from "@/services/PostService";
+import {MAX_COMMENT_DESCRIPTION} from "@/utils/validateConstants";
 
 type CommentFormProps = {
     parentId: number;
@@ -46,6 +47,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ parentId, addComment }) => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={4}
+                maxLength={MAX_COMMENT_DESCRIPTION}
             />
             <button
                 onClick={handleSubmit}

@@ -163,6 +163,31 @@ export const createComment = async (id: number, description: string): Promise<Co
     }
 };
 
+export const updateComment = async (id: number, description: string): Promise<boolean> => {
+    const url = "/api/posts/comments/edit";
+    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return false;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+            },
+            body: JSON.stringify({ id, description }), // Send comment data in the body
+        });
+
+        return response.ok;
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return false;
+    }
+};
 
 ///
 export const updateVote = async (id: number, rating: number): Promise<boolean> => {
