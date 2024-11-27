@@ -17,9 +17,9 @@ export type Blog = BlogPost;
 
 export type BlogContentProps = {
     blog: Blog;
-    onLike: () => void;
-    onDislike: () => void;
-    onReply: () => void;
+    onLike?: () => void;
+    onDislike?: () => void;
+    onReply?: () => void;
 };
 
 export type Comment = Post;

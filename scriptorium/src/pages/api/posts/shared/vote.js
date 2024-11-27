@@ -4,7 +4,7 @@ import { verifyTokenMiddleware } from "../../../../utils/auth";
 // Handler will update the vote (upvote/downvote) from a user on a post.
 async function handler(req, res){
 
-    if (req.method !== "PUT") {
+    if (req.method !== "PUT" && req.method !== "GET") {
         return res.status(405).send({message: "Method not allowed"})
     }
 
@@ -13,12 +13,8 @@ async function handler(req, res){
     const user = req.user;
     const { id } = user;
 
-    if (isNaN(postId) || isNaN(rating)) {
-        return res.status(401).json({message: "Missing ID or user rating"});
-    }
-
-    if (rating !== -1 && rating !== 0 && rating !== 1) {
-        return res.status(401).json({message: "Rating must be given as either: -1, 0, 1"});
+    if (isNaN(postId)) {
+        return res.status(401).json({message: "Missing ID"});
     }
 
     try {
@@ -31,64 +27,94 @@ async function handler(req, res){
         if (!postExists) {
             return res.status(400).json({message: "Invalid post ID given"});
         }
+    } catch(error) {
+        return res.status(401).json({message: "Invalid post ID given"});
+    }
 
-        // Check and retrieve the current rating the user has given.
-        const currentRatingObj = await prisma.rating.findUnique({
-            where: {
-                uid_postId: {  // This is the composite key reference
-                    uid: id,
-                    postId: postId,
-                },
-            },
-            select: {
-                value: true,
-            },
-        });
+    if (req.method === "PUT") {
 
-        // Update or create new rating if it doesn't exist.
-        await prisma.rating.upsert({
-            where: {
-                uid_postId: {
-                    uid: id,
-                    postId: postId,
-                },
-            },
-            update: {
-                value: rating,
-            },
-            create: {
-                uid: id,
-                postId: postId,
-                value: rating,
-            },
-        });
-
-        // NewRate OldRate: formula is new - old, which we add to total rating.
-        // -1 0 so we add -1
-        // -1 1 so we add -2
-        // -1 -1 so we add 0
-        // 1 -1 so we add 2.
-        let currentRating = rating;
-        let updateTotalRatingsBy = 1;
-        if (currentRatingObj) {
-            currentRating -= currentRatingObj.value;
-            updateTotalRatingsBy = 0; // Already accounted in engagement total.
+        if (isNaN(rating)) {
+            return res.status(401).json({message: "Missing user rating"});
         }
 
-        // Update the blog post rating total.
-        await prisma.post.update({
-            where: {
-                id: postId,
-            },
-            data: {
-                rating: {increment: currentRating},
-                totalRatings: {increment: updateTotalRatingsBy},
-            },
-        });
+        if (rating !== -1 && rating !== 0 && rating !== 1) {
+            return res.status(401).json({message: "Rating must be given as either: -1, 0, 1"});
+        }
 
-        return res.status(200).json({message: "Successfully updated user vote on the post"});
-    } catch (error) {
-        return res.status(500).json({ message: "An internal server error occurred while up/down voting the post (likely invalid post ID)" });
+        try {
+            // Check and retrieve the current rating the user has given.
+            const currentRatingObj = await prisma.rating.findUnique({
+                where: {
+                    uid_postId: {  // This is the composite key reference
+                        uid: id,
+                        postId: postId,
+                    },
+                },
+                select: {
+                    value: true,
+                },
+            });
+
+            // Update or create new rating if it doesn't exist.
+            await prisma.rating.upsert({
+                where: {
+                    uid_postId: {
+                        uid: id,
+                        postId: postId,
+                    },
+                },
+                update: {
+                    value: rating,
+                },
+                create: {
+                    uid: id,
+                    postId: postId,
+                    value: rating,
+                },
+            });
+
+            // NewRate OldRate: formula is new - old, which we add to total rating.
+            // -1 0 so we add -1
+            // -1 1 so we add -2
+            // -1 -1 so we add 0
+            // 1 -1 so we add 2.
+            let currentRating = rating;
+            let updateTotalRatingsBy = 1;
+            if (currentRatingObj) {
+                currentRating -= currentRatingObj.value;
+                updateTotalRatingsBy = 0; // Already accounted in engagement total.
+            }
+
+            // Update the blog post rating total.
+            await prisma.post.update({
+                where: {
+                    id: postId,
+                },
+                data: {
+                    rating: {increment: currentRating},
+                    totalRatings: {increment: updateTotalRatingsBy},
+                },
+            });
+
+            return res.status(200).json({message: "Successfully updated user vote on the post"});
+        } catch (error) {
+            return res.status(500).json({ message: "An internal server error occurred while up/down voting the post (likely invalid post ID)" });
+        }
+    } else {
+        const userRating = await prisma.rating.findUnique({
+            where: {
+                uid_postId: { // Use the composite key name, auto-generated by Prisma
+                    uid: id,
+                    postId: postId,
+                },
+            },
+        })
+
+        if (!userRating) {
+            return res.status(200).json({vote: 0});
+        }
+
+        return res.status(200).json({vote: userRating.value});
     }
 }
 

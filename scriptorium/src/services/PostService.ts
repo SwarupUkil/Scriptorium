@@ -133,5 +133,62 @@ export const getComment = async (id: number): Promise<Comment | null> => {
 };
 
 
+///
+export const updateVote = async (id: number, rating: number): Promise<boolean> => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+        console.error("No auth token found. User may not be logged in.");
+        return false;
+    }
 
+    const url = `/api/posts/shared/vote?id=${id}&rating=${rating}`;
 
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include the JWT token in the Authorization header
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update vote. Status: ${response.status}`);
+        }
+
+        return true; // Vote updated successfully
+    } catch (error) {
+        console.error("Error in updateVote:", error);
+        return false;
+    }
+};
+
+export const getVote = async (id: number): Promise<number> => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+        console.error("No auth token found. User may not be logged in.");
+        return 0;
+    }
+
+    const url = `/api/posts/shared/vote?id=${id}`;
+
+    try {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include the JWT token in the Authorization header
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update vote. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.vote;
+    } catch (error) {
+        console.error("Error in getVote:", error);
+        return 0;
+    }
+};
