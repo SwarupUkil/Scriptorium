@@ -17,6 +17,10 @@ export default function BlogPost() {
     const [loadingComments, setLoadingComments] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const addComment = (newComment: Comment) => {
+        setComments((prevComments) => [...prevComments, newComment]); // Append new comment
+    };
+
     useEffect(() => {
         if (!id) return; // Wait until id is available
 
@@ -112,7 +116,7 @@ export default function BlogPost() {
                 {/* Comments Section */}
                 <div className="mt-8">
                     <h2 className="text-2xl font-semibold mb-4">Comments</h2>
-                    <CommentForm parentId={blog.postId} onCommentSubmit={() => {}}/>
+                    <CommentForm parentId={blog.postId} addComment={addComment}/>
                     <div className={"h-1 py-2"}></div>
 
                     {loadingComments ? (

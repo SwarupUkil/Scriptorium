@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Comment } from "@/types/PostType";
+import {getComment, createComment} from "@/services/PostService";
 
 type CommentFormProps = {
     parentId: number;
-    onCommentSubmit: (newComment: Comment) => void;
+    addComment: (newComment: Comment) => void;
 };
 
-const CommentForm: React.FC<CommentFormProps> = ({ parentId, onCommentSubmit }) => {
+const CommentForm: React.FC<CommentFormProps> = ({ parentId, addComment }) => {
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -15,16 +16,20 @@ const CommentForm: React.FC<CommentFormProps> = ({ parentId, onCommentSubmit }) 
         setLoading(true);
 
         try {
-            const response = await fetch("/api/posts/comments", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ parentId, content }),
-            });
+            const response = await createComment(parentId, content);
 
-            if (!response.ok) throw new Error("Failed to create comment");
+            if (!response) {
+                // Modal to say failure.
+                return;
+            }
 
-            const newComment = await response.json();
-            onCommentSubmit(newComment); // Pass the new comment to parent
+            const newComment = await getComment(response.postId);
+
+            if (!newComment)  {
+                // Modal to say failure.
+                return;
+            }
+            addComment(newComment); // Pass the new comment to parent
             setContent(""); // Clear input
         } catch (error) {
             console.error("Failed to submit comment:", error);

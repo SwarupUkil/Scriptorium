@@ -1,6 +1,6 @@
 import {constructQueryParams} from "@/utils/frontend-helper/apiHelper";
 import {SearchBlogsParams} from "@/types/SearchType";
-import {BlogPost, Blog, Comment} from "@/types/PostType";
+import {Blog, BlogPost, Comment} from "@/types/PostType";
 import {PaginationState} from "@/types/PaginationType";
 
 export const searchBlogs = async ({
@@ -132,6 +132,37 @@ export const getComment = async (id: number): Promise<Comment | null> => {
     }
 };
 
+export const createComment = async (id: number, description: string): Promise<Comment | null> => {
+    const url = "/api/posts/comments/create";
+    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return null;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+            },
+            body: JSON.stringify({ id, description }), // Send comment data in the body
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to create comment: ${response.statusText}`);
+            return null;
+        }
+
+        return await response.json(); // Return the created comment
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return null;
+    }
+};
+
 
 ///
 export const updateVote = async (id: number, rating: number): Promise<boolean> => {
@@ -152,11 +183,7 @@ export const updateVote = async (id: number, rating: number): Promise<boolean> =
             },
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to update vote. Status: ${response.status}`);
-        }
-
-        return true; // Vote updated successfully
+        return response.ok;
     } catch (error) {
         console.error("Error in updateVote:", error);
         return false;
@@ -182,7 +209,7 @@ export const getVote = async (id: number): Promise<number> => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to update vote. Status: ${response.status}`);
+            return 0; // Presume user did not vote.
         }
 
         const data = await response.json();
