@@ -97,7 +97,7 @@ async function handler(req, res) {
                 })
                 :
                 await prisma.$queryRaw`
-                SELECT postId, COUNT(*) as reportCount, uid, explanation
+                SELECT postId, COUNT(*) as reportCount
                 FROM Report
                 WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
                 GROUP BY postId
