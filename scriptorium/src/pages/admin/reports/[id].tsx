@@ -6,6 +6,7 @@ import Pagination from "@/components/Pagination";
 import { PaginationState } from "@/types/PaginationType";
 import ReportCard from "@/components/Card/ReportCard";
 import { calcTotalPages, handlePageChange } from "@/utils/frontend-helper/paginationHelper";
+import AdminAuthWrapper from "@/components/Admin/AdminAuthWrapper";
 
 const ReportsOfPost: React.FC = () => {
     const router = useRouter();
@@ -93,48 +94,50 @@ const ReportsOfPost: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="text-2xl font-bold mb-6">Reports for Post ID: {id}</h1>
+        <AdminAuthWrapper>
+            <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                <div className="container mx-auto px-4 py-8">
+                    <h1 className="text-2xl font-bold mb-6">Reports for Post ID: {id}</h1>
 
-                {/* Action Buttons Container */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-                    <div className="flex justify-center space-x-4">
-                        <button
-                            onClick={handleFlag}
-                            className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-                        >
-                            Flag Post
-                        </button>
-                        <button
-                            onClick={handleUnflag}
-                            className="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                        >
-                            Unflag Post
-                        </button>
-                        <button
-                            onClick={handleCloseAll}
-                            className="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
-                        >
-                            Close All Reports
-                        </button>
+                    {/* Action Buttons Container */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+                        <div className="flex justify-center space-x-4">
+                            <button
+                                onClick={handleFlag}
+                                className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                            >
+                                Flag Post
+                            </button>
+                            <button
+                                onClick={handleUnflag}
+                                className="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                            >
+                                Unflag Post
+                            </button>
+                            <button
+                                onClick={handleCloseAll}
+                                className="px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                            >
+                                Close All Reports
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                {/* Reports as Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {reports.map((report) => (
-                        <ReportCard key={report.id} report={report} onClose={handleClose} />
-                    ))}
-                </div>
+                    {/* Reports as Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {reports.map((report) => (
+                            <ReportCard key={report.id} report={report} onClose={handleClose}/>
+                        ))}
+                    </div>
 
-                {/* Pagination */}
-                <Pagination
-                    pagination={pagination}
-                    onPageChange={handlePageChange(setPagination)}
-                />
+                    {/* Pagination */}
+                    <Pagination
+                        pagination={pagination}
+                        onPageChange={handlePageChange(setPagination)}
+                    />
+                </div>
             </div>
-        </div>
+        </AdminAuthWrapper>
     );
 };
 

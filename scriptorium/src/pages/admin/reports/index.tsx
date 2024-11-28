@@ -6,6 +6,7 @@ import {PaginationState} from "@/types/PaginationType";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
 import ReportTable from "@/components/Table/ReportTable";
 import {useRouter} from "next/router";
+import AdminAuthWrapper from "@/components/Admin/AdminAuthWrapper";
 
 const ReportsPage: React.FC = () => {
 
@@ -49,34 +50,37 @@ const ReportsPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-            <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold">Reports</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2">
-                        Manage and review reported posts.
-                    </p>
-                </header>
+        <AdminAuthWrapper>
+            <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                <div className="container mx-auto px-4 py-8">
+                    {/* Header */}
+                    <header className="mb-8">
+                        <h1 className="text-3xl font-bold">Reports</h1>
+                        <p className="text-gray-600 dark:text-gray-400 mt-2">
+                            Manage and review reported posts.
+                        </p>
+                    </header>
 
-                {/* Placeholder for Top Reports */}
-                <section className="mb-12">
-                    <h2 className="text-2xl font-semibold mb-0">Top Reports</h2>
+                    {/* Placeholder for Top Reports */}
+                    <section className="mb-12">
+                        <h2 className="text-2xl font-semibold mb-2">Top Reports</h2>
 
-                    <div className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-around p-6">
-                        <div className="flex flex-col ">
-                            <ReportTable data={data} onRowClick={handleRowClick}/>
+                        <div
+                            className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-around p-6">
+                            <div className="flex flex-col ">
+                                <ReportTable data={data} onRowClick={handleRowClick}/>
+                            </div>
+
+                            <Pagination pagination={pagination}
+                                        onPageChange={handlePageChange(setPagination)}/>
+
+                            <div className="h-1"></div>
                         </div>
+                    </section>
 
-                        <Pagination pagination={pagination}
-                                    onPageChange={handlePageChange(setPagination)}/>
-
-                        <div className="h-1"></div>
-                    </div>
-                </section>
-
+                </div>
             </div>
-        </div>
+        </AdminAuthWrapper>
     );
 };
 
