@@ -87,6 +87,7 @@ async function handler(req, res) {
                         },
                     },
                     select: {
+                        id: true,
                         postId: true,
                         username: true,
                         explanation: true,

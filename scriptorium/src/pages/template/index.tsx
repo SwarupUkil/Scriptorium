@@ -7,7 +7,7 @@ import {PaginationState} from "@/types/PaginationType";
 import {Template} from "@/types/TemplateType";
 import TemplateTable from "@/components/Table/TemplateTable";
 
-export default function Blog() {
+export default function Templates() {
     const [data, setData] = useState<Template[]>([]);
 
     // State for pagination

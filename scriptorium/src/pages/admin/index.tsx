@@ -16,7 +16,7 @@ const AdminPage: React.FC = () => {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                             View and manage reported posts.
                         </p>
-                        <Link href="/admin/reports" className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 inline-block">
+                        <Link href="/admin/reports/" className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 inline-block">
                             View Reports
                         </Link>
                     </div>
