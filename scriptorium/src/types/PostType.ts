@@ -11,6 +11,7 @@ export type Post = {
 export type BlogPost = Post & {
     title: string;
     tags: string;
+    templates?: number[];
 };
 
 export type Blog = BlogPost;
@@ -21,6 +22,14 @@ export type BlogContentProps = {
     onDislike?: () => void;
     onReply?: () => void;
 };
+
+export type NewBlogPost = {
+    id?: number;
+    title?: string;
+    content?: string;
+    tags?: string;
+    templates?: number[];
+}
 
 export type Comment = Post;
 

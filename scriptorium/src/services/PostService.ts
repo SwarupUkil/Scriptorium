@@ -1,7 +1,7 @@
 import {constructQueryParams} from "@/utils/frontend-helper/apiHelper";
 import {SearchBlogsParams} from "@/types/SearchType";
-import {Blog, BlogPost, Comment} from "@/types/PostType";
-import {PaginationAPIResponse, PaginationState} from "@/types/PaginationType";
+import {Blog, BlogPost, Comment, NewBlogPost} from "@/types/PostType";
+import {PaginationAPIResponse} from "@/types/PaginationType";
 
 export const searchBlogs = async ({
   skip,
@@ -144,7 +144,97 @@ export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: num
     }
 };
 
+export const createBlog = async ({
+     title,
+     content,
+     tags,
+     templates,
+ }: NewBlogPost): Promise<BlogPost | null> => {
+    const url = '/api/posts/blogs/users/create';
+    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
 
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return null;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+            },
+            body: JSON.stringify({ title, content, tags, templates }), // Send comment data in the body
+        });
+
+        return await response.json(); // Return newly created postId.
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return null;
+    }
+};
+
+export const updateBlog = async ({
+                                     id,
+                                     title,
+                                     content,
+                                     tags,
+                                     templates,
+                                 }: NewBlogPost): Promise<boolean> => {
+    const url = '/api/posts/blogs/users/edit';
+    const authToken = localStorage.getItem("authToken");
+
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return false;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ id, title, content, tags, templates }),
+        });
+
+        return response.ok;
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return false;
+    }
+};
+
+export const deletedBlog = async ({id}: NewBlogPost): Promise<boolean> => {
+    const url = '/api/posts/blogs/users/edit';
+    const authToken = localStorage.getItem("authToken");
+
+    if (!authToken) {
+        console.error("Authorization token not found.");
+        return false;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ id }),
+        });
+
+        return response.ok;
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return false;
+    }
+};
+
+
+//
 export const getComment = async (id: number): Promise<Comment | null> => {
     const url = `/api/posts/comments/${id}`;
 
