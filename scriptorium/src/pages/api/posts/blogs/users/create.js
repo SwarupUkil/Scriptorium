@@ -13,7 +13,7 @@ async function handler(req, res) {
     const user = req.user;
     const { id } = user;
     const userId = Number(id);
-    const { title, description, tags, templates } = req.body;
+    const { title, content, tags, templates } = req.body;
 
     if (!id) {
         return res.status(404).json({ error: "Invalid ID: missing user ID" });
@@ -23,15 +23,15 @@ async function handler(req, res) {
         return res.status(400).json({ error: "Invalid ID: not a number" });
     }
 
-    if (!title || !description) {
-        return res.status(400).json({message: "Missing title or description"});
+    if (!title || !content) {
+        return res.status(400).json({message: "Missing title or content"});
     }
 
     if (title.length > MAX_TITLE) {
         return res.status(400).json({message: `Title is too large, shorten to less then ${MAX_TITLE}`});
     }
 
-    if (description.length > MAX_BLOG_DESCRIPTION) {
+    if (content.length > MAX_BLOG_DESCRIPTION) {
         return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
     }
 
@@ -87,7 +87,7 @@ async function handler(req, res) {
         const post = await prisma.post.create({
             data: {
                 uid: userId,
-                content: description,
+                content: content,
                 type: POST.BLOG,
             },
             select: {
@@ -118,8 +118,11 @@ async function handler(req, res) {
             return res.status(400).json({message: "Unable to create new blog"});
         }
 
-        post.message = "Successfully created new blog";
-        return res.status(200).json(post);
+        const response = {
+            postId: post.id,
+            message: "Successfully created new blog",
+        }
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while creating the blog" });
     }

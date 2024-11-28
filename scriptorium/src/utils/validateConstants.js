@@ -2,7 +2,7 @@ export const MAX_TITLE = 100;
 export const MAX_CODE = 15000;
 export const MAX_TAGS = 100;
 export const MAX_EXPLANATION = 3000;
-export const MAX_BLOG_DESCRIPTION = 3000;
+export const MAX_BLOG_DESCRIPTION = 5000;
 export const MAX_COMMENT_DESCRIPTION = 3000;
 
 export const ALLOWED_TAGS = ["javascript", "python", "java", "c", "cpp", "react", "nodejs", "sql"];

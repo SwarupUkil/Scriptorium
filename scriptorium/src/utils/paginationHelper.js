@@ -48,8 +48,8 @@ export function paginationResponse(data, total, paginate, type) {
         isEmpty: false,
         pagination: {
             total,
-            nextSkip,
-            currentSkip: paginate.skip,
+            skip: nextSkip,
+            prevSkip: paginate.skip,
             take: paginate.take,
         },
     };
