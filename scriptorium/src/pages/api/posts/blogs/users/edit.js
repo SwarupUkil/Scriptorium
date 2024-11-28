@@ -25,14 +25,14 @@ async function handler(req, res) {
     const user = req.user;
     const userId = user.id;
 
-    const { title, description, tags, templates } = req.body;
+    const { title, content, tags, templates } = req.body;
 
     if (title && title.length > MAX_TITLE) {
         return res.status(400).json({message: `Title is too large, shorten to less then ${MAX_TITLE}`});
     }
 
-    if (description && description.length > MAX_BLOG_DESCRIPTION) {
-        return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
+    if (content && content.length > MAX_BLOG_DESCRIPTION) {
+        return res.status(400).json({message: `Content is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
     }
 
     // Tags validation
@@ -101,7 +101,7 @@ async function handler(req, res) {
                     id: blogId,
                 },
                 data: {
-                    content: description ? description : undefined,
+                    content: content ? content : undefined,
                     updatedAt: new Date(),
                 },
             });

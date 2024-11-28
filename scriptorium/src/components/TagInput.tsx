@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {parseCSVToTags} from "@/utils/frontend-helper/apiHelper";
 
 interface TagInputProps {
+    value?: string; // CSV-formatted string for initial tags
     onChange: (tags: string[]) => void;
     label?: string; // Label text for the input
     required?: boolean; // Whether the input is required
@@ -13,18 +15,28 @@ interface TagInputProps {
 }
 
 const TagInput: React.FC<TagInputProps> = ({
-    onChange,
-    label,
-    required = false,
-    error,
-    containerClassName = "",
-    tagClassName = "",
-    inputClassName = "",
-    labelClassName = "",
-    placeholder = "Type and press Enter/Space",
-}) => {
+                                               value = "",
+                                               onChange,
+                                               label,
+                                               required = false,
+                                               error,
+                                               containerClassName = "",
+                                               tagClassName = "",
+                                               inputClassName = "",
+                                               labelClassName = "",
+                                               placeholder = "Type and press Enter/Space",
+                                           }) => {
     const [tags, setTags] = useState<string[]>([]);
     const [inputValue, setInputValue] = useState("");
+
+    // Initialize tags from value prop
+    useEffect(() => {
+        if (value) {
+            const initialTags = parseCSVToTags(value);
+            setTags(initialTags);
+            // onChange(initialTags); // Notify parent about the initial tags
+        }
+    }, [value]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" || e.key === " ") {

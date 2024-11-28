@@ -53,6 +53,12 @@ export default async function handler(req, res) {
             },
         });
 
+        for (let i = 0; i < postReplies.length; i++) {
+            const {id, ...response} = postReplies[i];
+            response.postId = id;
+            postReplies[i] = response
+        }
+
         return res.status(200).json(paginationResponse(postReplies, total, paginate, "replies"));
     } catch (error) {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the list of comments data" });

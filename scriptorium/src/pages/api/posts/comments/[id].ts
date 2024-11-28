@@ -24,6 +24,7 @@ interface PostResponse {
 }
 
 interface CommentValues {
+    parentId: number;
     postId: number;
 }
 
@@ -34,6 +35,7 @@ type Username = {
 // Combined type for the API response
 type CommentResponse = PostResponse & {
     username: string;
+    parentId: number;
 };
 
 // Handler will return a specified blog post to client.
@@ -59,7 +61,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const commentExist: CommentValues | null = await prisma.comment.findUnique({
             where: {postId: commentId},
-            select: {postId: true},
+            select: {
+                postId: true,
+                parentId: true,
+            },
         });
 
         // Error if either queries return null.
@@ -109,6 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const response: CommentResponse = {
             ...post,
             username: String(findUsername.username),
+            parentId: commentExist.parentId,
         }
 
         // Return identified blog data.
