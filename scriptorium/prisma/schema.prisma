@@ -104,6 +104,7 @@ model Report {
   id          Int      @id @default(autoincrement())
   postId      Int
   uid         Int
+  username    String
   explanation String
   createdAt   DateTime @default(now())
   status      String   @default("OPEN") // can be "OPEN" or "RESOLVED"

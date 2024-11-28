@@ -5,8 +5,9 @@ import BlogTable from "@/components/Table/BlogTable";
 import { calcTotalPages, handlePageChange } from "@/utils/frontend-helper/paginationHelper";
 import { PaginationState } from "@/types/PaginationType";
 import { BlogPost } from "@/types/PostType";
-import { getAllBlogsByUser, deletedBlog } from "@/services/PostService";
+import { getAllBlogsByUser, deleteBlog } from "@/services/PostService";
 import DeleteBlogModal from "@/components/PostComponents/DeleteBlogModal";
+import {tokenMiddleware} from "@/services/TokenMiddleware";
 
 export default function BlogManagement() {
     const router = useRouter();
@@ -26,10 +27,10 @@ export default function BlogManagement() {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await getAllBlogsByUser({
+                const response = await tokenMiddleware(getAllBlogsByUser, [{
                     skip: pagination.skip,
                     take: pagination.take,
-                });
+                }]);
 
                 if (response) {
                     const [blogs, paginate] = response;
@@ -57,7 +58,8 @@ export default function BlogManagement() {
 
     const handleDelete = async () => {
         if (deleteModal.blogId) {
-            const success = await deletedBlog({ id: deleteModal.blogId });
+
+            const success = await tokenMiddleware(deleteBlog, [{ id: deleteModal.blogId }]);
             if (success) {
                 setData((prev) => prev.filter((blog) => blog.postId !== deleteModal.blogId));
                 setDeleteModal({ isOpen: false, blogId: null });

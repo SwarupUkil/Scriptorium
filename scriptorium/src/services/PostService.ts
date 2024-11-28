@@ -111,9 +111,9 @@ export const getBlog = async (id: number): Promise<Blog | null> => {
 export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: number})
 : Promise<[Blog[], PaginationAPIResponse] | null> => {
     const url = '/api/posts/blogs/users/all' + constructQueryParams({skip, take});
-    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+    const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return null;
     }
@@ -123,7 +123,7 @@ export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: num
             method: 'GET',
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+                Authorization: `Bearer ${accessToken}`, // Include auth token in the header
             },
         });
 
@@ -151,9 +151,9 @@ export const createBlog = async ({
      templates,
  }: NewBlogPost): Promise<BlogPost | null> => {
     const url = '/api/posts/blogs/users/create';
-    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+    const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return null;
     }
@@ -163,7 +163,7 @@ export const createBlog = async ({
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+                Authorization: `Bearer ${accessToken}`, // Include auth token in the header
             },
             body: JSON.stringify({ title, content, tags, templates }), // Send comment data in the body
         });
@@ -183,9 +183,9 @@ export const updateBlog = async ({
                                      templates,
                                  }: NewBlogPost): Promise<boolean> => {
     const url = '/api/posts/blogs/users/edit';
-    const authToken = localStorage.getItem("authToken");
+    const accessToken = localStorage.getItem("accessToken");
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return false;
     }
@@ -195,7 +195,7 @@ export const updateBlog = async ({
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify({ id, title, content, tags, templates }),
         });
@@ -207,11 +207,11 @@ export const updateBlog = async ({
     }
 };
 
-export const deletedBlog = async ({id}: NewBlogPost): Promise<boolean> => {
+export const deleteBlog = async ({id}: NewBlogPost): Promise<boolean> => {
     const url = '/api/posts/blogs/users/edit';
-    const authToken = localStorage.getItem("authToken");
+    const accessToken = localStorage.getItem("accessToken");
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return false;
     }
@@ -221,7 +221,7 @@ export const deletedBlog = async ({id}: NewBlogPost): Promise<boolean> => {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify({ id }),
         });
@@ -260,9 +260,9 @@ export const getComment = async (id: number): Promise<Comment | null> => {
 
 export const createComment = async (id: number, description: string): Promise<Comment | null> => {
     const url = "/api/posts/comments/create";
-    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+    const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return null;
     }
@@ -272,7 +272,7 @@ export const createComment = async (id: number, description: string): Promise<Co
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+                Authorization: `Bearer ${accessToken}`, // Include auth token in the header
             },
             body: JSON.stringify({ id, description }), // Send comment data in the body
         });
@@ -291,9 +291,9 @@ export const createComment = async (id: number, description: string): Promise<Co
 
 export const updateComment = async (id: number, description: string): Promise<boolean> => {
     const url = "/api/posts/comments/edit";
-    const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+    const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
 
-    if (!authToken) {
+    if (!accessToken) {
         console.error("Authorization token not found.");
         return false;
     }
@@ -303,7 +303,7 @@ export const updateComment = async (id: number, description: string): Promise<bo
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include auth token in the header
+                Authorization: `Bearer ${accessToken}`, // Include auth token in the header
             },
             body: JSON.stringify({ id, description }), // Send comment data in the body
         });
@@ -317,8 +317,8 @@ export const updateComment = async (id: number, description: string): Promise<bo
 
 ///
 export const updateVote = async (id: number, rating: number): Promise<boolean> => {
-    const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
         console.error("No auth token found. User may not be logged in.");
         return false;
     }
@@ -330,7 +330,7 @@ export const updateVote = async (id: number, rating: number): Promise<boolean> =
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include the JWT token in the Authorization header
+                Authorization: `Bearer ${accessToken}`, // Include the JWT token in the Authorization header
             },
         });
 
@@ -342,8 +342,8 @@ export const updateVote = async (id: number, rating: number): Promise<boolean> =
 };
 
 export const getVote = async (id: number): Promise<number> => {
-    const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
         console.error("No auth token found. User may not be logged in.");
         return 0;
     }
@@ -355,7 +355,7 @@ export const getVote = async (id: number): Promise<number> => {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`, // Include the JWT token in the Authorization header
+                Authorization: `Bearer ${accessToken}`, // Include the JWT token in the Authorization header
             },
         });
 

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "../Modal";
 import {createComment, getComment} from "@/services/PostService";
 import {Comment} from "@/types/PostType"
+import {tokenMiddleware} from "@/services/TokenMiddleware";
 
 type ReplyCommentModalProps = {
     parentId: number;
@@ -16,7 +17,7 @@ const ReplyCommentModal: React.FC<ReplyCommentModalProps> = ({ parentId, isOpen,
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            const response = await createComment(parentId, content);
+            const response = await tokenMiddleware(createComment, [parentId, content]);
             if (response) {
                 const newComment = await getComment(response.postId);
 

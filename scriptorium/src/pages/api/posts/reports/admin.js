@@ -49,22 +49,56 @@ async function handler(req, res) {
         }
     } else if (req.method === "GET") {
 
-        const { skip, take } = req.query;
+        const { skip, take, id } = req.query;
         const paginate = sanitizePagination(skip, take);
+        const postId = Number(id);
 
         try {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-            const totalNumberOfPosts = await prisma.$queryRaw`
+            const totalNumberOfPosts = postId && !isNaN(postId) ?
+                await prisma.report.count({
+                    where: {
+                        postId: postId,
+                        status: REPORT.OPEN,
+                        createdAt: {
+                            gte: sixMonthsAgo, // gte is "greater than or equal to"
+                        },
+                    },
+                })
+                :
+                await prisma.$queryRaw`
                 SELECT COUNT(DISTINCT postId)
                 FROM Report
                 WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
             `;
-            const total = Number(totalNumberOfPosts[0]['COUNT(DISTINCT postId)']); // Convert BigInt to Number
+            const total = postId && !isNaN(postId) ?
+                totalNumberOfPosts :
+                Number(totalNumberOfPosts[0]['COUNT(DISTINCT postId)']); // Convert BigInt to Number
 
-            const getReports = await prisma.$queryRaw`
-                SELECT postId, COUNT(*) as reportCount, uid, explanation
+            const getReports = postId && !isNaN(postId) ?
+                await prisma.report.findMany({
+                    where: {
+                        postId: postId,
+                        status: REPORT.OPEN,
+                        createdAt: {
+                            gte: sixMonthsAgo, // gte is "greater than or equal to"
+                        },
+                    },
+                    select: {
+                        id: true,
+                        postId: true,
+                        username: true,
+                        explanation: true,
+                        createdAt: true,
+                    },
+                    skip: paginate.skip,
+                    take: paginate.take,
+                })
+                :
+                await prisma.$queryRaw`
+                SELECT postId, COUNT(*) as reportCount
                 FROM Report
                 WHERE createdAt >= ${sixMonthsAgo} AND LOWER(status) = LOWER(${REPORT.OPEN})
                 GROUP BY postId
@@ -72,7 +106,7 @@ async function handler(req, res) {
                 LIMIT ${paginate.take} OFFSET ${paginate.skip};
             `;
 
-            const reports = convertReportCountToNumber(getReports);
+            const reports = postId && !isNaN(postId) ? getReports : convertReportCountToNumber(getReports);
             const response = paginationResponse(reports, total, paginate, "reports")
 
             return res.status(200).json(response);

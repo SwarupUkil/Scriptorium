@@ -26,6 +26,7 @@ async function handler(req, res) {
 
         const userExists = await prisma.user.findUnique({
             where: { id: userId },
+            select: { username: true }
         });
 
         if (!userExists) {
@@ -44,6 +45,7 @@ async function handler(req, res) {
             data: {
                 postId: postId,
                 uid: userId,
+                username: userExists.username,
                 explanation: explanation,
             },
         });

@@ -59,20 +59,20 @@ const Navbar: React.FC = () => {
                     Edit My Profile
                   </Link>
                   <Link
-                    href="/template/mine"
+                    href="/template/user"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
                     My Templates
                   </Link>
                   <Link
-                    href="/blog/mine"
+                    href="/blog/user"
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
                     My Blogs
                   </Link>
                   {role === "ADMIN" && (
                     <Link
-                      href="/admin/dashboard"
+                      href="/admin/"
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       Admin Dashboard
@@ -125,21 +125,21 @@ const Navbar: React.FC = () => {
                   </li>
                   <li>
                     <Link
-                      href="/template/mine"
+                      href="/template/user"
                       className="block hover:underline"
                     >
                       My Templates
                     </Link>
                   </li>
                   <li>
-                    <Link href="/blog/mine" className="block hover:underline">
+                    <Link href="/blog/user" className="block hover:underline">
                       My Blogs
                     </Link>
                   </li>
                   {role === "ADMIN" && (
                     <li>
                       <Link
-                        href="/admin/dashboard"
+                        href="/admin"
                         className="block hover:underline"
                       >
                         Admin Dashboard
