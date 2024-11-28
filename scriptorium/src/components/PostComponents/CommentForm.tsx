@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Comment } from "@/types/PostType";
-import {getComment, createComment} from "@/services/PostService";
+import {getComment, createComment, updateVote} from "@/services/PostService";
 import {MAX_COMMENT_DESCRIPTION} from "@/utils/validateConstants";
+import {tokenMiddleware} from "@/services/TokenMiddleware";
 
 type CommentFormProps = {
     parentId: number;
@@ -17,7 +18,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ parentId, addComment }) => {
         setLoading(true);
 
         try {
-            const response = await createComment(parentId, content);
+            const response = await tokenMiddleware(createComment, [parentId, content]);
 
             if (!response) {
                 // Modal to say failure.

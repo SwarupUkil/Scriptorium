@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../Modal";
 import { getComment, updateComment } from "@/services/PostService";
+import {tokenMiddleware} from "@/services/TokenMiddleware";
 
 type EditCommentModalProps = {
     postId: number;
@@ -31,7 +32,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({ postId, isOpen, onC
     const handleSave = async () => {
         setLoading(true);
         try {
-            const success = await updateComment(postId, content);
+            const success = await tokenMiddleware(updateComment, [postId, content]);
             if (success) {
                 // Trigger parent update or notification
                 onClose(content);

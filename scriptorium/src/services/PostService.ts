@@ -207,7 +207,7 @@ export const updateBlog = async ({
     }
 };
 
-export const deletedBlog = async ({id}: NewBlogPost): Promise<boolean> => {
+export const deleteBlog = async ({id}: NewBlogPost): Promise<boolean> => {
     const url = '/api/posts/blogs/users/edit';
     const accessToken = localStorage.getItem("accessToken");
 

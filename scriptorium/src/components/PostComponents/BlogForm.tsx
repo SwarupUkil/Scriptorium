@@ -4,6 +4,7 @@ import { createBlog, updateBlog, getBlog } from "@/services/PostService";
 import { NewBlogPost } from "@/types/PostType";
 import TagInput from "@/components/TagInput";
 import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
+import {tokenMiddleware} from "@/services/TokenMiddleware";
 
 const BlogForm: React.FC = () => {
     const router = useRouter();
@@ -49,12 +50,12 @@ const BlogForm: React.FC = () => {
         e.preventDefault();
 
         if (isEditMode) {
-            const success = await updateBlog(formData);
+            const success = await tokenMiddleware(updateBlog, [formData]);
             if (success) {
                 console.log("Blog updated successfully!");
             }
         } else {
-            const newBlog = await createBlog(formData);
+            const newBlog = await tokenMiddleware(createBlog, [formData]);
             if (newBlog) {
                 router.push(`/blog/edit/${newBlog.postId}`); // Redirect to edit mode
             }

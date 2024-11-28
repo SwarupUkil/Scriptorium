@@ -6,8 +6,6 @@ import EditCommentModal from "@/components/PostComponents/EditCommentModal";
 
 type CommentComponentProps = {
     postId: number;
-    onLike?: (id: number) => void;
-    onDislike?: (id: number) => void;
     onReply: (id: number) => void;
     onViewReplies: (id: number) => void;
     depth: number;
@@ -35,7 +33,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
                 setFullComment(fetchedComment);
             } catch (error) {
                 console.error("Failed to fetch comment:", error);
-                setFullComment(null); // Fallback to partial comment
+                setFullComment(null);
             } finally {
                 setLoading(false);
             }
@@ -45,14 +43,13 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
     }, [postId]);
 
     useEffect(() => {
-
-        const username: string | null = localStorage.getItem("username"); // Retrieve auth token from local storage
+        const username = localStorage.getItem("username");
 
         if (username === fullComment?.username) {
             setCommenter(true);
             return;
         }
-        // Function to handle storage changes
+
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === "username" && fullComment && event.newValue === fullComment.username) {
                 setCommenter(true);
@@ -61,20 +58,18 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
             }
         };
 
-        // Add the listener
         window.addEventListener("storage", handleStorageChange);
 
         return () => {
-            // Clean up the listener
             window.removeEventListener("storage", handleStorageChange);
         };
-    }, [fullComment]); // Empty dependency array ensures this runs once on mount
+    }, [fullComment]);
 
     if (loading) {
         return (
             <div
                 style={{ marginLeft: `${shift}px` }}
-                className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
+                className="flex bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
             >
                 <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
             </div>
@@ -85,74 +80,82 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
         return (
             <div
                 style={{ marginLeft: `${shift}px` }}
-                className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
+                className="flex bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
             >
                 <p className="text-sm text-gray-500 dark:text-gray-400">Failed to load comment.</p>
             </div>
         );
     }
 
-    const openEditModal = () => {
-        setEditModalOpen(true);
-    };
+    const openEditModal = () => setEditModalOpen(true);
 
     const onCloseComment = (content?: string) => {
-
         if (content) {
-            const newComment = fullComment;
-            newComment.content = content;
-            setFullComment(newComment);
+            setFullComment((prev) => (prev ? { ...prev, content } : null));
         }
         setEditModalOpen(false);
-    }
+    };
 
     return (
-        <div
-            style={{marginLeft: `${shift}px`}}
-            className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md mb-2"
-        >
-            {/* Comment Metadata */}
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-                {fullComment.username || "Unknown"} on{" "}
-                {new Date(fullComment.createdAt || "").toLocaleDateString()}
-            </p>
+        <div className="flex items-start mb-4" style={{ marginLeft: `${shift}px` }}>
+            {/* InteractionBar */}
+            <div className="sticky top-6 flex-shrink-0 mr-4">
+                <InteractionBar parentId={fullComment.postId} initialRating={fullComment.rating} />
+            </div>
 
-            {/* Comment Content */}
-            <p className="text-gray-800 dark:text-gray-200">{fullComment.content}</p>
+            {/* Main Content and Edit Button Container */}
+            <div className="flex flex-1 items-stretch">
+                {/* Comment Content */}
+                <div className="flex-1 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-md">
+                    {/* Comment Metadata */}
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        {fullComment.username || "Unknown"} on{" "}
+                        {new Date(fullComment.createdAt || "").toLocaleDateString()}
+                    </p>
 
-            {/* Buttons */}
-            <div className="mt-2 flex space-x-2">
-                <InteractionBar parentId={fullComment.postId} initialRating={fullComment.rating}/>
+                    {/* Comment Content */}
+                    <p className="text-gray-800 dark:text-gray-200 mb-4">{fullComment.content}</p>
 
-                <button
-                    onClick={() => onReply(fullComment.postId)}
-                    className="px-4 py-1 bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-sm"
-                >
-                    Reply
-                </button>
+                    {/* Reply and View Replies Buttons */}
+                    <div className="mt-4 flex space-x-2">
+                        <button
+                            onClick={() => onReply(fullComment.postId)}
+                            className="px-4 py-1 bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-sm rounded"
+                        >
+                            Reply
+                        </button>
 
-                <button
-                    onClick={() => onViewReplies(fullComment.postId)}
-                    className="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
-                    aria-label={`${showReplies ? "Hide" : "View"} replies for comment ${fullComment.postId}`}
-                >
-                    {showReplies ? "Hide Replies" : "View Replies"}
-                </button>
-                {
-                    isCommenter && (
+                        <button
+                            onClick={() => onViewReplies(fullComment.postId)}
+                            className="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                            aria-label={`${showReplies ? "Hide" : "View"} replies for comment ${fullComment.postId}`}
+                        >
+                            {showReplies ? "Hide Replies" : "View Replies"}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Edit Button */}
+                {isCommenter && (
+                    <div className="flex items-center pl-4">
                         <button
                             onClick={openEditModal}
-                            className="text-sm px-3 py-1 rounded bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700"
+                            className="h-full px-3 py-2 bg-indigo-500 text-white rounded-md shadow hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700"
                         >
                             ✏️ Edit
                         </button>
-                    )
-                }
+                    </div>
+                )}
             </div>
-            {
-                isEditModalOpen && (
-                    <EditCommentModal postId={fullComment.postId} onClose={onCloseComment} isOpen={isEditModalOpen}/>)
-            }
+
+            {/* Edit Modal */}
+            {isEditModalOpen && (
+                <EditCommentModal
+                    postId={fullComment.postId}
+                    onClose={onCloseComment}
+                    isOpen={isEditModalOpen}
+                />
+            )}
         </div>
     );
 };
