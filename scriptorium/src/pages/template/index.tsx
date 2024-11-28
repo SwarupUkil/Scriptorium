@@ -21,8 +21,8 @@ export default function Blog() {
     // const fetchByParam = searchBlogs({skip, take, blogTitle, desiredContent, blogTags, templateTitle});
     return (
         <>
-            <div  className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-between p-6" >
-                <div className="flex flex-col flex-grow">
+            <div  className="min-h-screen bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-around p-6" >
+                <div className="flex flex-col ">
                     <SearchBar onApiCall={searchTemplates}
                                setData={setData}
                                pagination={pagination}
