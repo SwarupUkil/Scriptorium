@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {AUTH} from "@/utils/validateConstants";
 
 const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS);
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -26,11 +27,9 @@ export function generateToken(obj, type = "access") {
 }
 
 export function verifyToken(token) {
-  if (!token?.startsWith("Bearer ")) {
-    return null;
+  if (token?.startsWith("Bearer ")) {
+    token = token.split(" ")[1];
   }
-
-  token = token.split(" ")[1];
 
   try {
     return jwt.verify(token, JWT_SECRET);
@@ -79,4 +78,31 @@ export function refreshAccessToken(refreshToken) {
   } catch (error) {
     return null;
   }
+}
+
+export function accountVerification(accessToken, refreshToken) {
+  const accessPayload = verifyToken(accessToken);
+
+  if (accessPayload) {
+    return {
+      accessToken,
+      refreshToken,
+      accountType: accessPayload.type,
+    };
+  }
+
+  const newAccessToken = refreshAccessToken(refreshToken);
+
+  if (newAccessToken) {
+    const newAccessPayload = verifyToken(newAccessToken);
+    if (newAccessPayload) {
+      return {
+        accessToken: newAccessToken,
+        refreshToken,
+        accountType: newAccessPayload.type,
+      };
+    }
+  }
+
+  return null;
 }
