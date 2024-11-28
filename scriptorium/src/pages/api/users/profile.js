@@ -17,11 +17,21 @@ async function handler(req, res) {
       }
 
       const existingUser = await prisma.user.findUnique({
-        where: { username },
+        where: { username: req.user.username },
       });
 
       if (!existingUser) {
         return res.status(400).json({ error: "Username not found." });
+      }
+
+      if (req.user.username !== username) {
+        const existingUsername = await prisma.user.findUnique({
+          where: { username },
+        });
+
+        if (existingUsername) {
+          return res.status(400).json({ error: "Username already registered." });
+        }
       }
 
       if (existingUser.email !== email) {
@@ -65,9 +75,32 @@ async function handler(req, res) {
     } catch (error) {
       return res.status(500).json({ error: "Internal server error updating the user profile", details: error.message });
     }
-  } else {
+  } 
+  else if (req.method === "GET") {
+    const { username } = req.user;
+    try {
+      if (!username) {
+        return res.status(400).json({
+          error: "Need username",
+        });
+      }
+
+      const existingUser = await prisma.user.findUnique({
+        where: { username },
+      });
+
+      if (!existingUser) {
+        return res.status(400).json({ error: "Username not found." });
+      }
+
+      return res.status(200).json(existingUser);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error getting the user profile", details: error.message });
+    }
+  }
+  else {
     return res.status(405).json({ message: "Method not allowed" });
   }
 }
 
-export default verifyTokenMiddleware(handler, AUTH.USER);
+export default verifyTokenMiddleware(handler);
