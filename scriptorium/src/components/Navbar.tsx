@@ -27,6 +27,11 @@ const Navbar: React.FC = () => {
         {/* Links */}
         <ul className="hidden md:flex space-x-4">
           <li>
+            <Link href="/coding" className="hover:underline">
+              Coding
+            </Link>
+          </li>
+          <li>
             <Link href="/template" className="hover:underline">
               Templates
             </Link>

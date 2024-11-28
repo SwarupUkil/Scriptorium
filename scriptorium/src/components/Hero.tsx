@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
                         Explore Templates
                     </Link>
                     <Link
-                        href="/execute"
+                        href="/coding"
                         className="bg-gray-300 text-gray-900 px-6 py-3 rounded hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                         Start Coding
