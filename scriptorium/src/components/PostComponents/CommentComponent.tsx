@@ -6,8 +6,8 @@ import EditCommentModal from "@/components/PostComponents/EditCommentModal";
 
 type CommentComponentProps = {
     postId: number;
-    onLike: (id: number) => void;
-    onDislike: (id: number) => void;
+    onLike?: (id: number) => void;
+    onDislike?: (id: number) => void;
     onReply: (id: number) => void;
     onViewReplies: (id: number) => void;
     depth: number;
@@ -16,7 +16,6 @@ type CommentComponentProps = {
 
 const CommentComponent: React.FC<CommentComponentProps> = ({
                                                                postId,
-                                                               onLike, onDislike,
                                                                onReply,
                                                                onViewReplies,
                                                                depth,
@@ -27,7 +26,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
     const [isEditModalOpen, setEditModalOpen] = useState<boolean>(false);
     const [isCommenter, setCommenter] = useState<boolean>(false);
 
-    const shift = Math.min(depth * 20, 100); // Limit maximum shift for deep nesting
+    const shift = Math.min(depth * 20, 160); // Limit maximum shift for deep nesting
 
     useEffect(() => {
         const fetchComment = async () => {
@@ -125,13 +124,20 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
             <div className="mt-2 flex space-x-2">
                 <InteractionBar parentId={fullComment.postId} initialRating={fullComment.rating}/>
 
-                {/*<button*/}
-                {/*    onClick={() => onViewReplies(fullComment.postId)}*/}
-                {/*    className="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"*/}
-                {/*    aria-label={`${showReplies ? "Hide" : "View"} replies for comment ${fullComment.postId}`}*/}
-                {/*>*/}
-                {/*    {showReplies ? "Hide Replies" : "View Replies"}*/}
-                {/*</button>*/}
+                <button
+                    onClick={() => onReply(fullComment.postId)}
+                    className="px-4 py-1 bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-sm"
+                >
+                    Reply
+                </button>
+
+                <button
+                    onClick={() => onViewReplies(fullComment.postId)}
+                    className="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                    aria-label={`${showReplies ? "Hide" : "View"} replies for comment ${fullComment.postId}`}
+                >
+                    {showReplies ? "Hide Replies" : "View Replies"}
+                </button>
                 {
                     isCommenter && (
                         <button

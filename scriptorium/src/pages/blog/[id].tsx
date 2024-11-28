@@ -124,8 +124,6 @@ export default function BlogPost() {
                     ) : (
                         <CommentList
                             comments={comments}
-                            onLike={(commentId) => console.log(`Liked comment ${commentId}`)}
-                            onDislike={(commentId) => console.log(`Disliked comment ${commentId}`)}
                             onReply={(commentId) => console.log(`Replying to comment ${commentId}`)}
                         />
                     )}

@@ -2,19 +2,23 @@ import React, { useState } from "react";
 import { Comment } from "@/types/PostType";
 import CommentComponent from "./CommentComponent";
 import { getReplies } from "@/services/PostService";
+import ReplyCommentModal from "@/components/PostComponents/ReplyCommentModal";
 
 type CommentListProps = {
     comments: Comment[];
-    onLike: (id: number) => void;
-    onDislike: (id: number) => void;
     onReply: (id: number) => void;
     depth?: number;
 };
 
-const CommentList: React.FC<CommentListProps> = ({ comments, onLike, onDislike, onReply, depth = 0 }) => {
+const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 }) => {
+
     const [loadedReplies, setLoadedReplies] = useState<Record<number, Comment[]>>({});
     const [loadingReplies, setLoadingReplies] = useState<Record<number, boolean>>({});
     const [visibleReplies, setVisibleReplies] = useState<Record<number, boolean>>({});
+    const [replyModal, setReplyModal] = useState<{ isOpen: boolean; parentId: number | null }>({
+        isOpen: false,
+        parentId: null,
+    });
 
     const handleToggleReplies = async (commentId: number) => {
         // Toggle visibility
@@ -35,6 +39,21 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onLike, onDislike, 
         }
     };
 
+    const handleReply = (parentId: number) => {
+        setReplyModal({ isOpen: true, parentId });
+    };
+
+    const handleReplySubmit = (newComment?: Comment) => {
+        if (newComment && replyModal.parentId) {
+            const parentId: number = replyModal.parentId;
+            setLoadedReplies((prev) => ({
+                ...prev,
+                [parentId]: [...(prev[parentId] || []), newComment],
+            }));
+        }
+        setReplyModal({ isOpen: false, parentId: null });
+    };
+
     return (
         <div>
             {comments.map((comment) => (
@@ -42,9 +61,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onLike, onDislike, 
                     {/* Render the comment */}
                     <CommentComponent
                         postId={comment.postId}
-                        onLike={onLike}
-                        onDislike={onDislike}
-                        onReply={onReply}
+                        onReply={handleReply}
                         onViewReplies={handleToggleReplies}
                         depth={depth}
                         showReplies={visibleReplies[comment.postId] || false}
@@ -54,9 +71,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onLike, onDislike, 
                     {visibleReplies[comment.postId] && loadedReplies[comment.postId] && (
                         <CommentList
                             comments={loadedReplies[comment.postId]}
-                            onLike={onLike}
-                            onDislike={onDislike}
-                            onReply={onReply}
+                            onReply={handleReply}
                             depth={depth + 1}
                         />
                     )}
@@ -67,6 +82,14 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onLike, onDislike, 
                     )}
                 </React.Fragment>
             ))}
+
+            {replyModal.isOpen && (
+                <ReplyCommentModal
+                    isOpen={replyModal.isOpen}
+                    parentId={replyModal.parentId as number}
+                    onClose={handleReplySubmit}
+                />
+            )}
         </div>
     );
 };
