@@ -28,7 +28,6 @@ export async function tokenMiddleware (
           console.log('Account verification successful. Retrying...');
           const newResponse = await func(...args);
           if (newResponse instanceof Error) {
-            logout();
             return null;
           }
           else {

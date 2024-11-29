@@ -277,7 +277,7 @@ export const createComment = async (id: number, description: string): Promise<Co
             return new Error((data as ErrorResponse).error || 'Failed to refresh token');
         }
 
-        return await response.json(); // Return the created comment
+        return data; // Return the created comment
     } catch (error) {
         console.error("Error creating comment:", error);
         return error as Error;
@@ -338,11 +338,6 @@ export const updateVote = async (id: number, rating: number): Promise<boolean | 
 
 export const getVote = async (id: number): Promise<number> => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-        console.error("No auth token found. User may not be logged in.");
-        return 0;
-    }
-
     const url = `/api/posts/shared/vote?id=${id}`;
 
     try {

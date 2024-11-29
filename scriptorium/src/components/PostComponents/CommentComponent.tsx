@@ -12,6 +12,9 @@ type CommentComponentProps = {
     showReplies: boolean;
 };
 
+const SHIFT_PER_LEVEL = 25; // Pixels to shift per level
+const MAX_SHIFT = 100; // Maximum pixels to shift (caps the indentation)
+
 const CommentComponent: React.FC<CommentComponentProps> = ({
                                                                postId,
                                                                onReply,
@@ -24,7 +27,8 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
     const [isEditModalOpen, setEditModalOpen] = useState<boolean>(false);
     const [isCommenter, setCommenter] = useState<boolean>(false);
 
-    const shift = Math.min(depth * 20, 160); // Limit maximum shift for deep nesting
+    // Calculate shift with cap
+    const shift = Math.min(depth * SHIFT_PER_LEVEL, MAX_SHIFT);
 
     useEffect(() => {
         const fetchComment = async () => {
@@ -137,7 +141,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
 
                 {/* Edit Button */}
                 {isCommenter && (
-                    <div className="flex items-center pl-4">
+                    <div className="flex items-center pl-4 flex-nowrap overflow-hidden">
                         <button
                             onClick={openEditModal}
                             className="h-full px-3 py-2 bg-indigo-500 text-white rounded-md shadow hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700"
