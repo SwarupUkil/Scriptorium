@@ -33,6 +33,7 @@ model User {
 
 model Template {
   id          Int     @id @default(autoincrement())
+  username    String
   uid         Int
   code        String
   language    String

@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import Input from './Input';
-import TagInput from './TagInput';
-import {SearchBarProps, SearchParams} from "@/types/SearchType";
-import {calcTotalPages} from "@/utils/frontend-helper/paginationHelper";
-import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
+import React, { useState, useEffect } from "react";
+import Input from "./Input";
+import TagInput from "./TagInput";
+import { SearchBarProps, SearchParams } from "@/types/SearchType";
+import { calcTotalPages } from "@/utils/frontend-helper/paginationHelper";
+import { parseTagsToCSV } from "@/utils/frontend-helper/apiHelper";
+import { ORDER } from "@/utils/validateConstants";
 
 const SearchBar: React.FC<SearchBarProps> = ({
-     onApiCall,
-     setData,
-     pagination,
-     setPagination,
-     additionalFields,
-     isBlog,}) => {
-
+                                                 onApiCall,
+                                                 setData,
+                                                 pagination,
+                                                 setPagination,
+                                                 additionalFields,
+                                                 isBlog,
+                                             }) => {
     const [title, setTitle] = useState<string>("");
     const [content, setContent] = useState<string>("");
     const [tags, setTags] = useState<string[]>([]);
-    const [additionalParams, setAdditionalParams] = useState<Record<string, any>>({});
     const [templateTitle, setTemplateTitle] = useState<string>("");
-
-    // const handleAdditionalFieldChange = (key: string, value: any) => {
-    //     setAdditionalParams((prev) => ({ ...prev, [key]: value }));
-    // };
+    const [sortOrder, setSortOrder] = useState<string>(ORDER.DESC); // Default to 'most rated'
 
     const handleTagsChange = (newTags: string[]) => {
         setTags(newTags);
@@ -33,9 +30,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
             take: pagination.take,
             title: title || undefined,
             content: content || undefined,
-            tags: tags ? parseTagsToCSV(tags): undefined,
-            ...additionalParams,
+            tags: tags ? parseTagsToCSV(tags) : undefined,
             templates: isBlog ? templateTitle : undefined,
+            orderBy: sortOrder, // Add sortOrder to the parameters
         };
 
         try {
@@ -61,9 +58,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
             });
         }, delay);
 
-        // Clear the timeout if dependencies change
         return () => clearTimeout(handler);
-    }, [title, content, tags, additionalParams, templateTitle]); // Dependencies for dynamic searching
+    }, [title, content, tags, templateTitle, sortOrder]); // Dependencies for dynamic searching
 
     useEffect(() => {
         handleSearch().then(([results, paginate]) => {
@@ -77,63 +73,72 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }, [pagination.currentPage]);
 
     return (
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-md flex gap-4">
-            <Input
-                id="search-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Search by title"
-                label="Title"
-                className="w-full md:w-1/2"
-            />
-            <Input
-                id="search-content"
-                type="text"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Search by content"
-                label="Content"
-                className="w-full md:w-1/2"
-            />
-            {/*<Input*/}
-            {/*    id="search-tags"*/}
-            {/*    type="text"*/}
-            {/*    value={tags}*/}
-            {/*    onChange={(e) => setTags(e.target.value)}*/}
-            {/*    placeholder="Search by tags (comma-separated)"*/}
-            {/*    label="Tags"*/}
-            {/*    className="w-full md:w-1/2"*/}
-            {/*/>*/}
-            {/*{additionalFields &&*/}
-            {/*    React.cloneElement(additionalFields as React.ReactElement, {*/}
-            {/*        onFieldChange: handleAdditionalFieldChange,*/}
-            {/*    })*/}
-            {/*}*/}
-            {/*<TagInput*/}
-            {/*    onChange={handleTagsChange}*/}
-            {/*    containerClassName="w-full md:w-1/2 rounded-md border px-3 py-2 shadow-sm"*/}
-            {/*    tagClassName="bg-indigo-500 text-white"*/}
-            {/*    inputClassName="text-gray-700 dark:text-gray-200"*/}
-            {/*/>*/}
-            <TagInput
-                onChange={handleTagsChange}
-                label="Tags"
-                containerClassName="w-full md:w-1/2"
-                tagClassName="bg-blue-500 text-white"
-                inputClassName="text-gray-700 dark:text-gray-200"
-            />
-            {isBlog &&
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-md shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Title Input */}
                 <Input
-                    id="search-templateTitles"
+                    id="search-title"
                     type="text"
-                    value={templateTitle}
-                    onChange={(e) => setTemplateTitle(e.target.value)}
-                    placeholder="Search by template title"
-                    label="Template Title"
-                    className="w-full md:w-1/2"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Search by title"
+                    label="Title"
+                    className="w-full"
                 />
-            }
+
+                {/* Content Input */}
+                <Input
+                    id="search-content"
+                    type="text"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Search by content"
+                    label="Content"
+                    className="w-full"
+                />
+
+                {/* Tag Input */}
+                <TagInput
+                    onChange={handleTagsChange}
+                    label="Tags"
+                    containerClassName="w-full"
+                    tagClassName="bg-blue-500 text-white"
+                    inputClassName="text-gray-700 dark:text-gray-200"
+                />
+
+                {/* Template Title Input */}
+                {isBlog && (
+                    <Input
+                        id="search-templateTitles"
+                        type="text"
+                        value={templateTitle}
+                        onChange={(e) => setTemplateTitle(e.target.value)}
+                        placeholder="Search by template title"
+                        label="Template Title"
+                        className="w-full"
+                    />
+                )}
+
+                {/* Sort Dropdown */}
+                <div className="flex flex-col">
+                    <label
+                        htmlFor="sort-order"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        Sort By
+                    </label>
+                    <select
+                        id="sort-order"
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="mt-1 w-full p-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 "
+                    >
+                        <option value={ORDER.DESC}>Most Rated</option>
+                        <option value={ORDER.ASC}>Least Rated</option>
+                        <option value={ORDER.CONTROVERSIAL}>Controversial</option>
+                    </select>
+                </div>
+            </div>
         </div>
     );
 };

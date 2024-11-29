@@ -52,19 +52,27 @@ export default async function handler(req, res) {
             select: {
                 title: true,
                 tags: true,
+                templates: {
+                    select: {
+                        id: true,
+                    },
+                },
             },
         });
-
-        const blog = {
-            username: findUsername.username,
-            ...postValues,
-            ...blogValues,
-        }
 
         // Error if either queries return null.
         if (!postValues || !blogValues) {
             return res.status(404).json({ message: "Blog not found" });
         }
+
+        // Parse the templates into an array of integers
+        const templateIds = blogValues.templates.map((template) => template.id);
+        const blog = {
+            username: findUsername.username,
+            ...postValues,
+            ...blogValues,
+            templates: templateIds, // Replace with parsed template IDs
+        };
 
         // Return identified blog data.
         const {deleted, uid, id, ...response} = blog;

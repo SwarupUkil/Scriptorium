@@ -5,6 +5,7 @@ import { NewBlogPost } from "@/types/PostType";
 import TagInput from "@/components/TagInput";
 import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
+import ValidatedTagInput from "@/components/ValidatedTagInput";
 
 const BlogForm: React.FC = () => {
     const router = useRouter();
@@ -44,6 +45,14 @@ const BlogForm: React.FC = () => {
 
     const handleTagChange = (tags: string[]) => {
         setFormData((prev) => ({ ...prev, tags: parseTagsToCSV(tags) }));
+    };
+
+    const handleTemplateChange = (templates: string[]) => {
+        // Ensure templates are stored as an array of integers
+        setFormData((prev) => ({
+            ...prev,
+            templates: templates.map((template) => parseInt(template, 10)),
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -91,6 +100,15 @@ const BlogForm: React.FC = () => {
                         label="Tags"
                         placeholder="Add tags (Press Enter/Space)"
                         containerClassName="mt-4"
+                    />
+                    <ValidatedTagInput
+                        value={formData.templates?.map(String).join(",")}
+                        onChange={handleTemplateChange}
+                        label="Template IDs"
+                        placeholder="Add template IDs (Press Enter/Space)"
+                        containerClassName="mt-4"
+                        validate={(value) => /^\d+$/.test(value)} // Positive integer validation
+                        errorMessage="Template IDs must be positive integers."
                     />
                     <div className="flex items-start justify-between">
                         <div className="flex-grow"/>
