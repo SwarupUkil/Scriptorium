@@ -1,5 +1,6 @@
 export type Template = {
     id: number; // Unique identifier for the template
+    username?: string;
     code?: string; // The code snippet
     language?: string; // Programming language of the code
     title?: string; // Title of the template

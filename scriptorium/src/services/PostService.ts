@@ -104,7 +104,7 @@ export const getBlog = async (id: number): Promise<Blog | null> => {
         return await response.json();
     } catch (error) {
         console.error("Error in getBlog:", error);
-        throw new Error("Error fetching blog");
+        return null;
     }
 };
 

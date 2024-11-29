@@ -49,6 +49,7 @@ async function handler(req, res) {
         const newTemplate = await prisma.template.create({
             data: {
                 uid: userId,
+                username: user.username,
                 code: templateForked.code,
                 language: templateForked.language,
                 title: templateForked.title,
