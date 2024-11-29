@@ -10,7 +10,12 @@ const languageOptions = [
   { label: 'JavaScript', value: 'javascript' },
   { label: 'C', value: 'c' },
   { label: 'C++', value: 'cpp' },
+  { label: 'Swift', value: 'swift' },
   { label: 'Java', value: 'java' },
+  { label: 'Rust', value: 'rust' },
+  { label: 'Go', value: 'go' },
+  { label: 'PHP', value: 'php' },
+  { label: 'Ruby', value: 'ruby' },
 ];
 
 const CodePage: React.FC = () => {
@@ -33,9 +38,11 @@ const CodePage: React.FC = () => {
       setOutput(response.output || 'No output.');
 
       if (response.error) {
+        console.log(response);
         setError(response.error);
       }
     } catch (err: any) {
+      console.log(err);
       setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
