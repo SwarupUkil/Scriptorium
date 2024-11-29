@@ -1,4 +1,4 @@
-import {fetchWithPagination, constructQueryParams} from "@/utils/frontend-helper/apiHelper";
+import {fetchWithPagination, constructQueryParams, parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
 import {SearchTemplatesParams} from "@/types/SearchType";
 import {Template} from "@/types/TemplateType";
 import {ErrorResponse} from "@/types/UserTypes";
@@ -81,6 +81,32 @@ export const getAllTemplatesByUser = async ({skip, take}: {skip?: number, take?:
     }
 };
 
+export const getSpecificTemplateByUser = async (id: number)
+    : Promise<[Template, PaginationAPIResponse] | Error> => {
+    const url = '/api/templates/users/' + id.toString();
+    const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`, // Include auth token in the header
+            },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error in getAllTemplatesByUser:", error);
+        return error as Error;
+    }
+};
+
 export const createTemplate = async ({
     code,
     language,
@@ -91,7 +117,7 @@ export const createTemplate = async ({
                                  }: Template): Promise<Template | Error> => {
     const url = '/api/templates/users/create';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-
+    const parsedTags = parseTagsToCSV(tags || []);
     try {
         const response = await fetch(url, {
             method: "POST",
@@ -99,10 +125,11 @@ export const createTemplate = async ({
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`,
             },
-            body: JSON.stringify({ code, language, title, explanation, tags, privacy }),
+            body: JSON.stringify({ code, language, title, explanation, tags: parsedTags, privacy }),
         });
 
         const data = await response.json();
+        console.log(data);
         if (!response.ok) {
             return new Error((data as ErrorResponse).error || 'Failed to refresh token');
         }

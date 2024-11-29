@@ -18,13 +18,13 @@ async function handler(req, res) {
 
     //  Limit user template data:
     //      title: must be given, max 100 chars
-    //      explanation: must be given, max 3000 characters
+    //      explanation: not necessary be given, max 3000 characters
     //      tags: not necessary to have, max 100 chars
     //      code: must be given, max 15000 characters
     //      language: must be given
     //      privacy: defaults to PRIVATE if not given.
-    if (!title || !explanation || !code || !language) {
-        return res.status(400).json({message: "Missing title, explanation, code, or language"});
+    if (!title || !code || !language) {
+        return res.status(400).json({message: "Missing title, code, or language"});
     }
 
     if (title.length > MAX_TITLE) {
