@@ -69,7 +69,7 @@ const ValidatedTagInput: React.FC<ValidatedTagInputProps> = ({
                 </label>
             )}
             <div
-                className="mt-1 flex-1 relative flex items-center gap-2 rounded-md border px-3 py-2 shadow-md sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+                className="mt-1 flex-1 relative flex items-center gap-2 rounded-md border px-3 py-2 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
             >
                 <div className="w-full flex flex-wrap gap-2">
                     {tags.map((tag) => (

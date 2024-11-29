@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { getBlog, getComment, getReplies } from "@/services/PostService";
+import { getBlog, getReplies } from "@/services/PostService";
 import { Blog, Comment } from "@/types/PostType";
 import { parseCSVToTags } from "@/utils/frontend-helper/apiHelper";
 import BlogContent from "@/components/PostComponents/BlogContent";

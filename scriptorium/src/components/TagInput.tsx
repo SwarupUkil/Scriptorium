@@ -72,7 +72,7 @@ const TagInput: React.FC<TagInputProps> = ({
             {/* Tag Input Container */}
             <div className="relative mt-1">
                 <div
-                    className="flex items-center gap-2 rounded-md border px-3 py-2 shadow-md sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+                    className="flex items-center gap-2 rounded-md border px-3 py-2  sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
                 >
                     <div className="flex flex-wrap items-center gap-2 flex-grow">
                         {tags.map((tag) => (
@@ -96,7 +96,7 @@ const TagInput: React.FC<TagInputProps> = ({
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder={placeholder}
-                            className={`flex-grow outline-none bg-transparent text-sm shadow-sm text-gray-700 dark:text-gray-200 focus:ring-indigo-500 focus:border-indigo-500 ${inputClassName}`}
+                            className={`flex-grow outline-none bg-transparent text-sm  text-gray-700 dark:text-gray-200 focus:ring-indigo-500 focus:border-indigo-500 ${inputClassName}`}
                         />
                     </div>
                     {/* Help Button */}

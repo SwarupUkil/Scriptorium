@@ -3,6 +3,7 @@ import {SearchBlogsParams} from "@/types/SearchType";
 import {Blog, BlogPost, Comment, NewBlogPost} from "@/types/PostType";
 import {PaginationAPIResponse} from "@/types/PaginationType";
 import {ErrorResponse} from "@/types/UserTypes";
+import {ORDER} from "@/utils/validateConstants";
 
 export const searchBlogs = async ({
   skip,
@@ -11,8 +12,10 @@ export const searchBlogs = async ({
   content,
   tags,
   templates,
+  orderBy
 }: SearchBlogsParams): Promise<BlogPost[]> => {
 
+    const _order = Object.values(ORDER).includes(orderBy) ? orderBy : ORDER.DESC; // default to highest rate -> lowest rate.
     const url = '/api/posts/blogs' + constructQueryParams({
         skip,
         take,
@@ -20,6 +23,7 @@ export const searchBlogs = async ({
         content,
         tags,
         templates,
+        orderBy: _order,
     });
 
     try {
