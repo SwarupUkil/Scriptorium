@@ -78,7 +78,7 @@ async function handler(req, res) {
                 language: codeLanguage,
                 title: title,
                 explanation: explanation,
-                tags: csvTags,
+                tags: csvTags || "",
                 forkedFrom: null,
                 privacy: privacy ? privacy : PRIVACY.PRIVATE, // default to private
             },
