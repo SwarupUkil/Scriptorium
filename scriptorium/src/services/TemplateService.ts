@@ -167,24 +167,26 @@ export const forkTemplate = async ({ id }: Template): Promise<Template | Error> 
 };
 
 export const updateTemplate = async ({
-                                         code,
-                                         language,
-                                         title,
-                                         explanation,
-                                         tags,
-                                         privacy
+     id,
+     code,
+     language,
+     title,
+     explanation,
+     tags,
+     privacy
                                      }: Template): Promise<Template | Error> => {
     const url = '/api/templates/users/edit';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
+    const parsedTags = parseTagsToCSV(tags || []);
 
     try {
         const response = await fetch(url, {
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`, // Include auth token in the header
             },
-            body: JSON.stringify({ code, language, title, explanation, tags, privacy }), // Send comment data in the body
+            body: JSON.stringify({ id, code, language, title, explanation, tags: parsedTags, privacy }), // Send comment data in the body
         });
 
         const data = await response.json();

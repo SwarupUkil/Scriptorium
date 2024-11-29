@@ -2,6 +2,7 @@ import {constructQueryParams} from "@/utils/frontend-helper/apiHelper";
 import {SearchBlogsParams} from "@/types/SearchType";
 import {Blog, BlogPost, Comment, NewBlogPost} from "@/types/PostType";
 import {PaginationAPIResponse} from "@/types/PaginationType";
+import {ErrorResponse} from "@/types/UserTypes";
 
 export const searchBlogs = async ({
   skip,
@@ -109,14 +110,9 @@ export const getBlog = async (id: number): Promise<Blog | null> => {
 };
 
 export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: number})
-: Promise<[Blog[], PaginationAPIResponse] | null> => {
+: Promise<[Blog[], PaginationAPIResponse] | Error> => {
     const url = '/api/posts/blogs/users/all' + constructQueryParams({skip, take});
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return null;
-    }
 
     try {
         const response = await fetch(url, {
@@ -127,12 +123,11 @@ export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: num
             },
         });
 
-        // Couldn't retrieve a blog.
+        const data = await response.json();
         if (!response.ok) {
-            return null;
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
         }
 
-        const data = await response.json();
         if (data.isEmpty) {
             return [[], data.pagination];
         }
@@ -140,7 +135,7 @@ export const getAllBlogsByUser = async ({skip, take}: {skip?: number, take?: num
         return [data.data, data.pagination];
     } catch (error) {
         console.error("Error in getAllBlogsByUser:", error);
-        throw new Error("Error fetching blogs");
+        return error as Error;
     }
 };
 
@@ -149,14 +144,9 @@ export const createBlog = async ({
      content,
      tags,
      templates,
- }: NewBlogPost): Promise<BlogPost | null> => {
+ }: NewBlogPost): Promise<BlogPost | Error> => {
     const url = '/api/posts/blogs/users/create';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return null;
-    }
 
     try {
         const response = await fetch(url, {
@@ -168,10 +158,16 @@ export const createBlog = async ({
             body: JSON.stringify({ title, content, tags, templates }), // Send comment data in the body
         });
 
-        return await response.json(); // Return newly created postId.
+        const data = await response.json();
+        console.log(data);
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
+        return data; // Return newly created postId.
     } catch (error) {
         console.error("Error creating comment:", error);
-        return null;
+        return error as Error;
     }
 };
 
@@ -181,14 +177,9 @@ export const updateBlog = async ({
                                      content,
                                      tags,
                                      templates,
-                                 }: NewBlogPost): Promise<boolean> => {
+                                 }: NewBlogPost): Promise<boolean | Error> => {
     const url = '/api/posts/blogs/users/edit';
     const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return false;
-    }
 
     try {
         const response = await fetch(url, {
@@ -200,21 +191,21 @@ export const updateBlog = async ({
             body: JSON.stringify({ id, title, content, tags, templates }),
         });
 
+        const data = await response.json();
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
         return response.ok;
     } catch (error) {
         console.error("Error creating comment:", error);
-        return false;
+        return error as Error;
     }
 };
 
-export const deleteBlog = async ({id}: NewBlogPost): Promise<boolean> => {
+export const deleteBlog = async ({id}: NewBlogPost): Promise<boolean | Error> => {
     const url = '/api/posts/blogs/users/edit';
     const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return false;
-    }
 
     try {
         const response = await fetch(url, {
@@ -226,10 +217,15 @@ export const deleteBlog = async ({id}: NewBlogPost): Promise<boolean> => {
             body: JSON.stringify({ id }),
         });
 
+        const data = await response.json();
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
         return response.ok;
     } catch (error) {
         console.error("Error creating comment:", error);
-        return false;
+        return error as Error;
     }
 };
 
@@ -258,14 +254,9 @@ export const getComment = async (id: number): Promise<Comment | null> => {
     }
 };
 
-export const createComment = async (id: number, description: string): Promise<Comment | null> => {
+export const createComment = async (id: number, description: string): Promise<Comment | Error> => {
     const url = "/api/posts/comments/create";
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return null;
-    }
 
     try {
         const response = await fetch(url, {
@@ -277,26 +268,21 @@ export const createComment = async (id: number, description: string): Promise<Co
             body: JSON.stringify({ id, description }), // Send comment data in the body
         });
 
+        const data = await response.json();
         if (!response.ok) {
-            console.error(`Failed to create comment: ${response.statusText}`);
-            return null;
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
         }
 
         return await response.json(); // Return the created comment
     } catch (error) {
         console.error("Error creating comment:", error);
-        return null;
+        return error as Error;
     }
 };
 
-export const updateComment = async (id: number, description: string): Promise<boolean> => {
+export const updateComment = async (id: number, description: string): Promise<boolean | Error> => {
     const url = "/api/posts/comments/edit";
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-
-    if (!accessToken) {
-        console.error("Authorization token not found.");
-        return false;
-    }
 
     try {
         const response = await fetch(url, {
@@ -308,21 +294,21 @@ export const updateComment = async (id: number, description: string): Promise<bo
             body: JSON.stringify({ id, description }), // Send comment data in the body
         });
 
+        const data = await response.json();
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
         return response.ok;
     } catch (error) {
         console.error("Error creating comment:", error);
-        return false;
+        return error as Error;
     }
 };
 
 ///
-export const updateVote = async (id: number, rating: number): Promise<boolean> => {
+export const updateVote = async (id: number, rating: number): Promise<boolean | Error> => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-        console.error("No auth token found. User may not be logged in.");
-        return false;
-    }
-
     const url = `/api/posts/shared/vote?id=${id}&rating=${rating}`;
 
     try {
@@ -334,10 +320,15 @@ export const updateVote = async (id: number, rating: number): Promise<boolean> =
             },
         });
 
+        const data = await response.json();
+        if (!response.ok) {
+            return new Error((data as ErrorResponse).error || 'Failed to refresh token');
+        }
+
         return response.ok;
     } catch (error) {
         console.error("Error in updateVote:", error);
-        return false;
+        return error as Error;
     }
 };
 

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Pagination from "@/components/Pagination";
-import BlogTable from "@/components/Table/BlogTable";
+import Card from "@/components/Card/Card";
+import TagDisplay from "@/components/TagDisplay";
 import { calcTotalPages, handlePageChange } from "@/utils/frontend-helper/paginationHelper";
 import { PaginationState } from "@/types/PaginationType";
 import { BlogPost } from "@/types/PostType";
 import { getAllBlogsByUser, deleteBlog } from "@/services/PostService";
 import DeleteBlogModal from "@/components/PostComponents/DeleteBlogModal";
-import {tokenMiddleware} from "@/services/TokenMiddleware";
+import { tokenMiddleware } from "@/services/TokenMiddleware";
 
 export default function BlogManagement() {
     const router = useRouter();
     const [data, setData] = useState<BlogPost[]>([]);
     const [pagination, setPagination] = useState<PaginationState>({
         skip: 0,
-        take: 10,
+        take: 9, // Adjusted for grid layout
         currentPage: 1,
         totalPages: 1,
     });
@@ -27,14 +28,13 @@ export default function BlogManagement() {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await tokenMiddleware(getAllBlogsByUser, [{
-                    skip: pagination.skip,
-                    take: pagination.take,
-                }]);
+                const response = await tokenMiddleware(getAllBlogsByUser, [
+                    { skip: pagination.skip, take: pagination.take },
+                ]);
 
                 if (response) {
                     const [blogs, paginate] = response;
-                    setData(blogs); // Update the blog data
+                    setData(blogs);
                     setPagination((prev) => ({
                         ...prev,
                         totalPages: Math.max(calcTotalPages(paginate.take, paginate.total), 1),
@@ -48,17 +48,16 @@ export default function BlogManagement() {
         fetchBlogs();
     }, [pagination.currentPage]);
 
-    const handleRowClick = (blog: BlogPost) => {
-        router.push(`/blog/edit/${blog.postId}`); // Navigate to the edit blog page
-    };
-
     const handleCreateNew = () => {
         router.push(`/blog/create`);
     };
 
+    const handleCardClick = (blogId: number) => {
+        router.push(`/blog/edit/${blogId}`);
+    };
+
     const handleDelete = async () => {
         if (deleteModal.blogId) {
-
             const success = await tokenMiddleware(deleteBlog, [{ id: deleteModal.blogId }]);
             if (success) {
                 setData((prev) => prev.filter((blog) => blog.postId !== deleteModal.blogId));
@@ -71,27 +70,55 @@ export default function BlogManagement() {
 
     return (
         <div className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-between p-6">
-            <div className="flex flex-col flex-grow">
-                {/* Create Blog Button */}
-                <div className="mb-4 flex justify-center">
-                    <button
-                        onClick={handleCreateNew}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:ring focus:ring-blue-300"
-                    >
-                        Create New Blog
-                    </button>
-                </div>
+            {/* Create Blog Button */}
+            <div className="mb-4 flex justify-center">
+                <button
+                    onClick={handleCreateNew}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:ring focus:ring-blue-300"
+                >
+                    Create New Blog
+                </button>
+            </div>
 
-                {/* Blog Table */}
-                <BlogTable
-                    data={data}
-                    onRowClick={handleRowClick}
-                    onDelete={(blogId) => setDeleteModal({ isOpen: true, blogId })}
-                />
+            {/* Blogs List as Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.map((blog) => (
+                    <Card
+                        key={blog.postId}
+                        title={blog.title || "Untitled Blog"}
+                        content={
+                            <div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    {blog.content?.slice(0, 100) || "No content available."}
+                                </p>
+                                <TagDisplay value={blog.tags || ""} />
+                            </div>
+                        }
+                        actions={
+                            <div className="flex items-center w-full">
+                                <button
+                                    onClick={() => handleCardClick(blog.postId)}
+                                    className="w-3/4 px-4 py-2 bg-indigo-500 text-white rounded-l-md hover:bg-indigo-600 mr-1"
+                                >
+                                    Edit Blog
+                                </button>
+                                <button
+                                    onClick={() => setDeleteModal({ isOpen: true, blogId: blog.postId })}
+                                    className="w-1/4 px-4 py-2 bg-red-500 text-white rounded-r-md hover:bg-red-600"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        }
+                    />
+                ))}
             </div>
 
             {/* Pagination */}
-            <Pagination pagination={pagination} onPageChange={handlePageChange(setPagination)} />
+            <Pagination
+                pagination={pagination}
+                onPageChange={handlePageChange(setPagination)}
+            />
 
             {/* Delete Confirmation Modal */}
             {deleteModal.isOpen && (

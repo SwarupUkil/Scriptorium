@@ -6,6 +6,7 @@ import { parseCSVToTags } from "@/utils/frontend-helper/apiHelper";
 import BlogContent from "@/components/PostComponents/BlogContent";
 import CommentList from "@/components/PostComponents/CommentList";
 import CommentForm from "@/components/PostComponents/CommentForm";
+import Link from "next/link";
 
 // GPT pilled.
 export default function BlogPost() {
@@ -96,17 +97,67 @@ export default function BlogPost() {
                 {/* Blog Title */}
                 <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
 
-                {/* Blog Tags */}
-                {blog.tags && blog.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        {parseCSVToTags(blog.tags).map((tag, index) => (
-                            <span
-                                key={index}
-                                className="px-3 py-1 text-sm rounded-full bg-indigo-500 text-white"
-                            >
-                                {tag}
-                            </span>
-                        ))}
+                {/*/!* Blog Tags *!/*/}
+                {/*{blog.tags && blog.tags.length > 0 && (*/}
+                {/*    <div className="flex flex-wrap gap-2 mb-6">*/}
+                {/*        {parseCSVToTags(blog.tags).map((tag, index) => (*/}
+                {/*            <span*/}
+                {/*                key={index}*/}
+                {/*                className="px-3 py-1 text-sm rounded-full bg-indigo-500 text-white"*/}
+                {/*            >*/}
+                {/*                {tag}*/}
+                {/*            </span>*/}
+                {/*        ))}*/}
+                {/*    </div>*/}
+                {/*)}*/}
+
+                {/*{blog.templates && blog.templates.length > 0 && (*/}
+                {/*    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">*/}
+                {/*        <span className="font-medium">Templates:</span>{" "}*/}
+                {/*        <div className="flex flex-wrap gap-2 mt-1">*/}
+                {/*            {blog.templates.map((templateId) => (*/}
+                {/*                <a*/}
+                {/*                    key={templateId}*/}
+                {/*                    href={`/templates/${templateId}`}*/}
+                {/*                    className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-300 text-xs hover:bg-indigo-500 hover:text-white transition"*/}
+                {/*                >*/}
+                {/*                    {templateId}*/}
+                {/*                </a>*/}
+                {/*            ))}*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*)}*/}
+                {/* Blog Tags and Templates */}
+                {(blog.tags || blog.templates?.length > 0) && (
+                    <div className="flex justify-between items-center mb-6">
+                        {/* Tags */}
+                        {blog.tags && blog.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {parseCSVToTags(blog.tags).map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="px-3 py-1 text-sm rounded-full bg-indigo-500 text-white"
+                                    >
+                        {tag}
+                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Templates */}
+                        {blog.templates && blog.templates.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {blog.templates.map((templateId) => (
+                                    <Link
+                                        key={templateId}
+                                        href={`/coding/${templateId}`}
+                                        className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-300 text-xs hover:bg-indigo-500 hover:text-white transition"
+                                    >
+                                        {templateId}
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 

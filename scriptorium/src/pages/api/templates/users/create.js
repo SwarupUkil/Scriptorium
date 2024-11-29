@@ -20,10 +20,10 @@ async function handler(req, res) {
     //      title: must be given, max 100 chars
     //      explanation: not necessary be given, max 3000 characters
     //      tags: not necessary to have, max 100 chars
-    //      code: must be given, max 15000 characters
+    //      code: not necessary, max 15000 characters
     //      language: must be given
     //      privacy: defaults to PRIVATE if not given.
-    if (!title || !code || !language) {
+    if (!title || !language) {
         return res.status(400).json({message: "Missing title, code, or language"});
     }
 

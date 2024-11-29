@@ -85,11 +85,11 @@ const EditOrForkTemplate: React.FC = () => {
         if (!template) return;
 
         try {
-            const response = await updateTemplate(template);
-            if (response && !(response instanceof Error)) {
-                alert("Template saved successfully.");
+            const response = await tokenMiddleware(updateTemplate, [template]);
+            if (response) {
+                console.log("Template saved successfully.");
             } else {
-                alert("Failed to save the template.");
+                console.log("Failed to save the template.");
             }
         } catch (error) {
             console.error("Error saving template:", error);
@@ -98,12 +98,12 @@ const EditOrForkTemplate: React.FC = () => {
 
     const handleFork = async () => {
         try {
-            const response = await forkTemplate({ id: templateId });
-            if (response && !(response instanceof Error)) {
-                alert("Template forked successfully.");
-                await router.push(`/coding/edit/${response.id}`);
+            const response = await tokenMiddleware(forkTemplate, [{ id: templateId }]);
+            if (response) {
+                console.log("Template forked successfully.");
+                await router.push(`/coding/${response.id}`);
             } else {
-                alert("Failed to fork the template.");
+                console.log("Failed to fork the template.");
             }
         } catch (error) {
             console.error("Error forking template:", error);
@@ -179,7 +179,6 @@ const EditOrForkTemplate: React.FC = () => {
                                     }))
                                 }
                                 className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
-                                disabled={!isOwner}
                             >
                                 {languageOptions.map((lang) => (
                                     <option key={lang.value} value={lang.value}>
@@ -230,7 +229,6 @@ const EditOrForkTemplate: React.FC = () => {
                                 }
                                 rows={5}
                                 className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
-                                disabled={!isOwner}
                             ></textarea>
                         </div>
                         <TagInput
