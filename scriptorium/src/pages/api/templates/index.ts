@@ -20,7 +20,7 @@ export default async function handler(
     }
 
     const { skip, take, title, tags, content } = req.query;
-    const paginate = sanitizePagination(skip, take);
+    const paginate = sanitizePagination(skip as string | undefined, take as string | undefined);
 
     if (tags && typeof tags !== "string") {
         return res
