@@ -1,6 +1,7 @@
+// Constants for validation limits and allowed values
 export const MAX_TITLE = 100;
 export const MAX_CODE = 15000;
-export const MAX_TAGS = 100;
+export const MAX_TAGS = 50;
 export const MAX_EXPLANATION = 3000;
 export const MAX_BLOG_DESCRIPTION = 5000;
 export const MAX_COMMENT_DESCRIPTION = 3000;
@@ -50,9 +51,14 @@ export const REPORT = {
 }
 
 export const SUPPORTED_LANGUAGES = {
-    JAVASCRIPT: ["javascript", "js", "java script"],
+    JAVASCRIPT: ["javascript", "js", "java script", "nodejs"],
     PYTHON: ["python", "py"],
     JAVA: ["java"],
-    C_PLUS_PLUS: ["cpp", "c++", "c plus plus"],
+    C_PLUS_PLUS: ["cpp", "c++", "c plus plus", "cplusplus"],
     C: ["c"],
+    SWIFT: ["swift"],
+    RUST: ["rust", "rs"],
+    GO: ["go", "golang"],
+    PHP: ["php", "php7", "php8"],
+    RUBY: ["ruby", "rb"],
 };

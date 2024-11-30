@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Editor from "@monaco-editor/react";
-import { useAuth } from "@/contexts/AuthContext";
 import TagInput from "@/components/TagInput";
 import {
     getTemplate,
@@ -32,7 +31,6 @@ const privacyOptions = [
 
 const EditOrForkTemplate: React.FC = () => {
     const router = useRouter();
-    const { isLoggedIn } = useAuth();
     const [template, setTemplate] = useState<Template | null>(null);
     const [isOwner, setIsOwner] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);

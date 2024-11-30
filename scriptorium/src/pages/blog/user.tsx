@@ -91,9 +91,6 @@ export default function BlogManagement() {
                         title={blog.title || "Untitled Blog"}
                         content={
                             <div>
-                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                                    {blog.content?.slice(0, 100) || "No content available."}
-                                </p>
                                 <TagDisplay value={blog.tags || ""} />
                             </div>
                         }

@@ -1,10 +1,9 @@
-import {prisma} from "../../../../utils/db";
+import { prisma } from "@/utils/db";
+import { NextApiRequest, NextApiResponse } from "next";
 
-// Handler will return a specified blog post to client.
-export default async function handler(req, res) {
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") {
-        return res.status(405).json({message: "Method not allowed"});
+        return res.status(405).json({ message: "Method not allowed" });
     }
 
     const { id } = req.query;
@@ -18,7 +17,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Invalid ID: not a number" });
     }
 
-    // Blog data is seperated into two tables: Post (parent table) and Blog.
     try {
         const postValues = await prisma.post.findUnique({
             where: {
@@ -38,6 +36,14 @@ export default async function handler(req, res) {
             },
         });
 
+        if (!postValues) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
+
+        if (!postValues.uid) {
+            return res.status(404).json({ message: "Post has no creator?" });
+        }
+
         const findUsername = await prisma.user.findUnique({
             where: {
                 id: postValues.uid,
@@ -48,7 +54,7 @@ export default async function handler(req, res) {
         });
 
         const blogValues = await prisma.blog.findUnique({
-            where: {postId: blogId},
+            where: { postId: blogId },
             select: {
                 title: true,
                 tags: true,
@@ -60,25 +66,22 @@ export default async function handler(req, res) {
             },
         });
 
-        // Error if either queries return null.
-        if (!postValues || !blogValues) {
+        if (!blogValues) {
             return res.status(404).json({ message: "Blog not found" });
         }
 
-        // Parse the templates into an array of integers
         const templateIds = blogValues.templates.map((template) => template.id);
         const blog = {
-            username: findUsername.username,
+            username: findUsername?.username || "Unknown",
             ...postValues,
             ...blogValues,
-            templates: templateIds, // Replace with parsed template IDs
+            templates: templateIds,
         };
 
-        // Return identified blog data.
-        const {deleted, uid, id, ...response} = blog;
-        response.postId = id;
-        return res.status(200).json(response);
-    } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { deleted, uid, id: postId, ...response } = blog;
+        return res.status(200).json({ postId, ...response });
+    } catch {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blog data" });
     }
 }

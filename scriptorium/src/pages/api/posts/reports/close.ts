@@ -47,7 +47,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
             });
 
             return res.status(200).json({ message: "Singular report successfully resolved" });
-        } catch (error) {
+        } catch {
             return res.status(400).send({message: "An internal server error occurred closing reports"});
         }
     } else {
@@ -73,12 +73,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
             }
 
             return res.status(200).json({ message: "All associated reports successfully resolved" });
-        } catch (error) {
+        } catch {
             return res.status(500).json({ message: "An internal server error occurred closing reports" });
         }
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 export default verifyTokenMiddleware(handler, AUTH.ADMIN);

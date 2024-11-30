@@ -1,12 +1,19 @@
-import {prisma} from "../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {PRIVACY} from "../../../../utils/validateConstants";
+import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/utils/db";
+import { verifyTokenMiddleware } from "@/utils/auth";
+import { PRIVACY } from "@/utils/validateConstants";
+
+type RequestWithUser = NextApiRequest & {
+    user: { id: number; username: string };
+};
 
 // Handler will save a forked template for client.
-async function handler(req, res) {
-
+async function handler(
+    req: RequestWithUser,
+    res: NextApiResponse<{ id?: number; message: string }>
+) {
     if (req.method !== "POST") {
-        res.status(405).json({message: "Method not allowed"});
+        return res.status(405).json({ message: "Method not allowed" });
     }
 
     const user = req.user;
@@ -14,11 +21,11 @@ async function handler(req, res) {
     const templateId = Number(req.query.id);
 
     if (!req.query.id) {
-        return res.status(404).json({ error: "Invalid ID: missing template ID to fork from" });
+        return res.status(404).json({ message: "Invalid ID: missing template ID to fork from" });
     }
 
     if (isNaN(templateId)) {
-        return res.status(400).json({ error: "Invalid ID: template ID given is not a number" });
+        return res.status(400).json({ message: "Invalid ID: template ID given is not a number" });
     }
 
     try {
@@ -37,13 +44,13 @@ async function handler(req, res) {
                 deleted: false,
                 OR: [
                     { privacy: PRIVACY.PUBLIC }, // Public template
-                    { privacy: PRIVACY.PRIVATE, uid: userId } // Private but owned by user
+                    { privacy: PRIVACY.PRIVATE, uid: userId }, // Private but owned by user
                 ],
             },
         });
 
         if (!templateForked) {
-            return res.status(404).json({ error: "Template not found or is private" });
+            return res.status(404).json({ message: "Template not found or is private" });
         }
 
         const newTemplate = await prisma.template.create({
@@ -60,6 +67,7 @@ async function handler(req, res) {
             },
         });
 
+        // Update fork relationship
         await prisma.template.update({
             where: {
                 id: templateId,
@@ -71,9 +79,15 @@ async function handler(req, res) {
             },
         });
 
-        return res.status(200).json({id: newTemplate.id, message: "Successfully forked template"});
+        // Successfully forked template
+        return res
+            .status(200)
+            .json({ id: newTemplate.id, message: "Successfully forked template" });
     } catch (error) {
-        return res.status(500).json({ message: "An internal server error occurred while retrieving the templates" });
+        console.error("Error forking template:", error);
+        return res
+            .status(500)
+            .json({ message: "An internal server error occurred while forking the template" });
     }
 }
 

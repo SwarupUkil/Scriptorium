@@ -31,7 +31,7 @@ echo "All Docker images have been built successfully."
 
 echo "Creating database"
 
-node databaseGeneration.js
+node databaseGeneration.ts
 # NODE_EXIT_CODE=$?
 
 # if [ $NODE_EXIT_CODE -eq 0 ]; then

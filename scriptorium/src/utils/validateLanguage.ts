@@ -1,6 +1,11 @@
 import { SUPPORTED_LANGUAGES } from './validateConstants';
 
-export function parseLanguage(language) {
+/**
+ * Parses a given language string and normalizes it to a supported language name.
+ * @param language - The input language string to parse.
+ * @returns The standardized language name or `null` if not found.
+ */
+export function parseLanguage(language: string | undefined): string | null {
     if (typeof language !== "string") return null;
 
     const normalizedLang = language.trim().toLowerCase();

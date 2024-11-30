@@ -1,22 +1,31 @@
-// Helper to normalize and deduplicate tags
-function normalizeAndDeduplicateTags(tags) {
+import { ALLOWED_TAGS } from './validateConstants';
+
+/**
+ * Helper to normalize and deduplicate tags.
+ * Converts tags to lowercase and removes duplicates.
+ * @param tags - Array of tag strings to normalize and deduplicate.
+ * @returns An array of unique, normalized tags.
+ */
+function normalizeAndDeduplicateTags(tags: string[]): string[] {
     const uniqueTags = new Set(
         tags.map(tag => tag.trim().toLowerCase()) // Normalize to lowercase
     );
     return Array.from(uniqueTags); // Convert back to an array
 }
 
-// Main validation function
-import { ALLOWED_TAGS } from "./validateConstants";
-
-export default function validateTagsCSV(tags) {
-    // Check if tags is a string
+/**
+ * Validates tags provided as a CSV string.
+ * Splits tags, normalizes them, and checks against allowed tags.
+ * @param tags - The CSV string of tags to validate.
+ * @returns An object containing the validation result, valid tags, invalid tags, and a message.
+ */
+export default function validateTagsCSV(tags: string | undefined) {
     if (!tags || typeof tags !== "string") {
         return {
             isValid: false,
-            validTags: [],
-            invalidTags: [],
-            message: ["Tags must be provided in CSV string format."],
+            validTags: [] as string[],
+            invalidTags: [] as string[],
+            message: "Tags must be provided in CSV string format.",
         };
     }
 
@@ -49,7 +58,7 @@ export default function validateTagsCSV(tags) {
 
     // Normalize valid tags to match ALLOWED_TAGS casing
     const normalizedValidTags = validTags.map(tag =>
-        ALLOWED_TAGS.find(allowedTag => allowedTag.toLowerCase() === tag)
+        ALLOWED_TAGS.find(allowedTag => allowedTag.toLowerCase() === tag) || tag
     );
 
     return {

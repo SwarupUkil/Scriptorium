@@ -1,32 +1,30 @@
-import {prisma} from "../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../../utils/auth";
+import { prisma } from "@/utils/db";
+import {NextApiReq, verifyTokenMiddleware} from "@/utils/auth";
+import {NextApiResponse} from "next";
 
-// Handler will attempt to create a new user report on a posting.
-async function handler(req, res) {
 
+async function handler(req: NextApiReq, res: NextApiResponse): Promise<void> {
     if (req.method !== "POST") {
-        return res.status(405).send({message: "Method not allowed"})
+        return res.status(405).send({ message: "Method not allowed" });
     }
 
-    const user = req.user;
-    const userId = user.id;
+    const userId = req.user.id;
 
     const { id, explanation } = req.body;
     const postId = Number(id);
 
     if (!id || !explanation) {
-        return res.status(400).send({message: "Missing post ID or explanation"});
+        return res.status(400).send({ message: "Missing post ID or explanation" });
     }
 
     if (isNaN(postId)) {
-        return res.status(400).send({message: "Post ID must be a integer"});
+        return res.status(400).send({ message: "Post ID must be an integer" });
     }
 
     try {
-
         const userExists = await prisma.user.findUnique({
             where: { id: userId },
-            select: { username: true }
+            select: { username: true },
         });
 
         if (!userExists) {
@@ -50,9 +48,12 @@ async function handler(req, res) {
             },
         });
 
-        return res.status(200).json({message: "Successfully reported post"});
-    } catch (error) {
-        return res.status(500).json({ message: "An internal server error occurred while reporting the post" });
+        return res.status(200).json({ message: "Successfully reported post" });
+    } catch (error: any) {
+        return res.status(500).json({
+            message: "An internal server error occurred while reporting the post",
+            details: error.message,
+        });
     }
 }
 
