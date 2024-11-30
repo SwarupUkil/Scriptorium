@@ -1,69 +1,64 @@
-import {prisma} from "../../../../../utils/db";
-import { verifyTokenMiddleware } from "../../../../../utils/auth";
-import validateTags from "../../../../../utils/validateTags";
-import {MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST, PRIVACY} from "../../../../../utils/validateConstants";
+import { prisma } from "@/utils/db";
+import { verifyTokenMiddleware, NextApiReq, UserTokenData } from "@/utils/auth";
+import validateTags from "@/utils/validateTags";
+import { MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, POST, PRIVACY } from "@/utils/validateConstants";
+import { NextApiResponse } from "next";
 
-// Handler will attempt to create a new blog posting.
-async function handler(req, res) {
+interface CreateBlogBody {
+    title: string;
+    content: string;
+    tags?: string;
+    templates?: number[];
+}
 
+async function handler(req: NextApiReq, res: NextApiResponse) {
     if (req.method !== "POST") {
-        return res.status(405).send({message: "Method not allowed"})
+        return res.status(405).send({ message: "Method not allowed" });
     }
 
-    const user = req.user;
-    const { id } = user;
-    const userId = Number(id);
-    const { title, content, tags, templates } = req.body;
+    const user: UserTokenData = req.user;
+    const userId = user.id;
 
-    if (!id) {
-        return res.status(404).json({ error: "Invalid ID: missing user ID" });
-    }
-
-    if (isNaN(userId)) {
-        return res.status(400).json({ error: "Invalid ID: not a number" });
-    }
+    const { title, content, tags }: CreateBlogBody = req.body;
+    let { templates } = req.body as CreateBlogBody;
 
     if (!title || !content) {
-        return res.status(400).json({message: "Missing title or content"});
+        return res.status(400).json({ message: "Missing title or content" });
     }
 
     if (title.length > MAX_TITLE) {
-        return res.status(400).json({message: `Title is too large, shorten to less then ${MAX_TITLE}`});
+        return res.status(400).json({ message: `Title is too large, shorten to less than ${MAX_TITLE}` });
     }
 
     if (content.length > MAX_BLOG_DESCRIPTION) {
-        return res.status(400).json({message: `Description is too large, shorten to less then ${MAX_BLOG_DESCRIPTION}`});
+        return res.status(400).json({ message: `Description is too large, shorten to less than ${MAX_BLOG_DESCRIPTION}` });
     }
 
     if (tags && tags.length > MAX_TAGS) {
-        return res.status(400).json({message: `Too many tags, shorten to less then ${MAX_TAGS + 1} characters in CSV form`});
+        return res.status(400).json({
+            message: `Too many tags, shorten to less than ${MAX_TAGS + 1} characters in CSV form`,
+        });
     }
 
     const sanitizedTags = validateTags(tags);
     if (tags && !sanitizedTags.isValid) {
-        return res.status(400).json({message: sanitizedTags.message});
+        return res.status(400).json({ message: sanitizedTags.message });
     }
 
-    // Template validation
     if (templates && !Array.isArray(templates)) {
-        return res.status(400).json({message: "Templates must be given as an array"});
+        return res.status(400).json({ message: "Templates must be given as an array" });
     }
 
     if (templates) {
-        let index = 0;
-        for (const templateId of templates) {
+        templates = templates.map((templateId) => {
             if (isNaN(Number(templateId))) {
-                return res.status(400).json({message: "Templates must be given as their ID number"});
-            } else {
-                templates[index] = Number(templateId);
+                throw new Error("Templates must be given as their ID number");
             }
-            index++;
-        }
+            return Number(templateId);
+        });
     }
 
     try {
-
-        // First, check if the user exists before creating the new post.
         const userExists = await prisma.user.findUnique({
             where: { id: userId },
         });
@@ -72,16 +67,14 @@ async function handler(req, res) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
-        // Check if all provided template IDs exist
         const existingTemplates = await prisma.template.findMany({
             where: {
-                id: {in: templates }, // Check for templates with these IDs
+                id: { in: templates },
                 privacy: PRIVACY.PUBLIC,
             },
             select: { id: true },
         });
 
-        // Extract the valid template IDs that exist in the database
         const validTemplateIds = existingTemplates.map((template) => template.id);
 
         const post = await prisma.post.create({
@@ -90,41 +83,40 @@ async function handler(req, res) {
                 content: content,
                 type: POST.BLOG,
             },
-            select: {
-                id: true,
-            },
+            select: { id: true },
         });
 
         if (!post) {
-            return res.status(400).json({message: "Unable to create new posting"});
+            return res.status(400).json({ message: "Unable to create new posting" });
         }
 
-        // Convert sanitized tags to CSV format
         const csvTags = sanitizedTags.validTags.length > 0 ? sanitizedTags.validTags.join(",") : undefined;
+
         const blog = await prisma.blog.create({
             data: {
                 postId: post.id,
-                title: title,
+                title,
                 tags: csvTags,
                 templates: {
-                    // Connect the new templates specified by the client
-                    connect: validTemplateIds.map((id) => ({ id: id })),
+                    connect: validTemplateIds.map((id) => ({ id })),
                 },
             },
-            select: {postId: true},
+            select: { postId: true },
         });
 
         if (!blog) {
-            return res.status(400).json({message: "Unable to create new blog"});
+            return res.status(400).json({ message: "Unable to create new blog" });
         }
 
-        const response = {
+        return res.status(200).json({
             postId: post.id,
             message: "Successfully created new blog",
-        }
-        return res.status(200).json(response);
-    } catch (error) {
-        return res.status(500).json({ message: "An internal server error occurred while creating the blog" });
+        });
+    } catch (error: any) {
+        return res.status(500).json({
+            message: "An internal server error occurred while creating the blog",
+            details: error.message,
+        });
     }
 }
 

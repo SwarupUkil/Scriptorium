@@ -1,8 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient } = require('@prisma/client');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
-async function hashPassword(password) {
+async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
 }
 
@@ -288,7 +290,7 @@ async function main() {
       }
     }
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username: 'admin',
         password: '$2b$10$rvjRIs3NedTaz3bZBawHgeWuwb0Dr6cvckA3S0zACZl2Vr32ze/6y',

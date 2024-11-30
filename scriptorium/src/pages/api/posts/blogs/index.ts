@@ -1,17 +1,34 @@
-import {prisma} from "../../../../utils/db";
-import {paginationResponse, sanitizePagination} from "../../../../utils/paginationHelper";
-import validateTags from "../../../../utils/validateTags";
-import {ORDER} from "../../../../utils/validateConstants";
+import { prisma } from "@/utils/db";
+import { paginationResponse, sanitizePagination } from "@/utils/paginationHelper";
+import validateTags from "@/utils/validateTags";
+import { ORDER } from "@/utils/validateConstants";
+import { NextApiRequest, NextApiResponse } from "next";
+type SortOrder = "asc" | "desc";
 
-// Handler will give a generic list of IDs and titles of blogs.
-export default async function handler(req, res) {
+type QueryParams = {
+    skip?: string;
+    take?: string;
+    title?: string;
+    content?: string;
+    tags?: string;
+    templates?: string;
+    orderBy?: string;
+};
 
+type BlogResponse = {
+    postId: number;
+    title: string;
+    tags: string;
+    rating?: number;
+    flagged?: boolean;
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "GET") {
-        res.status(405).json({message: "Method not allowed"});
+        return res.status(405).json({ message: "Method not allowed" });
     }
 
-    // tags are given as a string following CSV formatting (i.e. spaced by commas).
-    const { skip, take, title, content, tags, templates, orderBy } = req.query;
+    const { skip, take, title, content, tags, templates, orderBy } = req.query as QueryParams;
 
     let order = ORDER.DESC;
     if (orderBy === ORDER.ASC) {
@@ -22,16 +39,14 @@ export default async function handler(req, res) {
 
     const sanitizedTags = validateTags(tags);
     if (tags && !sanitizedTags.isValid) {
-        return res.status(400).json({message: sanitizedTags.message});
+        return res.status(400).json({ message: sanitizedTags.message });
     }
 
     try {
-
-        // Build `AND` conditions for tags
         const tagConditions =
             sanitizedTags.validTags.length > 0
-                ? sanitizedTags.validTags.map(tag => ({
-                    tags: { contains: tag }, // Simulates checking if the template contains this tag
+                ? sanitizedTags.validTags.map((tag) => ({
+                    tags: { contains: tag },
                 }))
                 : undefined;
 
@@ -44,82 +59,64 @@ export default async function handler(req, res) {
                     deleted: false,
                 },
                 AND: tagConditions,
-                ...(templates ? {
-                    templates: {
-                        some: { title: { contains: templates } },
-                    },
-                } : {}),
+                ...(templates
+                    ? {
+                        templates: {
+                            some: { title: { contains: templates } },
+                        },
+                    }
+                    : {}),
             },
         });
 
-        // CHATGPT 4.0 AIDED IN DEVELOPING THIS QUERY.
         const blogs = await prisma.blog.findMany({
             where: {
-                title: title ? {contains: title} : undefined,
-
-                // Filter by posts that are not flagged or deleted
+                title: title ? { contains: title } : undefined,
                 post: {
                     content: content ? { contains: content } : undefined,
                     flagged: false,
                     deleted: false,
                 },
-
                 AND: tagConditions,
-
-                // Filter by Template title within related templates
-                ...(templates ? {
-                    templates: {
-                        some: { title: { contains: templates } }
+                ...(templates
+                    ? {
+                        templates: {
+                            some: { title: { contains: templates } },
+                        },
                     }
-                } : {}),
+                    : {}),
             },
             select: {
                 postId: true,
                 title: true,
                 tags: true,
-                // Join between post and blog tables.
                 post: {
                     select: {
                         id: true,
                         rating: true,
-                        content: true,
                         flagged: true,
-                        deleted: true,
-                    },
-                },
-
-                // Include templates in the join.
-                templates: {
-                    select: {
-                        id: true,
-                        title: true,
-                        privacy: true,
                     },
                 },
             },
             skip: paginate.skip,
             take: paginate.take,
-            orderBy: orderBy === ORDER.CONTROVERSIAL ?
-                { post: { totalRatings: order.toLowerCase() } } :  // Sort by controversy
-                { post: { rating: order.toLowerCase() } },      // Default to rating sorting
+            orderBy: orderBy === ORDER.CONTROVERSIAL
+                ? { post: { totalRatings: order.toLowerCase() as SortOrder} }
+                : { post: { rating: order.toLowerCase() as SortOrder} },
         });
 
-        // Remove `templates` from each blog object
-        const sanitizedBlogs = blogs.map(blog => {
-            const { templates, post, ...rest } = blog;
+        const sanitizedBlogs: BlogResponse[] = blogs.map((blog) => {
+            const { post, tags, ...rest } = blog;
 
             return {
                 ...rest,
-                ...(post ? {
-                    rating: post.rating,
-                    flagged: post.flagged,
-                } : {}), // Flatten `post` properties to the blog level
+                tags: tags || "", // Ensure `tags` is always a string
+                ...(post ? { rating: post.rating, flagged: post.flagged } : {}),
             };
         });
 
-        // Return identified blog data.
         return res.status(200).json(paginationResponse(sanitizedBlogs, total, paginate, "blogs"));
-    } catch (error) {
+    } catch {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blogs" });
     }
 }
