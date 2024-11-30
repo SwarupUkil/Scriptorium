@@ -1,44 +1,55 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import {AUTH} from "@/utils/validateConstants";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 
-const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS);
-const JWT_SECRET = process.env.JWT_SECRET;
+const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10");
+const JWT_SECRET = process.env.JWT_SECRET as Secret;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as Secret;
 const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN;
 
-export async function hashPassword(password) {
+interface JwtTokenPayload extends JwtPayload {
+  username: string;
+  type: string;
+  id: number;
+}
+
+interface VerifiedTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  accountType: string;
+}
+
+export async function hashPassword(password: string): Promise<string> {
   return await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 }
 
-export async function comparePassword(password, hash) {
+export async function comparePassword(password: string, hash: string): Promise<boolean> {
   return await bcrypt.compare(password, hash);
 }
 
-export function generateToken(obj, type = "access") {
+export function generateToken(obj: Record<string, any>, type: "access" | "refresh" = "access"): string {
   const secret = type === "refresh" ? REFRESH_TOKEN_SECRET : JWT_SECRET;
-
   const expiresIn = type === "refresh" ? REFRESH_EXPIRES_IN : JWT_EXPIRES_IN;
 
-  return jwt.sign(obj, secret, {
-    expiresIn: expiresIn,
-  });
+  return jwt.sign(obj, secret, { expiresIn });
 }
 
-export function verifyToken(token) {
+export function verifyToken(token: string): JwtTokenPayload | null {
   if (token?.startsWith("Bearer ")) {
     token = token.split(" ")[1];
   }
 
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (err) {
+    return jwt.verify(token, JWT_SECRET) as JwtTokenPayload;
+  } catch {
     return null;
   }
 }
 
-export function verifyTokenMiddleware(handler, requiredType = null) {
+export function verifyTokenMiddleware(
+    handler: (req: any, res: any) => Promise<any>,
+    requiredType: string | null = null
+): (req: any, res: any) => Promise<any> {
   return async (req, res) => {
     const authHeader = req.headers.authorization;
 
@@ -49,7 +60,7 @@ export function verifyTokenMiddleware(handler, requiredType = null) {
     const token = authHeader.split(" ")[1];
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET) as JwtTokenPayload;
 
       if (requiredType && decoded.type !== requiredType) {
         return res.status(403).json({ error: "Forbidden: Access denied" });
@@ -57,30 +68,24 @@ export function verifyTokenMiddleware(handler, requiredType = null) {
 
       req.user = decoded;
       return handler(req, res);
-    } catch (error) {
+    } catch {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
   };
 }
 
-export function refreshAccessToken(refreshToken) {
+export function refreshAccessToken(refreshToken: string): string | null {
   try {
-    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as JwtTokenPayload;
 
     const { username, type, id } = decoded;
-    const newAccessToken = jwt.sign(
-      { username, type, id },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
-
-    return newAccessToken;
-  } catch (error) {
+    return jwt.sign({ username, type, id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  } catch {
     return null;
   }
 }
 
-export function accountVerification(accessToken, refreshToken) {
+export function accountVerification(accessToken: string, refreshToken: string): VerifiedTokenResponse | null {
   const accessPayload = verifyToken(accessToken);
 
   if (accessPayload) {
