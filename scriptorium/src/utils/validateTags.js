@@ -1,8 +1,15 @@
-// GPT produced tags helper.
-import {ALLOWED_TAGS} from "./validateConstants";
+// Helper to normalize and deduplicate tags
+function normalizeAndDeduplicateTags(tags) {
+    const uniqueTags = new Set(
+        tags.map(tag => tag.trim().toLowerCase()) // Normalize to lowercase
+    );
+    return Array.from(uniqueTags); // Convert back to an array
+}
+
+// Main validation function
+import { ALLOWED_TAGS } from "./validateConstants";
 
 export default function validateTagsCSV(tags) {
-
     // Check if tags is a string
     if (!tags || typeof tags !== "string") {
         return {
@@ -17,20 +24,14 @@ export default function validateTagsCSV(tags) {
     const csvRegex = /^([a-zA-Z0-9\+]+)(,[a-zA-Z0-9\+]+)*$/;
     const isCsvFormat = csvRegex.test(tags);
 
-    // Split and sanitize tags
-    const tagArray = tags
-        .split(",")
-        .map(tag => tag.trim().toLowerCase())
-        .filter(tag => tag.length > 0); // Remove empty tags
+    // Split, normalize, and deduplicate tags
+    const rawTags = tags.split(",").filter(tag => tag.trim().length > 0); // Remove empty tags
+    const uniqueTags = normalizeAndDeduplicateTags(rawTags);
 
     // Identify valid and invalid tags
-    const validTags = tagArray.filter(tag =>
-        ALLOWED_TAGS.map(allowedTag => allowedTag.toLowerCase()).includes(tag)
-    );
-
-    const invalidTags = tagArray.filter(tag =>
-        !ALLOWED_TAGS.map(allowedTag => allowedTag.toLowerCase()).includes(tag)
-    );
+    const allowedTagsLower = ALLOWED_TAGS.map(tag => tag.toLowerCase());
+    const validTags = uniqueTags.filter(tag => allowedTagsLower.includes(tag));
+    const invalidTags = uniqueTags.filter(tag => !allowedTagsLower.includes(tag));
 
     // Build warnings
     let message = "";
@@ -46,8 +47,10 @@ export default function validateTagsCSV(tags) {
         message = "Tags are valid.";
     }
 
+    // Normalize valid tags to match ALLOWED_TAGS casing
     const normalizedValidTags = validTags.map(tag =>
-        ALLOWED_TAGS.find(allowedTag => allowedTag.toLowerCase() === tag));
+        ALLOWED_TAGS.find(allowedTag => allowedTag.toLowerCase() === tag)
+    );
 
     return {
         isValid: isCsvFormat,

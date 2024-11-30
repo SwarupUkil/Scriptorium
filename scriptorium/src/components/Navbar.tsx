@@ -110,7 +110,7 @@ const Navbar: React.FC = () => {
             ☰
           </button>
           {dropdownOpen && (
-            <ul className="absolute top-16 left-0 w-full bg-gray-800 text-white space-y-2 p-4 shadow-lg">
+            <ul className="absolute top-16 left-0 w-full bg-gray-800 text-white space-y-2 p-4 shadow-lg z-10">
               <li>
                 <Link href="/template" className="block hover:underline">
                   Templates

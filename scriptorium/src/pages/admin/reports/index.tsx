@@ -7,6 +7,7 @@ import {tokenMiddleware} from "@/services/TokenMiddleware";
 import ReportTable from "@/components/Table/ReportTable";
 import {useRouter} from "next/router";
 import AdminAuthWrapper from "@/components/Admin/AdminAuthWrapper";
+import ReportsCard from "@/components/Card/ReportsCard";
 
 const ReportsPage: React.FC = () => {
 
@@ -45,8 +46,8 @@ const ReportsPage: React.FC = () => {
         fetchReports();
     }, [pagination.currentPage]);
 
-    const handleRowClick = (report: ReportType) => {
-        router.push(`reports/${report.postId}`); // Navigate to the dynamic blog page
+    const handleCardClick = (report: ReportType) => {
+        router.push(`/admin/reports/${report.postId}`); // Navigate to the dynamic blog page
     };
 
     return (
@@ -61,23 +62,43 @@ const ReportsPage: React.FC = () => {
                         </p>
                     </header>
 
-                    {/* Placeholder for Top Reports */}
+                    {/* Reports as Cards */}
                     <section className="mb-12">
-                        <h2 className="text-2xl font-semibold mb-2">Top Reports</h2>
+                        <h2 className="text-2xl font-semibold mb-2">Reported Posts</h2>
 
-                        <div
-                            className="bg-white dark:bg-gray-900 w-full h-full flex-grow flex flex-col justify-around p-6">
-                            <div className="flex flex-col ">
-                                <ReportTable data={data} onRowClick={handleRowClick}/>
-                            </div>
-
-                            <Pagination pagination={pagination}
-                                        onPageChange={handlePageChange(setPagination)}/>
-
-                            <div className="h-1"></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {data.map((report) => (
+                                <div
+                                    key={report.postId}
+                                    className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition"
+                                    onClick={() => handleCardClick(report)}
+                                >
+                                    <div className="p-4">
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                            Post ID: {report.postId}
+                                        </h3>
+                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                            Number of Reports:{" "}
+                                            <span className="font-medium text-gray-800 dark:text-gray-200">
+                                                {report.reportCount}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-4 mt-auto">
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                            Click to review details
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </section>
 
+                    {/* Pagination */}
+                    <Pagination
+                        pagination={pagination}
+                        onPageChange={handlePageChange(setPagination)}
+                    />
                 </div>
             </div>
         </AdminAuthWrapper>
