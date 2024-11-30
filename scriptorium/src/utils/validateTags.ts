@@ -16,7 +16,7 @@ export default function validateTagsCSV(tags) {
             isValid: false,
             validTags: [],
             invalidTags: [],
-            message: ["Tags must be provided in CSV string format."],
+            message: "Tags must be provided in CSV string format.",
         };
     }
 

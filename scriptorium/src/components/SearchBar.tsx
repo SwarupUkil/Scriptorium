@@ -120,24 +120,26 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 )}
 
                 {/* Sort Dropdown */}
-                <div className="flex flex-col">
-                    <label
-                        htmlFor="sort-order"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        Sort By
-                    </label>
-                    <select
-                        id="sort-order"
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        className="mt-1 w-full p-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 "
-                    >
-                        <option value={ORDER.DESC}>Most Rated</option>
-                        <option value={ORDER.ASC}>Least Rated</option>
-                        <option value={ORDER.CONTROVERSIAL}>Controversial</option>
-                    </select>
-                </div>
+                {isBlog &&
+                    <div className="flex flex-col">
+                        <label
+                            htmlFor="sort-order"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            Sort By
+                        </label>
+                        <select
+                            id="sort-order"
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                            className="mt-1 w-full p-2 text-sm border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 "
+                        >
+                            <option value={ORDER.DESC}>Most Rated</option>
+                            <option value={ORDER.ASC}>Least Rated</option>
+                            <option value={ORDER.CONTROVERSIAL}>Controversial</option>
+                        </select>
+                    </div>
+                }
             </div>
         </div>
     );
