@@ -1,11 +1,23 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import bcrypt from "bcrypt";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+import type {NextApiRequest} from "next";
 
 const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "10");
 const JWT_SECRET = process.env.JWT_SECRET as Secret;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as Secret;
 const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN;
+
+export type UserTokenData = {
+  username: string;
+  type: string;
+  id: number;
+}
+export type NextApiReq = NextApiRequest & {user: UserTokenData};
 
 interface JwtTokenPayload extends JwtPayload {
   username: string;

@@ -1,14 +1,7 @@
 import { prisma } from "@/utils/db";
-import { verifyTokenMiddleware } from "@/utils/auth";
+import {NextApiReq, UserTokenData, verifyTokenMiddleware} from "@/utils/auth";
 import { sanitizePagination, paginationResponse } from "@/utils/paginationHelper";
-import type { NextApiRequest, NextApiResponse } from "next";
-
-type UserTokenData = {
-    username: string;
-    type: string;
-    id: number;
-}
-type NextApiReq = NextApiRequest & {user: UserTokenData};
+import type { NextApiResponse } from "next";
 
 // Handler to return all the user's blogs
 async function handler(req: NextApiReq & {user: object}, res: NextApiResponse) {
@@ -24,7 +17,7 @@ async function handler(req: NextApiReq & {user: object}, res: NextApiResponse) {
     }
 
     const { skip, take } = req.query;
-    const paginate = sanitizePagination(skip, take);
+    const paginate = sanitizePagination(skip as string | undefined, take as string | undefined);
 
     try {
         const total = await prisma.blog.count({

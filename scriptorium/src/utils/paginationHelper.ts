@@ -50,7 +50,7 @@ export function sanitizePagination(
 export function paginationResponse<T>(
     data: T[],
     total: number,
-    paginate: { skip: number; take: number; message?: string },
+    paginate: { skip: number; take: number; message?: string | null },
     type: string
 ): {
     data: T[];

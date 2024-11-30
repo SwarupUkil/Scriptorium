@@ -113,6 +113,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             postValues.content = REDACTED;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const {uid, deleted, id, ...post} = postValues;
         post.postId = id;
         const response: CommentResponse = {
@@ -123,7 +124,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Return identified blog data.
         return res.status(200).json(response);
-    } catch (error) {
+    } catch {
         return res.status(500).json({ message: "An internal server error occurred while retrieving the blog data" });
     }
 }

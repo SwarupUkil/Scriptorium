@@ -43,7 +43,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         if (!comment || comment.uid !== userId || comment.type !== POST.COMMENT) {
             return res.status(401).json({ message: "Unauthorized or Comment not found." });
         }
-    } catch (error) {
+    } catch {
         return res.status(500).json({ message: "An internal server error occurred while checking the comment." });
     }
 
@@ -68,7 +68,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             });
 
             return res.status(200).json({ message: "Successfully updated comment" });
-        } catch (error) {
+        } catch {
             return res.status(500).json({ message: "An internal server error occurred while updating the comment." });
         }
     } else if (req.method === "DELETE") {
@@ -81,7 +81,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             });
 
             return res.status(200).json({ message: "Successfully deleted comment" });
-        } catch (error) {
+        } catch {
             return res.status(500).json({ message: "An internal server error occurred while deleting the comment." });
         }
     }
