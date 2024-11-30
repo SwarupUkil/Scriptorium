@@ -6,6 +6,7 @@ import TagInput from "@/components/TagInput";
 import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
 import ValidatedTagInput from "@/components/ValidatedTagInput";
+import toast from "react-hot-toast";
 
 const BlogForm: React.FC = () => {
     const router = useRouter();
@@ -61,12 +62,18 @@ const BlogForm: React.FC = () => {
         if (isEditMode) {
             const success = await tokenMiddleware(updateBlog, [formData]);
             if (success) {
+                toast.success("Updated!");
                 console.log("Blog updated successfully!");
+            } else {
+                toast.error("Failed to update blog. Title and content required!");
             }
         } else {
             const newBlog = await tokenMiddleware(createBlog, [formData]);
             if (newBlog) {
+                toast.success("Created!");
                 router.push(`/blog/edit/${newBlog.postId}`); // Redirect to edit mode
+            } else {
+                toast.error("Failed to update blog. Title and content required!");
             }
         }
     };

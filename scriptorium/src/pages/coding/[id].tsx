@@ -15,6 +15,7 @@ import { Template } from "@/types/TemplateType";
 import { ExecuteRequest } from "@/types/ExecuteType";
 import { parseCSVToTags } from "@/utils/frontend-helper/apiHelper";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
+import toast from "react-hot-toast";
 
 const languageOptions = [
     { label: "Python", value: "python" },
@@ -66,11 +67,13 @@ const EditOrForkTemplate: React.FC = () => {
                         const username = localStorage.getItem("username");
                         setIsOwner(fetchedTemplateAgain.username === username);
                     } else {
+                        toast.error("Template not found.");
                         console.error("Template not found.");
                         await router.push("/");
                     }
                 }
             } catch (error) {
+                toast.error("Template not found.");
                 console.error("Error fetching template:", error);
                 await router.push("/");
             } finally {
@@ -87,11 +90,14 @@ const EditOrForkTemplate: React.FC = () => {
         try {
             const response = await tokenMiddleware(updateTemplate, [template]);
             if (response) {
+                toast.success("Saved!");
                 console.log("Template saved successfully.");
             } else {
+                toast.error("Error saving template.");
                 console.log("Failed to save the template.");
             }
         } catch (error) {
+            toast.error("Error saving template.");
             console.error("Error saving template:", error);
         }
     };
@@ -100,12 +106,15 @@ const EditOrForkTemplate: React.FC = () => {
         try {
             const response = await tokenMiddleware(forkTemplate, [{ id: templateId }]);
             if (response) {
+                toast.success("Forked!");
                 console.log("Template forked successfully.");
                 await router.push(`/coding/${response.id}`);
             } else {
+                toast.error("Error forking template.");
                 console.log("Failed to fork the template.");
             }
         } catch (error) {
+            toast.error("Error forking template.");
             console.error("Error forking template:", error);
         }
     };

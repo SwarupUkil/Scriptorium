@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "../Modal";
 import { getComment, updateComment } from "@/services/PostService";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
+import toast from "react-hot-toast";
 
 type EditCommentModalProps = {
     postId: number;
@@ -22,6 +23,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({ postId, isOpen, onC
                     setContent(comment?.content || "");
                 } catch (error) {
                     console.error("Failed to fetch comment:", error);
+                    toast.error("Issue fetching comment");
                 }
             };
 
@@ -35,11 +37,14 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({ postId, isOpen, onC
             const success = await tokenMiddleware(updateComment, [postId, content]);
             if (success) {
                 // Trigger parent update or notification
+                toast.success("Saved!");
                 onClose(content);
             } else {
+                toast.error("Issue updating comment");
                 console.error("Failed to update comment");
             }
         } catch (error) {
+            toast.error("Issue saving comment");
             console.error("Error saving comment:", error);
         } finally {
             setLoading(false);

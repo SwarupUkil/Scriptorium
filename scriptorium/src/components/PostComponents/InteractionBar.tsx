@@ -4,6 +4,7 @@ import { createReport } from "@/services/ReportService";
 import Modal from "@/components/Modal";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
 import {MAX_EXPLANATION} from "@/utils/validateConstants";
+import toast from "react-hot-toast";
 
 type InteractionBarProps = {
     parentId: number;
@@ -76,13 +77,16 @@ const InteractionBar: React.FC<InteractionBarProps> = ({ parentId, initialRating
         try {
             const success = await tokenMiddleware(createReport, [{ postId: parentId, explanation: reportReason }]);
             if (success) {
+                toast.success("Reported!");
                 console.log("Report submitted successfully.");
                 setReportReason("");
                 setIsModalOpen(false);
             } else {
+                toast.error("Failed to submit the report.");
                 console.log("Failed to submit the report.");
             }
         } catch (error) {
+            toast.error("Failed to submit the report.");
             console.error("Failed to create report:", error);
         }
     };

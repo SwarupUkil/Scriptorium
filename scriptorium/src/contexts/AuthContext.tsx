@@ -87,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoggedIn(false);
     setRole(null);
-    router.push('/');
+    router.push('/auth');
   };
 
   globalLogout = logout;

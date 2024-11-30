@@ -8,18 +8,41 @@ import CommentList from "@/components/PostComponents/CommentList";
 import CommentForm from "@/components/PostComponents/CommentForm";
 import Link from "next/link";
 
-// GPT pilled.
 export default function BlogPost() {
     const router = useRouter();
     const { id } = router.query; // Extract the dynamic [id] from the route
     const [blog, setBlog] = useState<Blog | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
+    const [pagination, setPagination] = useState<{ skip: number; take: number; total: number }>({
+        skip: 0,
+        take: 5, // Number of comments to fetch per page
+        total: 0, // Will be updated after the first API call
+    });
     const [loading, setLoading] = useState(true);
-    const [loadingComments, setLoadingComments] = useState(true);
+    const [loadingComments, setLoadingComments] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const addComment = (newComment: Comment) => {
-        setComments((prevComments) => [...prevComments, newComment]); // Append new comment
+        setComments((prevComments) => [newComment, ...prevComments]); // Prepend new comment
+    };
+
+    const fetchComments = async (isLoadMore = false) => {
+        try {
+            setLoadingComments(true);
+            const response = await getReplies({ id: Number(id), skip: pagination.skip, take: pagination.take });
+            const [fetchedComments, paginate] = response || [[], { skip: 0, take: 5, total: 0 }];
+
+            setComments((prev) => (isLoadMore ? [...prev, ...fetchedComments] : fetchedComments));
+            setPagination((prev) => ({
+                ...prev,
+                total: paginate.total,
+                skip: paginate.skip,
+            }));
+        } catch (err) {
+            console.error("Failed to fetch comments:", err);
+        } finally {
+            setLoadingComments(false);
+        }
     };
 
     useEffect(() => {
@@ -33,22 +56,19 @@ export default function BlogPost() {
                     setError("Blog not found");
                 } else {
                     setBlog(fetchedBlog);
-
-                    // Fetch comments after blog is fetched
-                    const response = await getReplies({id: Number(id)});
-                    const [fetchedComments, pagination] = response ? response : [null, {}];
-
-                    setComments(fetchedComments || []);
                 }
             } catch (err) {
                 setError("Failed to fetch blog data");
             } finally {
                 setLoading(false);
-                setLoadingComments(false);
             }
         };
 
         fetchBlog();
+    }, [id]);
+
+    useEffect(() => {
+        if (id) fetchComments();
     }, [id]);
 
     if (loading) {
@@ -83,7 +103,6 @@ export default function BlogPost() {
         })
         : "N/A";
 
-
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
             <div className="container mx-auto px-4 py-8">
@@ -97,36 +116,6 @@ export default function BlogPost() {
                 {/* Blog Title */}
                 <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
 
-                {/*/!* Blog Tags *!/*/}
-                {/*{blog.tags && blog.tags.length > 0 && (*/}
-                {/*    <div className="flex flex-wrap gap-2 mb-6">*/}
-                {/*        {parseCSVToTags(blog.tags).map((tag, index) => (*/}
-                {/*            <span*/}
-                {/*                key={index}*/}
-                {/*                className="px-3 py-1 text-sm rounded-full bg-indigo-500 text-white"*/}
-                {/*            >*/}
-                {/*                {tag}*/}
-                {/*            </span>*/}
-                {/*        ))}*/}
-                {/*    </div>*/}
-                {/*)}*/}
-
-                {/*{blog.templates && blog.templates.length > 0 && (*/}
-                {/*    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">*/}
-                {/*        <span className="font-medium">Templates:</span>{" "}*/}
-                {/*        <div className="flex flex-wrap gap-2 mt-1">*/}
-                {/*            {blog.templates.map((templateId) => (*/}
-                {/*                <a*/}
-                {/*                    key={templateId}*/}
-                {/*                    href={`/templates/${templateId}`}*/}
-                {/*                    className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-300 text-xs hover:bg-indigo-500 hover:text-white transition"*/}
-                {/*                >*/}
-                {/*                    {templateId}*/}
-                {/*                </a>*/}
-                {/*            ))}*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*)}*/}
                 {/* Blog Tags and Templates */}
                 {(blog.tags || blog.templates?.length > 0) && (
                     <div className="flex justify-between items-center mb-6">
@@ -138,8 +127,8 @@ export default function BlogPost() {
                                         key={index}
                                         className="px-3 py-1 text-sm rounded-full bg-indigo-500 text-white"
                                     >
-                        {tag}
-                    </span>
+                                        {tag}
+                                    </span>
                                 ))}
                             </div>
                         )}
@@ -167,16 +156,26 @@ export default function BlogPost() {
                 {/* Comments Section */}
                 <div className="mt-8">
                     <h2 className="text-2xl font-semibold mb-4">Comments</h2>
-                    <CommentForm parentId={blog.postId} addComment={addComment}/>
+                    <CommentForm parentId={blog.postId} addComment={addComment} />
                     <div className={"h-1 py-2"}></div>
 
-                    {loadingComments ? (
+                    {/* Comments */}
+                    {loadingComments && comments.length === 0 ? (
                         <p className="text-gray-500">Loading comments...</p>
                     ) : (
-                        <CommentList
-                            comments={comments}
-                            onReply={(commentId) => console.log(`Replying to comment ${commentId}`)}
-                        />
+                        <>
+                            <CommentList comments={comments} onReply={(commentId) => console.log(`Replying to ${commentId}`)} />
+                            {pagination.skip + pagination.take < pagination.total && (
+                                <div className="flex justify-center mt-4">
+                                    <button
+                                        onClick={() => fetchComments(true)}
+                                        className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                                    >
+                                        Show More Comments
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>

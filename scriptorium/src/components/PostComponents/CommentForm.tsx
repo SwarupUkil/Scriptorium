@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { Comment } from "@/types/PostType";
 import {getComment, createComment, updateVote} from "@/services/PostService";
 import {MAX_COMMENT_DESCRIPTION} from "@/utils/validateConstants";
@@ -22,6 +23,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ parentId, addComment }) => {
 
             if (!response) {
                 // Modal to say failure.
+                toast.error("Unable to comment. Please try again.");
                 return;
             }
 
@@ -29,11 +31,14 @@ const CommentForm: React.FC<CommentFormProps> = ({ parentId, addComment }) => {
 
             if (!newComment)  {
                 // Modal to say failure.
+                toast.error("Comment submission failed.");
                 return;
             }
+            toast.success("Commented!");
             addComment(newComment); // Pass the new comment to parent
             setContent(""); // Clear input
         } catch (error) {
+            toast.error("Comment submission failed.");
             console.error("Failed to submit comment:", error);
         } finally {
             setLoading(false);

@@ -1,5 +1,6 @@
 import { accountVerification } from "./UserService";
 import { getGlobalLogout } from "@/contexts/AuthContext";
+import toast from "react-hot-toast";
 
 export async function tokenMiddleware (
   func: (...args: any[]) => Promise<any>,
@@ -18,8 +19,10 @@ export async function tokenMiddleware (
 
         if (!accessToken || !refreshToken) {
           console.error('No tokens available for account verification.');
+          toast.dismiss(); // Dismiss all previous toasts
+          toast.error("Login required.");
           logout();
-          // throw new Error('Session expired. Please log in again.');
+          return null;
         }
 
         const verificationResponse = await accountVerification(accessToken, refreshToken, logout);
@@ -28,20 +31,17 @@ export async function tokenMiddleware (
           console.log('Account verification successful. Retrying...');
           const newResponse = await func(...args);
           if (newResponse instanceof Error) {
-            logout();
             return null;
-          }
-          else {
+          } else {
             return newResponse;
           }
-        } 
-        else {
+        } else {
+          toast.dismiss(); // Dismiss all previous toasts
+          toast.error("Login required.");
           logout();
           // throw new Error('Account verification failed. Please log in again.');
         }
-      }
-      else {
-        logout();
+      } else {
         return null;
       }
     }

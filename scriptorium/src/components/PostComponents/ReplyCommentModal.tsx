@@ -3,6 +3,7 @@ import Modal from "../Modal";
 import {createComment, getComment} from "@/services/PostService";
 import {Comment} from "@/types/PostType"
 import {tokenMiddleware} from "@/services/TokenMiddleware";
+import toast from "react-hot-toast";
 
 type ReplyCommentModalProps = {
     parentId: number;
@@ -19,6 +20,7 @@ const ReplyCommentModal: React.FC<ReplyCommentModalProps> = ({ parentId, isOpen,
         try {
             const response = await tokenMiddleware(createComment, [parentId, content]);
             if (response) {
+                toast.success("Commented!");
                 const newComment = await getComment(response.postId);
 
                 if (newComment){
@@ -27,9 +29,11 @@ const ReplyCommentModal: React.FC<ReplyCommentModalProps> = ({ parentId, isOpen,
                     onClose();
                 }
             } else {
+                toast.error("Unable to comment. Please try again (nonempty!).");
                 console.error("Failed to create reply");
             }
         } catch (error) {
+            toast.error("Unable to comment. Please try again.");
             console.error("Error submitting reply:", error);
         } finally {
             setLoading(false);

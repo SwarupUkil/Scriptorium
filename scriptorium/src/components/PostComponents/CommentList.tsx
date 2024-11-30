@@ -11,31 +11,66 @@ type CommentListProps = {
 };
 
 const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 }) => {
-
     const [loadedReplies, setLoadedReplies] = useState<Record<number, Comment[]>>({});
     const [loadingReplies, setLoadingReplies] = useState<Record<number, boolean>>({});
     const [visibleReplies, setVisibleReplies] = useState<Record<number, boolean>>({});
+    const [pagination, setPagination] = useState<Record<number, { skip: number; take: number; total: number }>>({});
     const [replyModal, setReplyModal] = useState<{ isOpen: boolean; parentId: number | null }>({
         isOpen: false,
         parentId: null,
     });
 
     const handleToggleReplies = async (commentId: number) => {
+        const isVisible = visibleReplies[commentId] || false;
+
         // Toggle visibility
-        setVisibleReplies((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+        setVisibleReplies((prev) => ({ ...prev, [commentId]: !isVisible }));
 
         // Fetch replies if not already loaded and becoming visible
-        if (!loadedReplies[commentId] && !loadingReplies[commentId]) {
+        if (!loadedReplies[commentId] && !isVisible) {
             setLoadingReplies((prev) => ({ ...prev, [commentId]: true }));
             try {
-                const response = await getReplies({ id: commentId });
-                const [replies] = response || [[]];
+                const response = await getReplies({ id: commentId, skip: 0, take: 5 });
+                const [replies, paginate] = response || [[], { skip: 0, take: 5, total: 0 }];
                 setLoadedReplies((prev) => ({ ...prev, [commentId]: replies }));
+                setPagination((prev) => ({
+                    ...prev,
+                    [commentId]: { skip: paginate.skip, take: paginate.take, total: paginate.total },
+                }));
             } catch (error) {
                 console.error(`Failed to fetch replies for comment ${commentId}:`, error);
             } finally {
                 setLoadingReplies((prev) => ({ ...prev, [commentId]: false }));
             }
+        }
+    };
+
+    const loadMoreReplies = async (commentId: number) => {
+        const currentPagination = pagination[commentId];
+        if (!currentPagination) return;
+
+        const { skip, take, total } = currentPagination;
+
+        // Prevent loading more if already at the end
+        if (skip + take >= total) return;
+
+        setLoadingReplies((prev) => ({ ...prev, [commentId]: true }));
+
+        try {
+            const response = await getReplies({ id: commentId, skip: skip + take, take });
+            const [newReplies, paginate] = response || [[], { skip: skip + take, take, total }];
+            setLoadedReplies((prev) => ({
+                ...prev,
+                [commentId]: [...(prev[commentId] || []), ...newReplies],
+            }));
+            setPagination((prev) => ({
+                ...prev,
+                [commentId]: { skip: paginate.skip, take: paginate.take, total: paginate.total },
+            }));
+        } catch (error) {
+            console.error(`Failed to fetch more replies for comment ${commentId}:`, error);
+        } finally {
+            setLoadingReplies((prev) => ({ ...prev, [commentId]: false }));
         }
     };
 
@@ -59,22 +94,39 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 
             {comments.map((comment) => (
                 <React.Fragment key={comment.postId}>
                     {/* Render the comment */}
-                    <CommentComponent
-                        postId={comment.postId}
-                        onReply={handleReply}
-                        onViewReplies={handleToggleReplies}
-                        depth={depth}
-                        showReplies={visibleReplies[comment.postId] || false}
-                    />
+                    <div className="pl-4">
+                        <CommentComponent
+                            postId={comment.postId}
+                            onReply={handleReply}
+                            onViewReplies={handleToggleReplies}
+                            depth={depth}
+                            showReplies={visibleReplies[comment.postId] || false}
+                        />
+                    </div>
 
                     {/* Render nested replies if visible */}
                     {visibleReplies[comment.postId] && loadedReplies[comment.postId] && (
                         <CommentList
                             comments={loadedReplies[comment.postId]}
-                            onReply={handleReply}
+                            onReply={onReply}
                             depth={depth + 1}
                         />
                     )}
+
+                    {/* Show More Replies */}
+                    {visibleReplies[comment.postId] &&
+                        pagination[comment.postId] &&
+                        pagination[comment.postId].skip + pagination[comment.postId].take <
+                        pagination[comment.postId].total && (
+                            <div className={"flex justify-center"}>
+                                <button
+                                    onClick={() => loadMoreReplies(comment.postId)}
+                                    className="mb-2 px-4 py-1 text-sm bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                                >
+                                    Show More Replies
+                                </button>
+                            </div>
+                        )}
 
                     {/* Loading state for replies */}
                     {visibleReplies[comment.postId] && loadingReplies[comment.postId] && (

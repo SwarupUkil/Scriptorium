@@ -7,6 +7,7 @@ import { PaginationState } from "@/types/PaginationType";
 import ReportCard from "@/components/Card/ReportCard";
 import { calcTotalPages, handlePageChange } from "@/utils/frontend-helper/paginationHelper";
 import AdminAuthWrapper from "@/components/Admin/AdminAuthWrapper";
+import toast from "react-hot-toast";
 
 const ReportsOfPost: React.FC = () => {
     const router = useRouter();
@@ -49,9 +50,13 @@ const ReportsOfPost: React.FC = () => {
         try {
             const success = await tokenMiddleware(flagReportForAdmin, [{ id: Number(id), flag: true }]);
             if (success) {
+                toast.success("Flagged!");
                 console.log(`Successfully flagged post ${id}`);
+            } else {
+                toast.error("Issue flagging.");
             }
         } catch (error) {
+            toast.error("Issue flagging.");
             console.error(`Failed to flag post ${id}:`, error);
         }
     };
@@ -61,9 +66,13 @@ const ReportsOfPost: React.FC = () => {
         try {
             const success = await tokenMiddleware(flagReportForAdmin, [{ id: Number(id), flag: false }]);
             if (success) {
+                toast.success("Unflagged!");
                 console.log(`Successfully unflagged post ${id}`);
+            } else {
+                toast.error("Issue unflagging.");
             }
         } catch (error) {
+            toast.error("Issue unflagging.");
             console.error(`Failed to unflag post ${id}:`, error);
         }
     };
@@ -73,10 +82,14 @@ const ReportsOfPost: React.FC = () => {
         try {
             const success = await tokenMiddleware(closeReport, [{ pid: Number(id) }]);
             if (success) {
+                toast.success("Closed all reports for this post!");
                 setReports([]);
                 console.log(`Successfully closed all reports for post ${id}`);
+            } else {
+                toast.error(`Failed to close all reports for post ${id}`);
             }
         } catch (error) {
+            toast.error(`Failed to close all reports for post ${id}`);
             console.error(`Failed to close all reports for post ${id}:`, error);
         }
     };

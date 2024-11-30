@@ -5,7 +5,23 @@ export const MAX_EXPLANATION = 3000;
 export const MAX_BLOG_DESCRIPTION = 5000;
 export const MAX_COMMENT_DESCRIPTION = 3000;
 
-export const ALLOWED_TAGS = ["javascript", "python", "java", "c", "cpp", "react", "nodejs", "sql"];
+export const ALLOWED_TAGS = [
+    // Languages
+    "javascript", "python", "java", "c", "cpp", "go", "ruby", "swift", "rust", "php",
+
+    // Coding Topics
+    "arrays", "strings", "recursion", "sorting", "searching", "hashing", "dynamicprogramming",
+    "greedy", "graph", "tree",
+    // "divideandconquer", "bitmanipulation", "slidingwindow", "twopointers", "linkedlist",
+    "heap", "math",
+
+    // System Design & Concepts
+    "api", "oop", "databases",
+
+    // Blog Post Tags
+    "solution", "discussion", "rant", "tutorial", "question", "explanation"
+];
+export const REDACTED = "<>Redacted<>";
 
 export const AUTH = {
     USER: "USER",
