@@ -4,11 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const Navbar: React.FC = () => {
-  const { isLoggedIn, role, logout } = useAuth();
+  const { isLoggedIn, role, profileURL, logout } = useAuth();
   const { setTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
-  const profileImage = "/path/to/default/profile.png"; // Replace with actual profile image
+  const profileImage = `../../${profileURL}`;
 
   const logoutFunction = () => {
     logout();
@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
                 <img
                   src={profileImage}
                   alt="Profile"
-                  className="w-8 h-8 rounded-full border-2 border-white"
+                  className="w-8 h-8 rounded-full border-2 border-white object-cover"
                 />
               </button>
               {/* Dropdown Menu */}

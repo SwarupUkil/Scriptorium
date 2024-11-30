@@ -184,14 +184,16 @@ const SignupPage = () => {
                     ? 'border-blue-500 bg-blue-100'
                     : 'border-gray-300 bg-gray-200'
                 }`}
-                title={option}
               >
-                {option}
+                <img
+                  src={`../../${option}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
             ))}
           </div>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">
-            Selected: <span className="font-bold">{formData.pfpURL}</span>
+            Selected: <span className="font-bold">{formData.pfpURL.replace(/\.png$/, '').replace(/Option(\d+)/, 'Option $1')}</span>
           </p>
         </div>
 

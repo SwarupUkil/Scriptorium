@@ -1,9 +1,9 @@
 import { LoginFormData, LoginSuccessResponse, SignupFormData, 
   SignupSuccessResponse, RefreshTokenResponse, UserProfile, 
-  UpdateProfileResponse, ErrorResponse, AccountVerificationResponse, UserRole } from "@/types/UserTypes";
+  UpdateProfileResponse, ErrorResponse, AccountVerificationResponse, UserRole, UserProfileUrls } from "@/types/UserTypes";
 import { tokenMiddleware } from "./TokenMiddleware";
 
-export async function loginAPI(formData: LoginFormData, setTheme: (theme: "LIGHT" | "DARK") => void): Promise<void> {
+export async function loginAPI(formData: LoginFormData, setTheme: (theme: "LIGHT" | "DARK") => void, setProfileURL: (image: UserProfileUrls) => void): Promise<void> {
   try {
     const response = await fetch('/api/users/login', {
       method: 'POST',
@@ -24,7 +24,11 @@ export async function loginAPI(formData: LoginFormData, setTheme: (theme: "LIGHT
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('username', formData.username);
 
-    tokenMiddleware(fetchUserProfile, [setTheme]);
+    const profile = await tokenMiddleware(fetchUserProfile, [setTheme]);
+    if (profile) {
+      const { pfpURL } = profile;
+      setProfileURL(pfpURL);
+    }
 
     console.log('Tokens stored in local storage');
   } catch (error) {
@@ -117,7 +121,7 @@ export async function fetchUserProfile(setTheme: (theme: "LIGHT" | "DARK") => vo
   }
 }
 
-export async function updateUserProfile(profileData: UserProfile, setTheme: (theme: "LIGHT" | "DARK") => void): Promise<UpdateProfileResponse> {
+export async function updateUserProfile(profileData: UserProfile, setTheme: (theme: "LIGHT" | "DARK") => void, setProfileURL: (image: UserProfileUrls) => void): Promise<UpdateProfileResponse> {
   try {
     const response = await fetch("/api/users/profile", {
       method: 'PUT',
@@ -134,8 +138,9 @@ export async function updateUserProfile(profileData: UserProfile, setTheme: (the
       throw new Error((data as ErrorResponse).error || 'Failed to update profile');
     }
 
-    const { theme } = data as UpdateProfileResponse;
+    const { theme, pfpURL } = data as UpdateProfileResponse;
     setTheme(theme);
+    setProfileURL(pfpURL as UserProfileUrls);
 
     return data as UpdateProfileResponse;
   } catch (error) {
