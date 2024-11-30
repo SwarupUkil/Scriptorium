@@ -58,6 +58,7 @@ export default function BlogPost() {
                     setBlog(fetchedBlog);
                 }
             } catch (err) {
+                console.error(err);
                 setError("Failed to fetch blog data");
             } finally {
                 setLoading(false);
@@ -117,7 +118,7 @@ export default function BlogPost() {
                 <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
 
                 {/* Blog Tags and Templates */}
-                {(blog.tags || blog.templates?.length > 0) && (
+                {(blog.tags || (blog.templates && blog.templates?.length > 0)) && (
                     <div className="flex justify-between items-center mb-6">
                         {/* Tags */}
                         {blog.tags && blog.tags.length > 0 && (

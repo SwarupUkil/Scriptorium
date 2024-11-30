@@ -1,6 +1,6 @@
 import {prisma} from "../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../utils/auth";
-import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, AUTH, PRIVACY} from "../../../../utils/validateConstants";
+import {MAX_TITLE, MAX_EXPLANATION, MAX_TAGS, MAX_CODE, PRIVACY} from "../../../../utils/validateConstants";
 import validateTags from "../../../../utils/validateTags";
 import {parseLanguage} from "../../../../utils/validateLanguage";
 

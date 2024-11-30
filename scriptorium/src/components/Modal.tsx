@@ -2,12 +2,12 @@ import React from "react";
 
 interface ModalProps {
     isOpen: boolean;
-    onClose: () => void; // Ensure onClose has no parameters for consistency
+    onClose?: () => void; // Ensure onClose has no parameters for consistency
     title: string;
     children: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, title, children }) => {
     if (!isOpen) return null;
 
     return (

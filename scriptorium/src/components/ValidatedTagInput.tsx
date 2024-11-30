@@ -21,7 +21,6 @@ const ValidatedTagInput: React.FC<ValidatedTagInputProps> = ({
                                                                  onChange,
                                                                  label,
                                                                  required = false,
-                                                                 error,
                                                                  containerClassName = "",
                                                                  tagClassName = "",
                                                                  inputClassName = "",

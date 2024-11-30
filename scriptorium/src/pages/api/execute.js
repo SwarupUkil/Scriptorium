@@ -23,7 +23,6 @@ export default async function handler(req, res) {
       if (!code || !language || !languageInformation[language.toLowerCase()]) {
         return res.status(400).json({error: "Invalid language or missing code.",});
       }
-      const compiledLanguages = ["c", "cpp", "java", "swift", "go", "rust"];
 
       const tempFolder = `temp-${Date.now()}-${Math.random().toString(36).substring(2)}`;
       const tempDir = path.resolve(process.cwd(), 'src', 'pages', 'api', tempFolder);

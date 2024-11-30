@@ -1,7 +1,6 @@
 import React from "react";
 import Table from "@/components/Table/Table";
 import {ReportType} from "@/services/ReportService";
-import {BlogPost} from "@/types/PostType";
 
 type ReportOfPostTableProps = {
     data: ReportType[];
@@ -11,7 +10,7 @@ type ReportOfPostTableProps = {
     close?: ({rid, pid}: {rid?: number, pid?: number}) => void;
 };
 
-const ReportOfPostTable: React.FC<ReportOfPostTableProps> = ({data, onRowClick, flag, unflag, close}) => {
+const ReportOfPostTable: React.FC<ReportOfPostTableProps> = ({data, onRowClick, close}) => {
     const columns = [
         {
             header: "RID",

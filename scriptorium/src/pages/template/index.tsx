@@ -55,7 +55,7 @@ export default function Templates() {
                         title={template.title || ""}
                         content={
                             <div>
-                                <TagDisplay value={template.tags || ""} />
+                                <TagDisplay value={template.tags as string || ""} />
                                 <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
                                     {template.explanation || "No explanation provided."}
                                 </p>

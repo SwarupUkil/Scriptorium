@@ -50,7 +50,7 @@ const EditOrForkTemplate: React.FC = () => {
                 if (fetchedTemplate) {
                     setTemplate({
                         ...fetchedTemplate,
-                        tags: parseCSVToTags(fetchedTemplate.tags || ""),
+                        tags: parseCSVToTags(fetchedTemplate.tags as string || ""),
                     });
 
                     const username = localStorage.getItem("username");
@@ -241,7 +241,7 @@ const EditOrForkTemplate: React.FC = () => {
                             ></textarea>
                         </div>
                         <TagInput
-                            value={(template.tags || []).join(",")}
+                            value={(template.tags as string[] || []).join(",")}
                             onChange={(newTags) =>
                                 setTemplate((prev) => ({
                                     ...prev!,
