@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from 'next/router';
-import { UserRole } from "@/types/UserTypes";
+import { UserRole, UserProfileUrls } from "@/types/UserTypes";
 import { accountVerification } from "@/services/UserService";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
   role: UserRole | null;
+  profileURL: UserProfileUrls | null;
+  setProfileURL: (image: UserProfileUrls) => void;
   login: (role: UserRole) => void;
   logout: () => void;
 }
@@ -21,6 +23,7 @@ export const getGlobalLogout = () => globalLogout;
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [role, setRole] = useState<UserRole | null>(null);
+  const [profileURL, setProfileURL] = useState<UserProfileUrls | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,6 +32,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoggedIn(!!token);
     setRole(storedRole);
+  }, []);
+
+  useEffect(() => {
+    if (profileURL) {
+      localStorage.setItem("profileURL", profileURL);
+    }
+  }, [profileURL]);
+
+  useEffect(() => {
+    const url = localStorage.getItem("profileURL");
+    if (url) {
+      setProfileURL(url as UserProfileUrls);
+    }
+    else {
+      setProfileURL("Option1.png");
+    }
   }, []);
 
   useEffect(() => {
@@ -63,8 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("username");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("profileURL");
+    localStorage.removeItem('theme');
 
-    localStorage.setItem("theme", "LIGHT");
     setIsLoggedIn(false);
     setRole(null);
     router.push('/');
@@ -73,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   globalLogout = logout;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, role, profileURL, setProfileURL, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
