@@ -13,7 +13,7 @@ export async function executeCode(requestData: ExecuteRequest): Promise<ExecuteR
     const data: ExecuteResponse | ExecuteErrorResponse = await response.json();
 
     if (!response.ok) {
-      throw new Error((data as ExecuteErrorResponse).error || 'Execution failed');
+      throw new Error((data as ExecuteErrorResponse).error + " " + (data as ExecuteErrorResponse).details || 'Execution failed');
     }
 
     return data as ExecuteResponse;

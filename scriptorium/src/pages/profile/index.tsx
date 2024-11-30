@@ -4,12 +4,14 @@ import { fetchUserProfile, updateUserProfile } from '@/services/UserService';
 import { UserProfile } from '@/types/UserTypes';
 import { useTheme } from "@/contexts/ThemeContext";
 import { tokenMiddleware } from '@/services/TokenMiddleware';
+import { useAuth } from '@/contexts/AuthContext';
 
 const profilePictureOptions = ["Option1.png", "Option2.png", "Option3.png", "Option4.png", "Option5.png"];
 
 const ProfilePage = () => {
   const router = useRouter();
   const { setTheme } = useTheme();
+  const { setProfileURL } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile>({
     username: '',
@@ -70,7 +72,7 @@ const ProfilePage = () => {
 
     if (Object.values(newErrors).every((error) => error === '')) {
       try {
-        const response = await tokenMiddleware(updateUserProfile, [profile, setTheme]);
+        const response = await tokenMiddleware(updateUserProfile, [profile, setTheme, setProfileURL]);
         console.log('Profile Updated:', profile);
       } catch (err) {
         if (err instanceof Error) {
@@ -166,12 +168,15 @@ const ProfilePage = () => {
                     : 'border-gray-300 bg-gray-200'
                 }`}
               >
-                {option}
+                <img
+                  src={`../../${option}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
               </div>
             ))}
           </div>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">
-            Selected: <span className="font-bold">{profile.pfpURL}</span>
+            Selected: <span className="font-bold">{profile.pfpURL.replace(/\.png$/, '').replace(/Option(\d+)/, 'Option $1')}</span>
           </p>
         </div>
 

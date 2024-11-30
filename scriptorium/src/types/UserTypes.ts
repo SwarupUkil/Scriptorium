@@ -68,6 +68,8 @@ export interface ErrorResponse {
 }
 export type UserRole = "ADMIN" | "USER";
 
+export type UserProfileUrls = "Option1.png" | "Option2.png" | "Option3.png" | "Option4.png" | "Option5.png";
+
 export interface AccountVerificationResponse {
   accessToken: string;
   refreshToken: string;

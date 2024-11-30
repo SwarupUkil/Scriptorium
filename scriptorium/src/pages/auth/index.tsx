@@ -3,10 +3,12 @@ import { useRouter } from 'next/router';
 import { loginAPI } from '@/services/UserService';
 import { LoginFormData } from '@/types/UserTypes';
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from '@/contexts/AuthContext';
 
 const LoginPage = () => {
   const router = useRouter();
   const { setTheme } = useTheme();
+  const { setProfileURL } = useAuth();
 
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
@@ -42,7 +44,7 @@ const LoginPage = () => {
     }
 
     try {
-      await loginAPI(formData, setTheme);
+      await loginAPI(formData, setTheme, setProfileURL);
       console.log('Login successful, tokens stored');
       router.push('/');
     } catch (err) {

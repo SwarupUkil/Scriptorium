@@ -14,11 +14,16 @@ import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
 import toast from "react-hot-toast";
 
 const languageOptions = [
-  { label: "Python", value: "python" },
-  { label: "JavaScript", value: "javascript" },
-  { label: "C", value: "c" },
-  { label: "C++", value: "cpp" },
-  { label: "Java", value: "java" },
+  { label: 'Python', value: 'python' },
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'C', value: 'c' },
+  { label: 'C++', value: 'cpp' },
+  { label: 'Swift', value: 'swift' },
+  { label: 'Java', value: 'java' },
+  { label: 'Rust', value: 'rust' },
+  { label: 'Go', value: 'go' },
+  { label: 'PHP', value: 'php' },
+  { label: 'Ruby', value: 'ruby' },
 ];
 
 const privacyOptions = [
@@ -52,10 +57,13 @@ const CodePage: React.FC = () => {
       setOutput(response.output || "No output.");
 
       if (response.error) {
+        console.log(response);
         setError(response.error);
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
+      console.log(err);
+      setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
