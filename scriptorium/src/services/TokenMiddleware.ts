@@ -19,7 +19,7 @@ export async function tokenMiddleware (
         if (!accessToken || !refreshToken) {
           console.error('No tokens available for account verification.');
           logout();
-          // throw new Error('Session expired. Please log in again.');
+          return null;
         }
 
         const verificationResponse = await accountVerification(accessToken, refreshToken, logout);
@@ -29,18 +29,14 @@ export async function tokenMiddleware (
           const newResponse = await func(...args);
           if (newResponse instanceof Error) {
             return null;
-          }
-          else {
+          } else {
             return newResponse;
           }
-        } 
-        else {
+        } else {
           logout();
           // throw new Error('Account verification failed. Please log in again.');
         }
-      }
-      else {
-        logout();
+      } else {
         return null;
       }
     }

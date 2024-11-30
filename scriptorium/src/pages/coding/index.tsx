@@ -11,6 +11,7 @@ import { Template } from "@/types/TemplateType";
 import TagInput from "@/components/TagInput";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
 import {parseTagsToCSV} from "@/utils/frontend-helper/apiHelper";
+import toast from "react-hot-toast";
 
 const languageOptions = [
   { label: "Python", value: "python" },
@@ -62,6 +63,7 @@ const CodePage: React.FC = () => {
 
   const handleSave = async () => {
     if (!isLoggedIn) {
+      toast.error("Must be logged in to save templates.");
       console.log("You must be logged in to save templates.");
       return;
     }
@@ -77,12 +79,15 @@ const CodePage: React.FC = () => {
 
     try {
       const response = await tokenMiddleware(createTemplate, [newTemplate]);
-      if (response && !(response instanceof Error)) {
+      if (response) {
+        toast.success("Saved!");
         await router.push(`/coding/${response.id}`);
       } else {
+        toast.error("Failed to save the template. Title required!");
         console.log("Failed to save the template.");
       }
     } catch (err) {
+      toast.error("Failed to save the template.");
       console.error("Error saving template:", err);
     }
   };

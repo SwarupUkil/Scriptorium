@@ -1,5 +1,6 @@
 import {prisma} from "@/utils/db";
 import { NextApiRequest, NextApiResponse } from "next";
+import {REDACTED} from "@/utils/validateConstants";
 
 // Define the shape of the Post and Comment objects returned from the database
 interface PostValues {
@@ -75,7 +76,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const postValues: PostValues | null = await prisma.post.findUnique({
             where: {
                 id: commentId,
-                flagged: false,
                 deleted: false,
             },
             select: {
@@ -109,11 +109,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Client should not know uid detail.
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        if (postValues.flagged) {
+            postValues.content = REDACTED;
+        }
+
         const {uid, deleted, id, ...post} = postValues;
         post.postId = id;
         const response: CommentResponse = {
             ...post,
-            username: String(findUsername.username),
+            username: postValues.flagged ? REDACTED : String(findUsername.username),
             parentId: commentExist.parentId,
         }
 

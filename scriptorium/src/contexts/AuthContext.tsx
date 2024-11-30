@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from 'next/router';
 import { UserRole } from "@/types/UserTypes";
 import { accountVerification } from "@/services/UserService";
+import toast from "react-hot-toast";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
@@ -67,7 +68,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("theme", "LIGHT");
     setIsLoggedIn(false);
     setRole(null);
-    router.push('/');
+    toast.dismiss(); // Dismiss all previous toasts
+    toast.error("Login required.");
+    router.push('/auth');
   };
 
   globalLogout = logout;

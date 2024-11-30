@@ -26,7 +26,6 @@ export default async function handler(req, res) {
         const total = await prisma.post.count({
             where: {
                 deleted: false,
-                flagged: false,
                 comment: {
                     parentId: postId,
                 },
@@ -36,7 +35,6 @@ export default async function handler(req, res) {
         const postReplies = await prisma.post.findMany({
             where: {
                 deleted: false,
-                flagged: false,
                 comment: {
                     parentId: postId,
                 },
@@ -49,7 +47,6 @@ export default async function handler(req, res) {
             select: {
                 id: true,
                 rating: true,
-                content: true,
             },
         });
 

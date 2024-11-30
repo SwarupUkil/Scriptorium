@@ -3,6 +3,7 @@ import { Comment } from "@/types/PostType";
 import { getComment } from "@/services/PostService";
 import InteractionBar from "@/components/PostComponents/InteractionBar";
 import EditCommentModal from "@/components/PostComponents/EditCommentModal";
+import toast from "react-hot-toast";
 
 type CommentComponentProps = {
     postId: number;
@@ -37,6 +38,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
                 setFullComment(fetchedComment);
             } catch (error) {
                 console.error("Failed to fetch comment:", error);
+                toast.error("Issue fetching comment");
                 setFullComment(null);
             } finally {
                 setLoading(false);

@@ -9,6 +9,7 @@ import { BlogPost } from "@/types/PostType";
 import { getAllBlogsByUser, deleteBlog } from "@/services/PostService";
 import DeleteBlogModal from "@/components/PostComponents/DeleteBlogModal";
 import { tokenMiddleware } from "@/services/TokenMiddleware";
+import toast from "react-hot-toast";
 
 export default function BlogManagement() {
     const router = useRouter();
@@ -60,9 +61,11 @@ export default function BlogManagement() {
         if (deleteModal.blogId) {
             const success = await tokenMiddleware(deleteBlog, [{ id: deleteModal.blogId }]);
             if (success) {
+                toast.success("Deleted!");
                 setData((prev) => prev.filter((blog) => blog.postId !== deleteModal.blogId));
                 setDeleteModal({ isOpen: false, blogId: null });
             } else {
+                toast.error("Failed to delete blog.!");
                 console.error("Failed to delete blog.");
             }
         }

@@ -163,7 +163,6 @@ export const createBlog = async ({
         });
 
         const data = await response.json();
-        console.log(data);
         if (!response.ok) {
             return new Error((data as ErrorResponse).error || 'Failed to refresh token');
         }
