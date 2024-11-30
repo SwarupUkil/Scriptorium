@@ -31,17 +31,7 @@ const BlogTable: React.FC<BlogTableProps> = ({data, onRowClick, onDelete}) => {
     if (onDelete) {
         columns.push({
             header: "Actions",
-            accessor: (blog: BlogPost) => (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering row click
-                        onDelete(blog.postId);
-                    }}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                    Delete
-                </button>
-            ),
+            accessor: (blog: BlogPost) => blog.tags,
             className: "w-1/6 text-center",
         });
     }

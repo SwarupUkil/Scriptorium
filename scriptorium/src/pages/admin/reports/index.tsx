@@ -4,10 +4,8 @@ import Pagination from "@/components/Pagination";
 import {calcTotalPages, handlePageChange} from "@/utils/frontend-helper/paginationHelper";
 import {PaginationState} from "@/types/PaginationType";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
-import ReportTable from "@/components/Table/ReportTable";
 import {useRouter} from "next/router";
 import AdminAuthWrapper from "@/components/Admin/AdminAuthWrapper";
-import ReportsCard from "@/components/Card/ReportsCard";
 
 const ReportsPage: React.FC = () => {
 

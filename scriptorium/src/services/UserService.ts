@@ -1,6 +1,6 @@
 import { LoginFormData, LoginSuccessResponse, SignupFormData, 
   SignupSuccessResponse, RefreshTokenResponse, UserProfile, 
-  UpdateProfileResponse, ErrorResponse, AccountVerificationResponse, UserRole, UserProfileUrls } from "@/types/UserTypes";
+  UpdateProfileResponse, ErrorResponse, AccountVerificationResponse, UserProfileUrls } from "@/types/UserTypes";
 import { tokenMiddleware } from "./TokenMiddleware";
 
 export async function loginAPI(formData: LoginFormData, setTheme: (theme: "LIGHT" | "DARK") => void, setProfileURL: (image: UserProfileUrls) => void): Promise<void> {

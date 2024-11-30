@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -8,7 +9,7 @@ const Navbar: React.FC = () => {
   const { setTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
-  const profileImage = `../../${profileURL}`;
+  const profileImage = `/${profileURL}`;
 
   const logoutFunction = () => {
     logout();
@@ -48,10 +49,12 @@ const Navbar: React.FC = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="focus:outline-none"
               >
-                <img
+                <Image
                   src={profileImage}
                   alt="Profile"
                   className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  width={32}
+                  height={32}
                 />
               </button>
               {/* Dropdown Menu */}

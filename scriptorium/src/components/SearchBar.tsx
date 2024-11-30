@@ -11,7 +11,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
                                                  setData,
                                                  pagination,
                                                  setPagination,
-                                                 additionalFields,
                                                  isBlog,
                                              }) => {
     const [title, setTitle] = useState<string>("");
@@ -46,8 +45,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
     // Debounced dynamic search
     useEffect(() => {
         const delay = 300; // Delay in milliseconds
-        const handler = setTimeout(() => {
-            handleSearch().then(([results, paginate]) => {
+        const handler = setTimeout(async () => {
+            const resp = await handleSearch();
+            if (resp) {
+                const [results, paginate] = resp;
                 setPagination({
                     skip: 0,
                     take: paginate.take,
@@ -55,21 +56,26 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     totalPages: Math.max(calcTotalPages(paginate.take, paginate.total), 1),
                 });
                 setData(results);
-            });
+            }
         }, delay);
 
         return () => clearTimeout(handler);
     }, [title, content, tags, templateTitle, sortOrder]); // Dependencies for dynamic searching
 
     useEffect(() => {
-        handleSearch().then(([results, paginate]) => {
-            setPagination({
-                ...pagination,
-                skip: paginate.nextSkip,
-                take: paginate.take,
-            });
-            setData(results);
-        });
+        const func = async () => {
+            const resp = await handleSearch();
+            if (resp) {
+                const [results, paginate] = resp;
+                setPagination({
+                    ...pagination,
+                    skip: paginate.nextSkip,
+                    take: paginate.take,
+                });
+                setData(results);
+            }
+        }
+        func();
     }, [pagination.currentPage]);
 
     return (

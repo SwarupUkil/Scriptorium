@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { fetchUserProfile, updateUserProfile } from '@/services/UserService';
 import { UserProfile } from '@/types/UserTypes';
 import { useTheme } from "@/contexts/ThemeContext";
 import { tokenMiddleware } from '@/services/TokenMiddleware';
 import { useAuth } from '@/contexts/AuthContext';
+import Image from 'next/image';
 
 const profilePictureOptions = ["Option1.png", "Option2.png", "Option3.png", "Option4.png", "Option5.png"];
 
 const ProfilePage = () => {
-  const router = useRouter();
   const { setTheme } = useTheme();
   const { setProfileURL } = useAuth();
 
@@ -72,7 +71,7 @@ const ProfilePage = () => {
 
     if (Object.values(newErrors).every((error) => error === '')) {
       try {
-        const response = await tokenMiddleware(updateUserProfile, [profile, setTheme, setProfileURL]);
+        await tokenMiddleware(updateUserProfile, [profile, setTheme, setProfileURL]);
         console.log('Profile Updated:', profile);
       } catch (err) {
         if (err instanceof Error) {
@@ -168,9 +167,12 @@ const ProfilePage = () => {
                     : 'border-gray-300 bg-gray-200'
                 }`}
               >
-                <img
-                  src={`../../${option}`}
+                <Image
+                  src={`/${option}`}
                   className="w-full h-full object-cover rounded-md"
+                  alt={`${option}`}
+                  width={32}
+                  height={32}
                 />
               </div>
             ))}

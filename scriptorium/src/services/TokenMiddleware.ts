@@ -47,6 +47,7 @@ export async function tokenMiddleware (
     }
     return response;
   } catch (error) {
+    console.error(error);
     return null;
   }
 }

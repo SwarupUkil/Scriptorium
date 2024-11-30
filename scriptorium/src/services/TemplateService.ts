@@ -117,7 +117,7 @@ export const createTemplate = async ({
                                  }: Template): Promise<Template | Error> => {
     const url = '/api/templates/users/create';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-    const parsedTags = parseTagsToCSV(tags || []);
+    const parsedTags = parseTagsToCSV(tags as string[] || []);
     try {
         const response = await fetch(url, {
             method: "POST",
@@ -177,7 +177,7 @@ export const updateTemplate = async ({
                                      }: Template): Promise<Template | Error> => {
     const url = '/api/templates/users/edit';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
-    const parsedTags = parseTagsToCSV(tags || []);
+    const parsedTags = parseTagsToCSV(tags as string[] || []);
 
     try {
         const response = await fetch(url, {

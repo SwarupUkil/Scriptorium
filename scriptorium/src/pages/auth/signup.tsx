@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { signup } from '@/services/UserService';
 import { SignupFormData } from '@/types/UserTypes';
 import { useTheme } from "@/contexts/ThemeContext";
+import Image from "next/image";
 
 const SignupPage = () => {
   const router = useRouter();
@@ -55,7 +56,7 @@ const SignupPage = () => {
 
     if (Object.values(newErrors).every((error) => error === '')) {
       try {
-        const response = await signup(formData, setTheme);
+        await signup(formData, setTheme);
         console.log('Form Submitted:', formData);
         router.push('/auth');
       } catch (err) {
@@ -185,9 +186,12 @@ const SignupPage = () => {
                     : 'border-gray-300 bg-gray-200'
                 }`}
               >
-                <img
-                  src={`../../${option}`}
+                <Image
+                  src={`/${option}`}
                   className="w-full h-full object-cover rounded-md"
+                  alt={`${option}`}
+                  width={32}
+                  height={32}
                 />
               </div>
             ))}

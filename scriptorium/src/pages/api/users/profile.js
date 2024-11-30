@@ -1,6 +1,5 @@
 import { prisma } from "../../../utils/db";
 import { verifyTokenMiddleware } from "../../../utils/auth";
-import {AUTH} from "../../../utils/validateConstants";
 
 const profileImages = JSON.parse(process.env.PROFILE_IMAGES);
 

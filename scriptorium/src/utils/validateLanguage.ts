@@ -10,7 +10,7 @@ export function parseLanguage(language: string | undefined): string | null {
 
     const normalizedLang = language.trim().toLowerCase();
 
-    for (const [constant, variations] of Object.entries(SUPPORTED_LANGUAGES)) {
+    for (const [, variations] of Object.entries(SUPPORTED_LANGUAGES)) {
         if (variations.includes(normalizedLang)) {
             return variations[0]; // Return standardized language name
         }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Comment } from "@/types/PostType";
-import {getComment, createComment, updateVote} from "@/services/PostService";
+import {getComment, createComment} from "@/services/PostService";
 import {MAX_COMMENT_DESCRIPTION} from "@/utils/validateConstants";
 import {tokenMiddleware} from "@/services/TokenMiddleware";
 

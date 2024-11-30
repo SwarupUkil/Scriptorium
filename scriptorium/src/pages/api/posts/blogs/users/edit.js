@@ -1,7 +1,7 @@
 import {prisma} from "../../../../../utils/db";
 import { verifyTokenMiddleware } from "../../../../../utils/auth";
 import validateTags from "../../../../../utils/validateTags";
-import {AUTH, MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../../utils/validateConstants";
+import {MAX_BLOG_DESCRIPTION, MAX_TAGS, MAX_TITLE, PRIVACY} from "../../../../../utils/validateConstants";
 
 // Handler will attempt to update/delete a specified blog post for the client.
 async function handler(req, res) {
