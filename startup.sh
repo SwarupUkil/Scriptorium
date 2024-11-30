@@ -29,51 +29,16 @@ done
 
 echo "All Docker images have been built successfully."
 
-echo "Creating admin user"
+echo "Creating database"
 
-HASHED_PASSWORD='$2b$10$rvjRIs3NedTaz3bZBawHgeWuwb0Dr6cvckA3S0zACZl2Vr32ze/6y'
-node -e "
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+node databaseGeneration.js
+# NODE_EXIT_CODE=$?
 
-async function main() {
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: { username: 'admin' },
-    });
-
-    if (existingUser) {
-      process.exit(0);
-    } else {
-      const user = await prisma.user.create({
-        data: {
-          username: 'admin',
-          password: '$HASHED_PASSWORD',
-          type: 'ADMIN',
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@example.com',
-          pfpURL: null,
-          phoneNumber: null,
-          theme: 'LIGHT',
-        },
-      });
-      process.exit(1);
-    }
-  } catch (error) {
-    process.exit(2);
-  }
-}
-
-main();
-"
-NODE_EXIT_CODE=$?
-
-if [ $NODE_EXIT_CODE -eq 0 ]; then
-  echo "Admin user already exists."
-elif [ $NODE_EXIT_CODE -eq 1 ]; then
-  echo "Admin user was successfully created."
-elif [ $NODE_EXIT_CODE -eq 2 ]; then
-  echo "An error occurred while creating the admin user."
-fi
+# if [ $NODE_EXIT_CODE -eq 0 ]; then
+#   echo "Admin user already exists."
+# elif [ $NODE_EXIT_CODE -eq 1 ]; then
+#   echo "Admin user was successfully created."
+# elif [ $NODE_EXIT_CODE -eq 2 ]; then
+#   echo "An error occurred while creating the admin user."
+# fi
 echo "Setup completed successfully."
