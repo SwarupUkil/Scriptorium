@@ -2,27 +2,30 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import Editor from "@monaco-editor/react";
 import { executeCode } from "@/services/ExecuteService";
 import { createTemplate } from "@/services/TemplateService";
 import { useAuth } from "@/contexts/AuthContext";
 import { ExecuteRequest } from "@/types/ExecuteType";
 import { Template } from "@/types/TemplateType";
-import TagInput from "@/components/TagInput";
-import {tokenMiddleware} from "@/services/TokenMiddleware";
+import { tokenMiddleware } from "@/services/TokenMiddleware";
 import toast from "react-hot-toast";
 
+import CodeForm from "@/components/Code/CodeForm";
+import CodeEditor from "@/components/Code/CodeEditor";
+import CodeOutput from "@/components/Code/CodeOutput";
+import CodeButtons from "@/components/Code/CodeButtons";
+
 const languageOptions = [
-  { label: 'Python', value: 'python' },
-  { label: 'JavaScript', value: 'javascript' },
-  { label: 'C', value: 'c' },
-  { label: 'C++', value: 'cpp' },
-  { label: 'Swift', value: 'swift' },
-  { label: 'Java', value: 'java' },
-  { label: 'Rust', value: 'rust' },
-  { label: 'Go', value: 'go' },
-  { label: 'PHP', value: 'php' },
-  { label: 'Ruby', value: 'ruby' },
+  { label: "Python", value: "python" },
+  { label: "JavaScript", value: "javascript" },
+  { label: "C", value: "c" },
+  { label: "C++", value: "cpp" },
+  { label: "Swift", value: "swift" },
+  { label: "Java", value: "java" },
+  { label: "Rust", value: "rust" },
+  { label: "Go", value: "go" },
+  { label: "PHP", value: "php" },
+  { label: "Ruby", value: "ruby" },
 ];
 
 const privacyOptions = [
@@ -62,7 +65,7 @@ const CodePage: React.FC = () => {
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
       console.log(err);
-      setError(err.message || 'An unexpected error occurred.');
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -107,182 +110,40 @@ const CodePage: React.FC = () => {
           </h1>
 
           {/* Form Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div>
-              {/* Title */}
-              <div className="mb-4">
-                <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Template Title
-                </label>
-                <input
-                    type="text"
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Enter a title for your template"
-                />
-              </div>
+          <CodeForm
+              title={title}
+              setTitle={setTitle}
+              language={language}
+              setLanguage={setLanguage}
+              privacy={privacy}
+              setPrivacy={setPrivacy}
+              explanation={explanation}
+              setExplanation={setExplanation}
+              tags={tags}
+              setTags={setTags}
+              languageOptions={languageOptions}
+              privacyOptions={privacyOptions}
+          />
 
-              {/* Language */}
-              <div className="mb-4">
-                <label
-                    htmlFor="language"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Select Language
-                </label>
-                <select
-                    id="language"
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  {languageOptions.map((lang) => (
-                      <option key={lang.value} value={lang.value}>
-                        {lang.label}
-                      </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Privacy */}
-              <div className="mb-4">
-                <label
-                    htmlFor="privacy"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Privacy
-                </label>
-                <select
-                    id="privacy"
-                    value={privacy}
-                    onChange={(e) => setPrivacy(e.target.value as "PUBLIC" | "PRIVATE")}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  {privacyOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div>
-              {/* Explanation */}
-              <div className="mb-4">
-                <label
-                    htmlFor="explanation"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Explanation
-                </label>
-                <textarea
-                    id="explanation"
-                    value={explanation}
-                    onChange={(e) => setExplanation(e.target.value)}
-                    rows={5}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Describe what this template does..."
-                ></textarea>
-              </div>
-
-              {/* Tags */}
-              <div>
-                <label
-                    htmlFor="tags"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Tags
-                </label>
-                <TagInput
-                    value={tags.join(",")}
-                    onChange={(newTags) => setTags(newTags)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Code Editor */}
-          <div className="mb-4">
-            <label
-                htmlFor="code"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Your Code
-            </label>
-            <Editor
-                height="300px"
-                language={language}
-                value={code}
-                onChange={(value) => setCode(value || "")}
-                theme="vs-dark"
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  automaticLayout: true,
-                }}
-                className="border border-gray-300 rounded-md dark:border-gray-600"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="stdin" className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
-              Standard Input (stdin)
-            </label>
-            <textarea
-              id="stdin"
-              value={stdin}
-              onChange={(e) => setStdin(e.target.value)}
-              rows={3}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-              placeholder="Provide input for your program..."
-            ></textarea>
-          </div>
+          {/* Code Editor Section */}
+          <CodeEditor
+              language={language}
+              setLanguage={setLanguage}
+              code={code}
+              setCode={setCode}
+              stdin={stdin}
+              setStdin={setStdin}
+          />
 
           {/* Buttons */}
-          <div className="flex justify-between mt-4">
-            <button
-                onClick={handleExecute}
-                disabled={loading}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none disabled:opacity-50"
-            >
-              {loading ? "Executing..." : "Execute"}
-            </button>
+          <CodeButtons
+              handleExecute={handleExecute}
+              handleSave={handleSave}
+              loading={loading}
+          />
 
-            <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none"
-            >
-              Save Template
-            </button>
-          </div>
-
-          {/* Output */}
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-2">Output</h2>
-            <div className="bg-gray-800 text-white p-4 rounded-md overflow-y-auto max-h-64">
-              <pre className="whitespace-pre-wrap">
-                  {output || "No output yet."}
-              </pre>
-            </div>
-          </div>
-
-          {/* Error */}
-          {error && (
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
-                <pre className="bg-red-800 text-white p-4 rounded-md overflow-auto">
-              {error}
-            </pre>
-              </div>
-          )}
+          {/* Output and Error */}
+          <CodeOutput output={output} error={error} />
         </div>
       </div>
   );
