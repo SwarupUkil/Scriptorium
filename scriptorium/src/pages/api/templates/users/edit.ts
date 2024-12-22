@@ -52,6 +52,10 @@ async function handler(
             const { title, explanation, tags, code, language, privacy } = req.body;
 
             // Validate inputs
+            if (!title || !language) {
+                return res.status(400).json({ message: "Missing title or language" });
+            }
+
             if (title && title.length > MAX_TITLE) {
                 return res.status(400).json({ message: "Title is too large" });
             }
