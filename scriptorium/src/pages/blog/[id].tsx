@@ -167,13 +167,13 @@ export default function BlogPost() {
                     ) : (
                         <>
                             <CommentList comments={comments} onReply={(commentId) => console.log(`Replying to ${commentId}`)} />
-                            {pagination.skip + pagination.take < pagination.total && (
+                            {pagination.skip < pagination.total && (
                                 <div className="flex justify-center mt-4">
                                     <button
                                         onClick={() => fetchComments(true)}
                                         className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
                                     >
-                                        Show More Comments
+                                        Show More Replies
                                     </button>
                                 </div>
                             )}
