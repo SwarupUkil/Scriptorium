@@ -3,61 +3,68 @@ import TagInput from "@/components/TagInput";
 
 interface CodeFormProps {
     title: string;
-    onTitleChange: (value: string) => void;
+    setTitle: (value: string) => void;
     language: string;
-    onLanguageChange: (value: string) => void;
-    explanation: string;
-    onExplanationChange: (value: string) => void;
-    tags: string[];
-    onTagsChange: (value: string[]) => void;
+    setLanguage: (value: string) => void;
     privacy: "PUBLIC" | "PRIVATE";
-    onPrivacyChange: (value: "PUBLIC" | "PRIVATE") => void;
+    setPrivacy: (value: "PUBLIC" | "PRIVATE") => void;
+    explanation: string;
+    setExplanation: (value: string) => void;
+    tags: string[];
+    setTags: (tags: string[]) => void;
     languageOptions: { label: string; value: string }[];
-    privacyOptions: { label: string; value: "PUBLIC" | "PRIVATE" }[];
-    isOwner?: boolean;
+    privacyOptions: { label: string; value: string }[];
 }
 
 const CodeForm: React.FC<CodeFormProps> = ({
-                                               title,
-                                               onTitleChange,
-                                               language,
-                                               onLanguageChange,
-                                               explanation,
-                                               onExplanationChange,
-                                               tags,
-                                               onTagsChange,
-                                               privacy,
-                                               onPrivacyChange,
-                                               languageOptions,
-                                               privacyOptions,
-                                               isOwner = true,
-                                           }) => {
+   title,
+   setTitle,
+   language,
+   setLanguage,
+   privacy,
+   setPrivacy,
+   explanation,
+   setExplanation,
+   tags,
+   setTags,
+   languageOptions,
+   privacyOptions,
+}) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Title */}
+            {/* Left Column */}
             <div>
+                {/* Title */}
                 <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                        htmlFor="title"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                         Template Title
                     </label>
                     <input
                         type="text"
+                        id="title"
                         value={title}
-                        onChange={(e) => onTitleChange(e.target.value)}
-                        className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Enter a title for your template"
                     />
                 </div>
 
                 {/* Language */}
                 <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Language
+                    <label
+                        htmlFor="language"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        Select Language
                     </label>
                     <select
+                        id="language"
                         value={language}
-                        onChange={(e) => onLanguageChange(e.target.value)}
-                        className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         {languageOptions.map((lang) => (
                             <option key={lang.value} value={lang.value}>
@@ -69,14 +76,19 @@ const CodeForm: React.FC<CodeFormProps> = ({
 
                 {/* Privacy */}
                 <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                        htmlFor="privacy"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                         Privacy
                     </label>
                     <select
+                        id="privacy"
                         value={privacy}
-                        onChange={(e) => onPrivacyChange(e.target.value as "PUBLIC" | "PRIVATE")}
-                        className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
-                        disabled={!isOwner}
+                        onChange={(e) =>
+                            setPrivacy(e.target.value as "PUBLIC" | "PRIVATE")
+                        }
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         {privacyOptions.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -87,21 +99,39 @@ const CodeForm: React.FC<CodeFormProps> = ({
                 </div>
             </div>
 
-            {/* Explanation & Tags */}
+            {/* Right Column */}
             <div>
+                {/* Explanation */}
                 <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                        htmlFor="explanation"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                         Explanation
                     </label>
                     <textarea
+                        id="explanation"
                         value={explanation}
-                        onChange={(e) => onExplanationChange(e.target.value)}
+                        onChange={(e) => setExplanation(e.target.value)}
                         rows={5}
-                        className="w-full p-2 border rounded-md dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Describe what this template does..."
+                    ></textarea>
+                </div>
+
+                {/* Tags */}
+                <div>
+                    <label
+                        htmlFor="tags"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        Tags
+                    </label>
+                    <TagInput
+                        value={tags.join(",")}
+                        onChange={(newTags) => setTags(newTags)}
                     />
                 </div>
-                <TagInput value={tags.join(",")} onChange={onTagsChange} />
             </div>
         </div>
     );

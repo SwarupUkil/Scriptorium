@@ -5,12 +5,12 @@ import {ErrorResponse} from "@/types/UserTypes";
 import {PaginationAPIResponse} from "@/types/PaginationType";
 
 export const searchTemplates = async ({
-                                      skip,
-                                      take,
-                                      title,
-                                      content,
-                                      tags,
-                                  }: SearchTemplatesParams): Promise<Template[]> => {
+    skip,
+    take,
+    title,
+    content,
+    tags,
+}: SearchTemplatesParams): Promise<[Template[], any]> => {
 
     const url = '/api/templates' + constructQueryParams({
         skip,
@@ -114,7 +114,7 @@ export const createTemplate = async ({
     explanation,
     tags,
     privacy
-                                 }: Template): Promise<Template | Error> => {
+}: Template): Promise<Template | Error> => {
     const url = '/api/templates/users/create';
     const accessToken = localStorage.getItem("accessToken"); // Retrieve auth token from local storage
     const parsedTags = parseTagsToCSV(tags as string[] || []);

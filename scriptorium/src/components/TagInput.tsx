@@ -16,17 +16,17 @@ interface TagInputProps {
 }
 
 const TagInput: React.FC<TagInputProps> = ({
-                                               value = "",
-                                               onChange,
-                                               label,
-                                               required = false,
-                                               error,
-                                               containerClassName = "",
-                                               tagClassName = "",
-                                               inputClassName = "",
-                                               labelClassName = "",
-                                               placeholder = "Type and press Enter/Space",
-                                           }) => {
+   value = "",
+   onChange,
+   label,
+   required = false,
+   error,
+   containerClassName = "",
+   tagClassName = "",
+   inputClassName = "",
+   labelClassName = "",
+   placeholder = "Type and press Enter/Space",
+}) => {
     const [tags, setTags] = useState<string[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isModalOpen, setModalOpen] = useState(false); // Modal state
@@ -70,9 +70,10 @@ const TagInput: React.FC<TagInputProps> = ({
             )}
 
             {/* Tag Input Container */}
-            <div className="relative mt-1">
+            <div className="relative mt-1 bg-white">
                 <div
-                    className="flex items-center gap-2 rounded-md border px-3 py-2  sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+                    className="flex items-center gap-2 rounded-md border px-3 py-2  sm:text-sm dark:bg-gray-800
+                    dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"
                 >
                     <div className="flex flex-wrap items-center gap-2 flex-grow">
                         {tags.map((tag) => (

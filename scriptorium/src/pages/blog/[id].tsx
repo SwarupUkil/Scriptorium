@@ -141,7 +141,8 @@ export default function BlogPost() {
                                     <Link
                                         key={templateId}
                                         href={`/coding/${templateId}`}
-                                        className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-300 text-xs hover:bg-indigo-500 dark:hover:bg-indigo-500 hover:text-white dark:hover:text-white transition"
+                                        className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-300 text-xs
+                                        hover:bg-indigo-500 dark:hover:bg-indigo-500 hover:text-white dark:hover:text-white transition"
                                     >
                                         {templateId}
                                     </Link>
@@ -166,13 +167,13 @@ export default function BlogPost() {
                     ) : (
                         <>
                             <CommentList comments={comments} onReply={(commentId) => console.log(`Replying to ${commentId}`)} />
-                            {pagination.skip + pagination.take < pagination.total && (
+                            {pagination.skip < pagination.total && (
                                 <div className="flex justify-center mt-4">
                                     <button
                                         onClick={() => fetchComments(true)}
                                         className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
                                     >
-                                        Show More Comments
+                                        Show More Replies
                                     </button>
                                 </div>
                             )}

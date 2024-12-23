@@ -31,7 +31,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 
             setLoadingReplies((prev) => ({ ...prev, [commentId]: true }));
             try {
                 const response = await getReplies({ id: commentId, skip: 0, take: 5 });
-                const [replies, paginate] = response || [[], { skip: 0, take: 5, total: 0 }];
+                const [replies, paginate] = response || [[], { skip: 0, prevSkip: 0, take: 5, total: 0 }];
                 setLoadedReplies((prev) => ({ ...prev, [commentId]: replies }));
                 setPagination((prev) => ({
                     ...prev,
@@ -52,13 +52,16 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 
         const { skip, take, total } = currentPagination;
 
         // Prevent loading more if already at the end
-        if (skip + take >= total) return;
+        if (skip >= total) {
+            setVisibleReplies((prev) => ({ ...prev, [commentId]: false }));
+            return;
+        }
 
         setLoadingReplies((prev) => ({ ...prev, [commentId]: true }));
 
         try {
-            const response = await getReplies({ id: commentId, skip: skip + take, take });
-            const [newReplies, paginate] = response || [[], { skip: skip + take, take, total }];
+            const response = await getReplies({ id: commentId, skip: skip, take: take });
+            const [newReplies, paginate] = response || [[], { skip: skip, prevSkip: skip, take: 5, total: 0 }];
             setLoadedReplies((prev) => ({
                 ...prev,
                 [commentId]: [...(prev[commentId] || []), ...newReplies],
@@ -114,10 +117,8 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply, depth = 0 
                     )}
 
                     {/* Show More Replies */}
-                    {visibleReplies[comment.postId] &&
-                        pagination[comment.postId] &&
-                        pagination[comment.postId].skip + pagination[comment.postId].take <
-                        pagination[comment.postId].total && (
+                    {   pagination[comment.postId] &&
+                        pagination[comment.postId].skip < pagination[comment.postId].total && (
                             <div className={"flex justify-center"}>
                                 <button
                                     onClick={() => loadMoreReplies(comment.postId)}

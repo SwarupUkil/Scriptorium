@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from "react";
 import Input from "./Input";
 import TagInput from "./TagInput";
+import TemplateSelect from "@/components/Code/TemplateSelect";
 import { SearchBarProps, SearchParams } from "@/types/SearchType";
 import { calcTotalPages } from "@/utils/frontend-helper/paginationHelper";
 import { parseTagsToCSV } from "@/utils/frontend-helper/apiHelper";
 import { ORDER } from "@/utils/validateConstants";
+import {MultiValue, SingleValue} from "react-select";
+
+interface TemplateOption {
+    value: number;
+    label: string;
+}
 
 const SearchBar: React.FC<SearchBarProps> = ({
-                                                 onApiCall,
-                                                 setData,
-                                                 pagination,
-                                                 setPagination,
-                                                 isBlog,
-                                             }) => {
+    onApiCall,
+    setData,
+    pagination,
+    setPagination,
+    isBlog,
+}) => {
     const [title, setTitle] = useState<string>("");
     const [content, setContent] = useState<string>("");
     const [tags, setTags] = useState<string[]>([]);
     const [templateTitle, setTemplateTitle] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<string>(ORDER.DESC); // Default to 'most rated'
+    const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption | null>(null);
 
     const handleTagsChange = (newTags: string[]) => {
         setTags(newTags);
@@ -78,6 +86,26 @@ const SearchBar: React.FC<SearchBarProps> = ({
         func();
     }, [pagination.currentPage]);
 
+    // 1) Single-select: We'll receive a SingleValue<TemplateOption> or null from TemplateSelect.
+    // 2) We'll set 'selectedTemplate' state for the UI.
+    // 3) We'll set 'templateTitle' so your backend sees the updated string in handleSearch().
+    const handleTemplateChange = (
+        newValue: SingleValue<TemplateOption> | MultiValue<TemplateOption>
+    ) => {
+        if (newValue as SingleValue<TemplateOption> && newValue !== null) {
+            setSelectedTemplate(newValue as SingleValue<TemplateOption>);
+            // We set 'templateTitle' to the label, or you could store something else if the backend expects partial titles
+            if ("label" in newValue) {
+                // Extract the title part from the label
+                const actualTitle = newValue.label.replace(/^Id-\d+: /, ""); // Remove "Id-<id number>: "
+                setTemplateTitle(actualTitle);
+            }
+        } else {
+            setSelectedTemplate(null);
+            setTemplateTitle("");
+        }
+    };
+
     return (
         <div className="bg-white dark:bg-gray-900 p-4 rounded-md shadow-md">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -112,15 +140,30 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     inputClassName="text-gray-700 dark:text-gray-200"
                 />
 
-                {/* Template Title Input */}
+                {/*/!* Template Title Input *!/*/}
+                {/*{isBlog && (*/}
+                {/*    <Input*/}
+                {/*        id="search-templateTitles"*/}
+                {/*        type="text"*/}
+                {/*        value={templateTitle}*/}
+                {/*        onChange={(e) => setTemplateTitle(e.target.value)}*/}
+                {/*        placeholder="Search by template title"*/}
+                {/*        label="Template Title"*/}
+                {/*        className="w-full"*/}
+                {/*    />*/}
+                {/*)}*/}
+
+                {/*
+                  1) Remove the old Input for templateTitle
+                  2) Add TemplateSelect for single-select
+                */}
                 {isBlog && (
-                    <Input
-                        id="search-templateTitles"
-                        type="text"
-                        value={templateTitle}
-                        onChange={(e) => setTemplateTitle(e.target.value)}
-                        placeholder="Search by template title"
+                    <TemplateSelect
                         label="Template Title"
+                        placeholder="Type to search by template title..."
+                        isMulti={false}
+                        value={selectedTemplate}
+                        onChange={handleTemplateChange}
                         className="w-full"
                     />
                 )}

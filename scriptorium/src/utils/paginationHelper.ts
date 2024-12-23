@@ -58,7 +58,7 @@ export function paginationResponse<T>(
     isEmpty: boolean;
     pagination: {
         total: number;
-        skip: number | null;
+        skip: number;
         prevSkip: number;
         take: number;
     };
@@ -77,8 +77,8 @@ export function paginationResponse<T>(
         };
     }
 
-    // No next page if we've fetched all items.
-    const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : null;
+    // No, next page if we've fetched all items.
+    const nextSkip = paginate.skip + paginate.take < total ? paginate.skip + paginate.take : total;
 
     return {
         data: data, // Array of objects (e.g., comments or posts)

@@ -31,7 +31,8 @@ echo "All Docker images have been built successfully."
 
 echo "Creating database"
 
-node databaseGeneration.ts
+npm install -g ts-node
+ts-node databaseGeneration.ts
 # NODE_EXIT_CODE=$?
 
 # if [ $NODE_EXIT_CODE -eq 0 ]; then
