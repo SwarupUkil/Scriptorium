@@ -147,7 +147,8 @@ const InteractionBar: React.FC<InteractionBarProps> = ({ parentId, initialRating
                     <div className="mt-4 flex justify-end space-x-2">
                         <button
                             onClick={() => setIsModalOpen(false)}
-                            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400
+                            dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
                         >
                             Cancel
                         </button>
@@ -155,7 +156,7 @@ const InteractionBar: React.FC<InteractionBarProps> = ({ parentId, initialRating
                             onClick={handleReportSubmit}
                             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                         >
-                            Submit Report
+                        Submit Report
                         </button>
                     </div>
                 </Modal>
