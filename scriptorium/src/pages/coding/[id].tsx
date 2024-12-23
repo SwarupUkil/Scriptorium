@@ -48,7 +48,6 @@ const EditOrForkTemplate: React.FC = () => {
     const [output, setOutput] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [executing, setExecuting] = useState<boolean>(false);
-    const [forkedFrom, setForkedFrom] = useState<number | null>(null);
 
     const templateId = parseInt(router.query.id as string);
 

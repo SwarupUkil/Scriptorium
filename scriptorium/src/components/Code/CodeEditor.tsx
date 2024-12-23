@@ -3,7 +3,7 @@ import Editor from "@monaco-editor/react";
 
 interface CodeEditorProps {
     language: string;
-    setLanguage: (value: string) => void;
+    setLanguage?: (value: string) => void;
     code: string;
     setCode: (value: string) => void;
     stdin: string;
@@ -12,7 +12,6 @@ interface CodeEditorProps {
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
     language,
-    setLanguage,
     code,
     setCode,
     stdin,
