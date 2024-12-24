@@ -50,6 +50,11 @@ export const REPORT = {
     RESOLVED: "RESOLVED",
 }
 
+export const THEME = {
+    LIGHT: "LIGHT",
+    DARK: "DARK",
+}
+
 export const SUPPORTED_LANGUAGES = {
     JAVASCRIPT: ["javascript", "js", "java script", "nodejs"],
     PYTHON: ["python", "py"],

@@ -1,6 +1,7 @@
 import { prisma } from "@/utils/db";
 import { verifyTokenMiddleware } from "@/utils/auth";
 import { UserProfile, ErrorResponse } from "@/types/UserTypes";
+import {THEME} from "@/utils/validateConstants";
 
 async function handler(req: any, res: any): Promise<void> {
   if (req.method === "PUT") {
@@ -16,7 +17,11 @@ async function handler(req: any, res: any): Promise<void> {
         return res.status(400).json({ error: "Username not found." } as ErrorResponse);
       }
 
-      const updatedProfile = await prisma.user.update({
+      if (theme && !Object.values(THEME).includes(theme)) {
+        return res.status(400).json({ error: "Invalid theme value." } as ErrorResponse);
+      }
+
+      await prisma.user.update({
         where: { username: req.user.username },
         data: {
           theme,
@@ -25,7 +30,6 @@ async function handler(req: any, res: any): Promise<void> {
           theme: true,
         },
       });
-
       return res.status(200).json({ message: "success"});
     } catch (error: any) {
       return res.status(500).json({ error: "Internal server error updating the user theme", details: error.message } as ErrorResponse);

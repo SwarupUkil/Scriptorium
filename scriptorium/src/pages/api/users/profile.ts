@@ -1,6 +1,7 @@
 import { prisma } from "@/utils/db";
 import { verifyTokenMiddleware } from "@/utils/auth";
 import { UserProfile, UpdateProfileResponse, ErrorResponse } from "@/types/UserTypes";
+import {THEME} from "@/utils/validateConstants";
 
 const profileImages: string[] = JSON.parse(process.env.PROFILE_IMAGES || "[]");
 
@@ -45,6 +46,10 @@ async function handler(req: any, res: any): Promise<void> {
 
       if (pfpURL && !profileImages.includes(pfpURL)) {
         return res.status(400).json({ error: "Profile image doesn't exist." } as ErrorResponse);
+      }
+
+      if (theme && !Object.values(THEME).includes(theme)) {
+        return res.status(400).json({ error: "Invalid theme value." } as ErrorResponse);
       }
 
       const updatedProfile = await prisma.user.update({
