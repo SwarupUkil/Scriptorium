@@ -70,7 +70,7 @@ const TagInput: React.FC<TagInputProps> = ({
             )}
 
             {/* Tag Input Container */}
-            <div className="relative mt-1 bg-white">
+            <div className="relative mt-1 bg-white dark:bg-transparent">
                 <div
                     className="flex items-center gap-2 rounded-md border px-3 py-2  sm:text-sm dark:bg-gray-800
                     dark:border-gray-600 dark:text-gray-200 border-gray-300 focus-within:ring-indigo-500 focus-within:border-indigo-500"

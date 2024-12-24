@@ -74,7 +74,7 @@ const SignupPage = () => {
   const profilePictureOptions = ['Option1.png', 'Option2.png', 'Option3.png', 'Option4.png', 'Option5.png'];
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 dark:bg-gray-900 dark:text-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 dark:bg-gray-900 dark:text-gray-100 my-5">
       <form onSubmit={handleSubmit} className="w-full max-w-2xl p-8 space-y-6 bg-white shadow-md rounded-lg md:max-w-lg lg:max-w-xl dark:bg-gray-700">
         <h2 className="text-2xl font-bold text-center text-gray-700 dark:text-gray-300">Sign Up</h2>
 

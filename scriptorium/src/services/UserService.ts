@@ -159,13 +159,7 @@ export async function updateUserTheme(themeValue: 'LIGHT' | 'DARK', setTheme: (t
       },
       body: JSON.stringify({theme: themeValue}),
     });
-
-    const data: {message: string} | ErrorResponse = await response.json();
-
-    if (!response.ok) {
-      throw new Error((data as ErrorResponse).error || 'Failed to update theme');
-    }
-    
+    await response.json();
     setTheme(themeValue);
 
     return response.ok;
