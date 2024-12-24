@@ -6,7 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const Navbar: React.FC = () => {
   const { isLoggedIn, role, profileURL, logout } = useAuth();
-  const { setTheme } = useTheme();
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   const profileImage = `/${profileURL}`;
@@ -44,6 +44,31 @@ const Navbar: React.FC = () => {
           </li>
           {isLoggedIn ? (
             <li className="relative">
+              {/* Theme Toggle Button */}
+              <div
+                onClick={toggleTheme}
+                className="relative w-12 h-6 bg-gray-600 rounded-full cursor-pointer flex items-center p-1 transition-colors duration-300"
+              >
+                <div
+                  className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                    theme === "DARK" ? "translate-x-6" : "translate-x-0"
+                  }`}
+                ></div>
+                <span
+                  className={`absolute left-1 text-xs text-gray-200 transition-opacity duration-300 ${
+                    theme === "DARK" ? "opacity-0" : "opacity-100"
+                  }`}
+                >
+                  ☀️
+                </span>
+                <span
+                  className={`absolute right-1 text-xs text-gray-200 transition-opacity duration-300 ${
+                    theme === "DARK" ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  🌙
+                </span>
+              </div>
               {/* Profile Image */}
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}

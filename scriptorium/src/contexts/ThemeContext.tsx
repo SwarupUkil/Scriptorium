@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { updateUserTheme } from '@/services/UserService';
 
 type Theme = 'LIGHT' | 'DARK';
 
@@ -45,9 +46,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = async () => {
     const newTheme = theme === 'LIGHT' ? 'DARK' : 'LIGHT';
-    setTheme(newTheme);
+    await updateUserTheme(newTheme, setTheme);
 
     document.documentElement.classList.toggle('dark', newTheme === 'DARK');
   };

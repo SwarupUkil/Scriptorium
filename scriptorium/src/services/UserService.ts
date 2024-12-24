@@ -149,6 +149,32 @@ export async function updateUserProfile(profileData: UserProfile, setTheme: (the
   }
 }
 
+export async function updateUserTheme(themeValue: 'LIGHT' | 'DARK', setTheme: (theme: "LIGHT" | "DARK") => void): Promise<boolean> {
+  try {
+    const response = await fetch("/api/users/theme", {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+      body: JSON.stringify({theme: themeValue}),
+    });
+
+    const data: {message: string} | ErrorResponse = await response.json();
+
+    if (!response.ok) {
+      throw new Error((data as ErrorResponse).error || 'Failed to update theme');
+    }
+    
+    setTheme(themeValue);
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw error;
+  }
+}
+
 export async function accountVerification(accessToken: string, refreshToken: string, logout: () => void): Promise<AccountVerificationResponse | null> {
   try {
     const response = await fetch('/api/users/verification', {
